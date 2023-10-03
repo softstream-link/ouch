@@ -1,0 +1,37 @@
+[package]
+name = "ouch_model"
+version.workspace = true
+authors.workspace = true
+readme.workspace = true
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+description = "Data model bindings for ouch exchange protocol"
+
+[dependencies]
+byteserde = { workspace = true }
+byteserde_derive = { workspace = true }
+byteserde_types = { workspace = true }
+derive_more = { workspace = true }
+
+chrono = { workspace = true }
+
+soupbintcp_model = { workspace = true }
+
+
+# [dev-dependencies]
+log = { workspace = true, optional = true }
+env_logger = { workspace = true, optional = true }
+colored = { workspace = true, optional = true }
+
+[features]
+# default = ["full"]                                            # TODO remember to leave this blank during release
+default = []                                            # TODO remember to leave this blank during release
+full = ["unittest"]
+unittest = ["dep:log", "dep:env_logger", "dep:colored"]
