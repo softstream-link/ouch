@@ -1,7 +1,8 @@
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 use derive_more::TryInto;
 use soupbintcp_model::prelude::{
-    SBCltMsg, SBMsg, SBSvcMsg, MAX_FRAME_SIZE_SOUPBIN_EXC_PAYLOAD_DEBUG,
+    CltSoupBinTcpMsg, SoupBinTcpMsg, SoupBinTcpPayload, SvcSoupBinTcpMsg,
+    SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG,
 };
 
 use crate::prelude::*;
@@ -12,7 +13,7 @@ use super::svc::order_aiq_canceled::OrderAiqCanceled;
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug, TryInto)]
 #[try_into(owned, ref, ref_mut)]
 #[byteserde(peek(0, 1))]
-pub enum OuchCltPld {
+pub enum CltOuchPayload {
     #[byteserde(eq(PacketTypeEnterOrder::as_slice()))]
     Enter(EnterOrder),
     #[byteserde(eq(PacketTypeReplaceOrder::as_slice()))]
@@ -24,20 +25,21 @@ pub enum OuchCltPld {
     #[byteserde(eq(PacketTypeAccountQueryRequest::as_slice()))]
     AccQry(AccountQueryRequest),
 }
+impl SoupBinTcpPayload<CltOuchPayload> for CltOuchPayload {}
 
-pub const MAX_FRAME_SIZE_OUCH_SVC_PLD: usize = 72; // TODO revise Options fields and remeasure
-pub const MAX_FRAME_SIZE_OUCH_SVC_MSG: usize =
-    MAX_FRAME_SIZE_OUCH_SVC_PLD + MAX_FRAME_SIZE_SOUPBIN_EXC_PAYLOAD_DEBUG;
+pub const SVC_OUCH_MAX_PLD_SIZE: usize = 72; // TODO revise Options fields and remeasure
+pub const SVC_OUCH_MAX_FRAME_SIZE: usize =
+    SVC_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
 
-pub const MAX_FRAME_SIZE_OUCH_CLT_PLD: usize = 51; // TODO revise Options fields and remeasure
-pub const MAX_FRAME_SIZE_OUCH_CLT_MSG: usize =
-    MAX_FRAME_SIZE_OUCH_CLT_PLD + MAX_FRAME_SIZE_SOUPBIN_EXC_PAYLOAD_DEBUG;
+pub const CLT_OUCH_MAX_PLD_SIZE: usize = 51; // TODO revise Options fields and remeasure
+pub const CLT_OUCH_MAX_FRAME_SIZE: usize =
+    CLT_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
 /// Both [ReplaceOrder] & [OrderReplaced] are serialized as b'U' hence it is impossible to distinguish deserialization type unless they are in two different enums.
 #[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug, TryInto)]
 #[try_into(owned, ref, ref_mut)]
 #[byteserde(peek(0, 1))]
-pub enum OuchSvcPld {
+pub enum SvcOuchPayload {
     #[byteserde(eq(PacketTypeOrderAccepted::as_slice()))]
     Accepted(OrderAccepted),
     #[byteserde(eq(PacketTypeOrderExecuted::as_slice()))]
@@ -70,70 +72,72 @@ pub enum OuchSvcPld {
     SysEvt(SystemEvent),
 }
 
-pub type OuchCltMsg = SBCltMsg<OuchCltPld>;
-pub type OuchSvcMsg = SBSvcMsg<OuchSvcPld>;
+impl SoupBinTcpPayload<SvcOuchPayload> for SvcOuchPayload {}
 
-pub type OuchMsg = SBMsg<OuchCltPld, OuchSvcPld>;
+pub type CltOuchMsg = CltSoupBinTcpMsg<CltOuchPayload>;
+pub type SvcOuchMsg = SvcSoupBinTcpMsg<SvcOuchPayload>;
+
+pub type OuchMsg = SoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
 
 pub use from_clt_pld::*;
 mod from_clt_pld {
     use super::*;
-    impl From<EnterOrder> for OuchCltMsg {
-        #[inline]
+    impl From<EnterOrder> for CltOuchMsg {
+        #[inline(always)]
         fn from(payload: EnterOrder) -> Self {
-            OuchCltMsg::udata(OuchCltPld::Enter(payload))
+            CltOuchMsg::udata(CltOuchPayload::Enter(payload))
         }
     }
     impl From<EnterOrder> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: EnterOrder) -> Self {
             OuchMsg::Clt(payload.into())
         }
     }
-    impl From<ReplaceOrder> for OuchCltMsg {
-        #[inline]
+    impl From<ReplaceOrder> for CltOuchMsg {
+        #[inline(always)]
         fn from(payload: ReplaceOrder) -> Self {
-            OuchCltMsg::udata(OuchCltPld::Replace(payload))
+            CltOuchMsg::udata(CltOuchPayload::Replace(payload))
         }
     }
     impl From<ReplaceOrder> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: ReplaceOrder) -> Self {
             OuchMsg::Clt(payload.into())
         }
     }
-    impl From<CancelOrder> for OuchCltMsg {
-        #[inline]
+    impl From<CancelOrder> for CltOuchMsg {
+        #[inline(always)]
         fn from(payload: CancelOrder) -> Self {
-            OuchCltMsg::udata(OuchCltPld::Cancel(payload))
+            CltOuchMsg::udata(CltOuchPayload::Cancel(payload))
         }
     }
     impl From<CancelOrder> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: CancelOrder) -> Self {
             OuchMsg::Clt(payload.into())
         }
     }
-    impl From<ModifyOrder> for OuchCltMsg {
-        #[inline]
+    impl From<ModifyOrder> for CltOuchMsg {
+        #[inline(always)]
         fn from(payload: ModifyOrder) -> Self {
-            OuchCltMsg::udata(OuchCltPld::Modify(payload))
+            CltOuchMsg::udata(CltOuchPayload::Modify(payload))
         }
     }
     impl From<ModifyOrder> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: ModifyOrder) -> Self {
             OuchMsg::Clt(payload.into())
         }
     }
-    impl From<AccountQueryRequest> for OuchCltMsg {
-        #[inline]
+    impl From<AccountQueryRequest> for CltOuchMsg {
+        #[inline(always)]
         fn from(payload: AccountQueryRequest) -> Self {
-            OuchCltMsg::udata(OuchCltPld::AccQry(payload))
+            CltOuchMsg::udata(CltOuchPayload::AccQry(payload))
         }
     }
     impl From<AccountQueryRequest> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: AccountQueryRequest) -> Self {
             OuchMsg::Clt(payload.into())
         }
@@ -143,170 +147,170 @@ mod from_clt_pld {
 pub use from_svc_pld::*;
 mod from_svc_pld {
     use super::*;
-    impl From<OrderAccepted> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderAccepted> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderAccepted) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Accepted(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Accepted(payload))
         }
     }
     impl From<OrderAccepted> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderAccepted) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderExecuted> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderExecuted> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderExecuted) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Executed(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Executed(payload))
         }
     }
     impl From<OrderExecuted> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderExecuted) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderReplaced> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderReplaced> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderReplaced) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Replaced(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Replaced(payload))
         }
     }
     impl From<OrderReplaced> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderReplaced) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderCanceled> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderCanceled> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderCanceled) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Canceled(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Canceled(payload))
         }
     }
     impl From<OrderCanceled> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderCanceled) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderRejected> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderRejected> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderRejected) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Rejected(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Rejected(payload))
         }
     }
     impl From<OrderRejected> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderRejected) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderModified> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderModified> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderModified) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Modified(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Modified(payload))
         }
     }
     impl From<OrderModified> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderModified) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderRestated> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderRestated> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderRestated) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::Restated(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::Restated(payload))
         }
     }
     impl From<OrderRestated> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderRestated) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<CancelPending> for OuchSvcMsg {
-        #[inline]
+    impl From<CancelPending> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: CancelPending) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::CanPending(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::CanPending(payload))
         }
     }
     impl From<CancelPending> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: CancelPending) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<CancelReject> for OuchSvcMsg {
-        #[inline]
+    impl From<CancelReject> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: CancelReject) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::CanReject(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::CanReject(payload))
         }
     }
     impl From<CancelReject> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: CancelReject) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<OrderAiqCanceled> for OuchSvcMsg {
-        #[inline]
+    impl From<OrderAiqCanceled> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: OrderAiqCanceled) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::AiqCanceled(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::AiqCanceled(payload))
         }
     }
     impl From<OrderAiqCanceled> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: OrderAiqCanceled) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<BrokenTrade> for OuchSvcMsg {
-        #[inline]
+    impl From<BrokenTrade> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: BrokenTrade) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::BrokenTrade(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::BrokenTrade(payload))
         }
     }
     impl From<BrokenTrade> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: BrokenTrade) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<PriorityUpdate> for OuchSvcMsg {
-        #[inline]
+    impl From<PriorityUpdate> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: PriorityUpdate) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::PrioUpdate(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::PrioUpdate(payload))
         }
     }
     impl From<PriorityUpdate> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: PriorityUpdate) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<AccountQueryResponse> for OuchSvcMsg {
-        #[inline]
+    impl From<AccountQueryResponse> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: AccountQueryResponse) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::AccQryRes(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::AccQryRes(payload))
         }
     }
     impl From<AccountQueryResponse> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: AccountQueryResponse) -> Self {
             OuchMsg::Svc(payload.into())
         }
     }
-    impl From<SystemEvent> for OuchSvcMsg {
-        #[inline]
+    impl From<SystemEvent> for SvcOuchMsg {
+        #[inline(always)]
         fn from(payload: SystemEvent) -> Self {
-            OuchSvcMsg::udata(OuchSvcPld::SysEvt(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::SysEvt(payload))
         }
     }
     impl From<SystemEvent> for OuchMsg {
-        #[inline]
+        #[inline(always)]
         fn from(payload: SystemEvent) -> Self {
             OuchMsg::Svc(payload.into())
         }
@@ -314,15 +318,15 @@ mod from_svc_pld {
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
+#[cfg(feature = "unittest")]
 mod test {
 
+    use crate::unittest::setup;
     use crate::{
-        model::ouch::{MAX_FRAME_SIZE_OUCH_CLT_PLD, MAX_FRAME_SIZE_OUCH_SVC_PLD},
+        model::ouch::{CLT_OUCH_MAX_PLD_SIZE, SVC_OUCH_MAX_PLD_SIZE},
         prelude::*,
     };
     use byteserde::prelude::*;
-    use crate::unittest::setup;
     use log::info;
 
     // TODO max message length needed to optimize stack serialization assume 512 bytes for now
@@ -386,12 +390,12 @@ mod test {
         for ouch in msg_inp.iter() {
             match ouch {
                 OuchMsg::Clt(msg_inp_inb) => {
-                    let msg_out_inb = des.deserialize::<OuchCltMsg>().unwrap();
+                    let msg_out_inb = des.deserialize::<CltOuchMsg>().unwrap();
                     info!("msg_out_inb: {:?}", msg_out_inb);
                     assert_eq!(msg_inp_inb, &msg_out_inb);
                 }
                 OuchMsg::Svc(msg_inp_oub) => {
-                    let msg_out_oub = des.deserialize::<OuchSvcMsg>().unwrap();
+                    let msg_out_oub = des.deserialize::<SvcOuchMsg>().unwrap();
                     info!("msg_out_oub: {:?}", msg_out_oub);
                     assert_eq!(msg_inp_oub, &msg_out_oub);
                 }
@@ -421,27 +425,27 @@ mod test {
         let ord_modified = OrderModified::from((&enter_ord, Side::buy()));
         let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display()));
         let inb = vec![
-            OuchCltPld::Enter(enter_ord),
-            OuchCltPld::Replace(replace_ord),
-            OuchCltPld::Cancel(cancel_ord),
-            OuchCltPld::Modify(ModifyOrder::default()),
-            OuchCltPld::AccQry(AccountQueryRequest::default()),
+            CltOuchPayload::Enter(enter_ord),
+            CltOuchPayload::Replace(replace_ord),
+            CltOuchPayload::Cancel(cancel_ord),
+            CltOuchPayload::Modify(ModifyOrder::default()),
+            CltOuchPayload::AccQry(AccountQueryRequest::default()),
         ];
         let oub = vec![
-            OuchSvcPld::SysEvt(SystemEvent::default()),
-            OuchSvcPld::Accepted(ord_accepted),
-            OuchSvcPld::Replaced(ord_replaced),
-            OuchSvcPld::Canceled(ord_canceled),
-            OuchSvcPld::AiqCanceled(ord_aqi_canceled),
-            OuchSvcPld::Executed(ord_executed),
-            OuchSvcPld::BrokenTrade(brkn_trade),
-            OuchSvcPld::Rejected(ord_rejected),
-            OuchSvcPld::CanPending(can_pending),
-            OuchSvcPld::CanReject(can_reject),
-            OuchSvcPld::PrioUpdate(prio_update),
-            OuchSvcPld::Modified(ord_modified),
-            OuchSvcPld::Restated(ord_rstd),
-            OuchSvcPld::AccQryRes(AccountQueryResponse::default()),
+            SvcOuchPayload::SysEvt(SystemEvent::default()),
+            SvcOuchPayload::Accepted(ord_accepted),
+            SvcOuchPayload::Replaced(ord_replaced),
+            SvcOuchPayload::Canceled(ord_canceled),
+            SvcOuchPayload::AiqCanceled(ord_aqi_canceled),
+            SvcOuchPayload::Executed(ord_executed),
+            SvcOuchPayload::BrokenTrade(brkn_trade),
+            SvcOuchPayload::Rejected(ord_rejected),
+            SvcOuchPayload::CanPending(can_pending),
+            SvcOuchPayload::CanReject(can_reject),
+            SvcOuchPayload::PrioUpdate(prio_update),
+            SvcOuchPayload::Modified(ord_modified),
+            SvcOuchPayload::Restated(ord_rstd),
+            SvcOuchPayload::AccQryRes(AccountQueryResponse::default()),
         ];
 
         let inb = inb
@@ -453,7 +457,7 @@ mod test {
         // }
         let max_frame_size_clt = inb.iter().map(|(len, _)| *len).max().unwrap();
         info!("max_frame_size_clt: {}", max_frame_size_clt);
-        assert_eq!(max_frame_size_clt, MAX_FRAME_SIZE_OUCH_CLT_PLD);
+        assert_eq!(max_frame_size_clt, CLT_OUCH_MAX_PLD_SIZE);
 
         let oub = oub
             .into_iter()
@@ -464,6 +468,6 @@ mod test {
         // }
         let max_frame_size_svc = oub.iter().map(|(len, _)| *len).max().unwrap();
         info!("max_frame_size_svc: {}", max_frame_size_svc);
-        assert_eq!(max_frame_size_svc, MAX_FRAME_SIZE_OUCH_SVC_PLD);
+        assert_eq!(max_frame_size_svc, SVC_OUCH_MAX_PLD_SIZE);
     }
 }

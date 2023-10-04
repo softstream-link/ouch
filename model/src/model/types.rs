@@ -15,7 +15,7 @@ pub use order_reference_number::OrderReferenceNumber;
 pub use order_reject_reason::RejectReason;
 pub use order_restated_reason::RestatedReason;
 pub use order_state::OrderState;
-pub use packet_types::*;
+pub use ouch_packet_types::*;
 pub use price::Price;
 pub use qty::*;
 pub use side::Side;
@@ -34,7 +34,7 @@ use byteserde_types::{
 
 // const char ascii
 #[rustfmt::skip]
-pub mod packet_types{
+pub mod ouch_packet_types{
     use super::*;
     // inbound
     const_char_ascii!(PacketTypeEnterOrder, b'O', ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy);

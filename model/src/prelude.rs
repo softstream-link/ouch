@@ -30,20 +30,20 @@ pub use soupbintcp_model::prelude::SPayloadHeader;
 pub use soupbintcp_model::prelude::UPayload;
 pub use soupbintcp_model::prelude::UPayloadHeader;
 // payload for Envelope
-pub use crate::model::ouch::OuchCltPld;
-pub use crate::model::ouch::OuchSvcPld;
+pub use crate::model::ouch::CltOuchPayload;
+pub use crate::model::ouch::SvcOuchPayload;
 
 // message types enums
-pub use crate::model::ouch::OuchCltMsg;
-pub use crate::model::ouch::OuchSvcMsg;
+pub use crate::model::ouch::CltOuchMsg;
+pub use crate::model::ouch::SvcOuchMsg;
 
 pub use crate::model::ouch::OuchMsg;
 
 // message frame size
-pub use crate::model::ouch::MAX_FRAME_SIZE_OUCH_CLT_MSG;
-pub use crate::model::ouch::MAX_FRAME_SIZE_OUCH_CLT_PLD;
-pub use crate::model::ouch::MAX_FRAME_SIZE_OUCH_SVC_MSG;
-pub use crate::model::ouch::MAX_FRAME_SIZE_OUCH_SVC_PLD;
+pub use crate::model::ouch::CLT_OUCH_MAX_FRAME_SIZE;
+pub use crate::model::ouch::CLT_OUCH_MAX_PLD_SIZE;
+pub use crate::model::ouch::SVC_OUCH_MAX_FRAME_SIZE;
+pub use crate::model::ouch::SVC_OUCH_MAX_PLD_SIZE;
 
 
 

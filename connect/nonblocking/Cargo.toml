@@ -1,5 +1,5 @@
 [package]
-name = "ouch_model"
+name = "ouch_connect_nonblocking"
 version.workspace = true
 authors.workspace = true
 readme.workspace = true
@@ -12,22 +12,17 @@ categories.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-description = "Data model bindings for ouch exchange protocol"
-
 [dependencies]
-byteserde = { workspace = true }
-byteserde_derive = { workspace = true }
-byteserde_types = { workspace = true }
-derive_more = { workspace = true }
+ouch_connect_core = { workspace = true }
 
-chrono = { workspace = true }
-
-soupbintcp_model = { workspace = true }
-
-# [dev-dependencies]
 log = { workspace = true, optional = true }
 env_logger = { workspace = true, optional = true }
 colored = { workspace = true, optional = true }
+
+
+[dev-dependencies]
+# includes network related methods for setting up unit tests
+links_core = { workspace = true, features = ["unittest"] }
 
 [features]
 default = []

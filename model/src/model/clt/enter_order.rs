@@ -59,6 +59,7 @@ impl EnterOrder {
 }
 
 impl Default for EnterOrder {
+    #[inline(always)]
     fn default() -> Self {
         let appendages = OptionalAppendage {
             customer_type: Some(TagValueElement::<CustomerType>::new(CustomerType::retail())),

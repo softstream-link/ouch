@@ -1,5 +1,5 @@
 [workspace]
-members = ["model"]
+members = ["model", "connect/core", "connect/nonblocking"]
 
 resolver = "2"
 
@@ -16,6 +16,7 @@ categories = ["API bindings"]
 
 
 [workspace.dependencies]
+# used only by ouch_model
 byteserde = { version = "0.4.0" }
 byteserde_derive = { version = "0.4.0" }
 byteserde_types = { version = "0.4.0" }
@@ -23,7 +24,16 @@ derive_more = { version = "0.99" }       # try_into, etc
 
 chrono = { version = "0.4.26" }
 
-soupbintcp_model = { version = "4.1.0" }
+soupbintcp_model = { version = "4.1", path = "../soupbintcp/model" }
+
+# used only by ouch_connect_core
+soupbintcp_connect_nonblocking = { version = "4.1", path = "../soupbintcp/connect/nonblocking" }
+ouch_model = { path = "./model" }
+
+# used only by ouch_connect_nonblocking
+ouch_connect_core = { path = "./connect/core" }
+# only used in unitests
+links_core = { path = "../links/core" , features = ["unittest"]}
 
 # logging
 log = { version = "0.4" }
