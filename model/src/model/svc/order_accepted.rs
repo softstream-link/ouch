@@ -1,8 +1,112 @@
-use crate::prelude::*;
+use crate::{model::clt::enter_order::EnterOrderAppendage, prelude::*};
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
+// page 10 from https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/Ouch5.0.pdf
+// Firm
+// MinQty
+// CustomerType
+// MaxFloor
+// PriceType
+// PegOffset
+// Discretion
+// DiscretionPrice
+// DiscretionPegType
+// DiscretionPegOffset
+// PostOnly
+// RandomReserves
+// Route
+// ExpireTime
+// TradeNow
+// HandleInst
+// BBO Weight Indicator
+// GroupID
+// SharesLocated
+
+#[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default)]
+#[byteserde(peek(1, 1))] // peek(start, len) -> peek one byte after skipping one
+pub struct OrderAcceptedAppendage {
+    #[byteserde(eq(Firm::tag_as_slice()))]
+    pub firm: Option<TagValueElement<Firm>>,
+
+    #[byteserde(eq(MinQty::tag_as_slice()))]
+    pub min_qty: Option<TagValueElement<MinQty>>,
+
+    #[byteserde(eq(CustomerType::tag_as_slice()))]
+    pub customer_type: Option<TagValueElement<CustomerType>>,
+
+    #[byteserde(eq(MaxFloor::tag_as_slice()))]
+    pub max_floor: Option<TagValueElement<MaxFloor>>,
+
+    #[byteserde(eq(PriceType::tag_as_slice()))]
+    pub price_type: Option<TagValueElement<PriceType>>,
+
+    #[byteserde(eq(PegOffset::tag_as_slice()))]
+    pub peg_offset: Option<TagValueElement<PegOffset>>,
+
+    #[byteserde(eq(DiscretionPrice::tag_as_slice()))]
+    pub discretion_price: Option<TagValueElement<DiscretionPrice>>,
+
+    #[byteserde(eq(DiscretionPriceType::tag_as_slice()))]
+    pub discretion_price_type: Option<TagValueElement<DiscretionPriceType>>,
+
+    #[byteserde(eq(DiscretionPegOffset::tag_as_slice()))]
+    pub discretion_peg_offset: Option<TagValueElement<DiscretionPegOffset>>,
+
+    #[byteserde(eq(PostOnly::tag_as_slice()))]
+    pub post_only: Option<TagValueElement<PostOnly>>,
+
+    #[byteserde(eq(RandomReserves::tag_as_slice()))]
+    pub random_reserves: Option<TagValueElement<RandomReserves>>,
+
+    #[byteserde(eq(Route::tag_as_slice()))]
+    pub route: Option<TagValueElement<Route>>,
+
+    #[byteserde(eq(ExpireTime::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTime>>,
+
+    #[byteserde(eq(TradeNow::tag_as_slice()))]
+    pub trade_now: Option<TagValueElement<TradeNow>>,
+
+    #[byteserde(eq(HandleInst::tag_as_slice()))]
+    pub handle_inst: Option<TagValueElement<HandleInst>>,
+
+    #[byteserde(eq(BBOWeightIndicator::tag_as_slice()))]
+    pub bbo_weight_indicator: Option<TagValueElement<BBOWeightIndicator>>,
+
+    #[byteserde(eq(GroupId::tag_as_slice()))]
+    pub group_id: Option<TagValueElement<GroupId>>,
+
+    #[byteserde(eq(SharesLocated::tag_as_slice()))]
+    pub shares_located: Option<TagValueElement<SharesLocated>>,
+}
+
+impl From<&EnterOrderAppendage> for OrderAcceptedAppendage {
+    #[inline(always)]
+    fn from(value: &EnterOrderAppendage) -> Self {
+        OrderAcceptedAppendage {
+            firm: value.firm,
+            min_qty: value.min_qty,
+            customer_type: value.customer_type,
+            max_floor: value.max_floor,
+            price_type: value.price_type,
+            peg_offset: value.peg_offset,
+            discretion_price: value.discretion_price,
+            discretion_price_type: value.discretion_price_type,
+            discretion_peg_offset: value.discretion_peg_offset,
+            post_only: value.post_only,
+            random_reserves: value.random_reserves,
+            route: value.route,
+            expire_time: value.expire_time,
+            trade_now: value.trade_now,
+            handle_inst: value.handle_inst,
+            bbo_weight_indicator: None,
+            group_id: value.group_id,
+            shares_located: value.shares_located,
+        }
+    }
+}
+
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderAccepted {
@@ -17,7 +121,7 @@ pub struct OrderAccepted {
     pub price: Price,
     pub time_in_force: TimeInForce,
     pub display: Display,
-    
+
     pub order_reference_number: OrderReferenceNumber, // Venue assigned
 
     pub capacity: Capacity,
@@ -30,10 +134,11 @@ pub struct OrderAccepted {
     #[byteserde(replace( appendages.byte_len() ))]
     appendage_length: u16,
     #[byteserde(deplete(appendage_length))]
-    pub appendages: OptionalAppendage,
+    pub appendages: OrderAcceptedAppendage,
 }
 
 impl From<&EnterOrder> for OrderAccepted {
+    #[inline(always)]
     fn from(enter_order: &EnterOrder) -> Self {
         Self {
             packet_type: PacketTypeOrderAccepted::default(),
@@ -58,16 +163,15 @@ impl From<&EnterOrder> for OrderAccepted {
 
             clt_order_id: enter_order.clt_order_id,
             appendage_length: enter_order.appendages.byte_len() as u16,
-            appendages: enter_order.appendages,
+            appendages: (&enter_order.appendages).into(),
         }
     }
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
+    use links_core::unittest::setup;
 
     use log::info;
 

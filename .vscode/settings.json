@@ -1,18 +1,17 @@
 {
-    "rust-analyzer.cargo.features": [
-        "full"
-    ],
     "cSpell.words": [
+        "busywait",
         "byteserde",
-        "rustfmt",
-        "soupbintcp",
-        "unsequenced",
-        "udata",
-        "nextest",
         "clippy",
-        "nonblocking",
         "hbeat",
+        "nbbo",
+        "nextest",
+        "nonblocking",
+        "qbbo",
+        "rustfmt",
         "sdata",
+        "soupbintcp",
         "udata",
+        "unsequenced"
     ],
 }

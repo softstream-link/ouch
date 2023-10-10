@@ -77,7 +77,7 @@ impl SoupBinTcpPayload<SvcOuchPayload> for SvcOuchPayload {}
 pub type CltOuchMsg = CltSoupBinTcpMsg<CltOuchPayload>;
 pub type SvcOuchMsg = SvcSoupBinTcpMsg<SvcOuchPayload>;
 
-pub type OuchMsg = SoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
+pub type UniOuchMsg = SoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
 
 pub use from_clt_pld::*;
 mod from_clt_pld {
@@ -88,10 +88,10 @@ mod from_clt_pld {
             CltOuchMsg::udata(CltOuchPayload::Enter(payload))
         }
     }
-    impl From<EnterOrder> for OuchMsg {
+    impl From<EnterOrder> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: EnterOrder) -> Self {
-            OuchMsg::Clt(payload.into())
+            UniOuchMsg::Clt(payload.into())
         }
     }
     impl From<ReplaceOrder> for CltOuchMsg {
@@ -100,10 +100,10 @@ mod from_clt_pld {
             CltOuchMsg::udata(CltOuchPayload::Replace(payload))
         }
     }
-    impl From<ReplaceOrder> for OuchMsg {
+    impl From<ReplaceOrder> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: ReplaceOrder) -> Self {
-            OuchMsg::Clt(payload.into())
+            UniOuchMsg::Clt(payload.into())
         }
     }
     impl From<CancelOrder> for CltOuchMsg {
@@ -112,10 +112,10 @@ mod from_clt_pld {
             CltOuchMsg::udata(CltOuchPayload::Cancel(payload))
         }
     }
-    impl From<CancelOrder> for OuchMsg {
+    impl From<CancelOrder> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: CancelOrder) -> Self {
-            OuchMsg::Clt(payload.into())
+            UniOuchMsg::Clt(payload.into())
         }
     }
     impl From<ModifyOrder> for CltOuchMsg {
@@ -124,10 +124,10 @@ mod from_clt_pld {
             CltOuchMsg::udata(CltOuchPayload::Modify(payload))
         }
     }
-    impl From<ModifyOrder> for OuchMsg {
+    impl From<ModifyOrder> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: ModifyOrder) -> Self {
-            OuchMsg::Clt(payload.into())
+            UniOuchMsg::Clt(payload.into())
         }
     }
     impl From<AccountQueryRequest> for CltOuchMsg {
@@ -136,10 +136,10 @@ mod from_clt_pld {
             CltOuchMsg::udata(CltOuchPayload::AccQry(payload))
         }
     }
-    impl From<AccountQueryRequest> for OuchMsg {
+    impl From<AccountQueryRequest> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: AccountQueryRequest) -> Self {
-            OuchMsg::Clt(payload.into())
+            UniOuchMsg::Clt(payload.into())
         }
     }
 }
@@ -153,10 +153,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Accepted(payload))
         }
     }
-    impl From<OrderAccepted> for OuchMsg {
+    impl From<OrderAccepted> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderAccepted) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderExecuted> for SvcOuchMsg {
@@ -165,10 +165,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Executed(payload))
         }
     }
-    impl From<OrderExecuted> for OuchMsg {
+    impl From<OrderExecuted> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderExecuted) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderReplaced> for SvcOuchMsg {
@@ -177,10 +177,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Replaced(payload))
         }
     }
-    impl From<OrderReplaced> for OuchMsg {
+    impl From<OrderReplaced> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderReplaced) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderCanceled> for SvcOuchMsg {
@@ -189,10 +189,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Canceled(payload))
         }
     }
-    impl From<OrderCanceled> for OuchMsg {
+    impl From<OrderCanceled> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderCanceled) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderRejected> for SvcOuchMsg {
@@ -201,10 +201,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Rejected(payload))
         }
     }
-    impl From<OrderRejected> for OuchMsg {
+    impl From<OrderRejected> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderRejected) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderModified> for SvcOuchMsg {
@@ -213,10 +213,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Modified(payload))
         }
     }
-    impl From<OrderModified> for OuchMsg {
+    impl From<OrderModified> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderModified) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderRestated> for SvcOuchMsg {
@@ -225,10 +225,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::Restated(payload))
         }
     }
-    impl From<OrderRestated> for OuchMsg {
+    impl From<OrderRestated> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderRestated) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<CancelPending> for SvcOuchMsg {
@@ -237,10 +237,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::CanPending(payload))
         }
     }
-    impl From<CancelPending> for OuchMsg {
+    impl From<CancelPending> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: CancelPending) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<CancelReject> for SvcOuchMsg {
@@ -249,10 +249,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::CanReject(payload))
         }
     }
-    impl From<CancelReject> for OuchMsg {
+    impl From<CancelReject> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: CancelReject) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<OrderAiqCanceled> for SvcOuchMsg {
@@ -261,10 +261,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::AiqCanceled(payload))
         }
     }
-    impl From<OrderAiqCanceled> for OuchMsg {
+    impl From<OrderAiqCanceled> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: OrderAiqCanceled) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<BrokenTrade> for SvcOuchMsg {
@@ -273,10 +273,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::BrokenTrade(payload))
         }
     }
-    impl From<BrokenTrade> for OuchMsg {
+    impl From<BrokenTrade> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: BrokenTrade) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<PriorityUpdate> for SvcOuchMsg {
@@ -285,10 +285,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::PrioUpdate(payload))
         }
     }
-    impl From<PriorityUpdate> for OuchMsg {
+    impl From<PriorityUpdate> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: PriorityUpdate) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<AccountQueryResponse> for SvcOuchMsg {
@@ -297,10 +297,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::AccQryRes(payload))
         }
     }
-    impl From<AccountQueryResponse> for OuchMsg {
+    impl From<AccountQueryResponse> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: AccountQueryResponse) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
     impl From<SystemEvent> for SvcOuchMsg {
@@ -309,10 +309,10 @@ mod from_svc_pld {
             SvcOuchMsg::udata(SvcOuchPayload::SysEvt(payload))
         }
     }
-    impl From<SystemEvent> for OuchMsg {
+    impl From<SystemEvent> for UniOuchMsg {
         #[inline(always)]
         fn from(payload: SystemEvent) -> Self {
-            OuchMsg::Svc(payload.into())
+            UniOuchMsg::Svc(payload.into())
         }
     }
 }
@@ -321,7 +321,7 @@ mod from_svc_pld {
 #[cfg(feature = "unittest")]
 mod test {
 
-    use crate::unittest::setup;
+    use links_core::unittest::setup;
     use crate::{
         model::ouch::{CLT_OUCH_MAX_PLD_SIZE, SVC_OUCH_MAX_PLD_SIZE},
         prelude::*,
@@ -375,11 +375,11 @@ mod test {
         let mut ser = ByteSerializerStack::<1024>::default();
         for msg in msg_inp.iter() {
             match msg {
-                OuchMsg::Clt(msg_inp_inb) => {
+                UniOuchMsg::Clt(msg_inp_inb) => {
                     info!("msg_inp_inb: {:?}", msg_inp_inb);
                     let _ = ser.serialize(msg_inp_inb).unwrap();
                 }
-                OuchMsg::Svc(msg_inp_oub) => {
+                UniOuchMsg::Svc(msg_inp_oub) => {
                     info!("msg_inp_oub: {:?}", msg_inp_oub);
                     let _ = ser.serialize(msg_inp_oub).unwrap();
                 }
@@ -389,12 +389,12 @@ mod test {
 
         for ouch in msg_inp.iter() {
             match ouch {
-                OuchMsg::Clt(msg_inp_inb) => {
+                UniOuchMsg::Clt(msg_inp_inb) => {
                     let msg_out_inb = des.deserialize::<CltOuchMsg>().unwrap();
                     info!("msg_out_inb: {:?}", msg_out_inb);
                     assert_eq!(msg_inp_inb, &msg_out_inb);
                 }
-                OuchMsg::Svc(msg_inp_oub) => {
+                UniOuchMsg::Svc(msg_inp_oub) => {
                     let msg_out_oub = des.deserialize::<SvcOuchMsg>().unwrap();
                     info!("msg_out_oub: {:?}", msg_out_oub);
                     assert_eq!(msg_inp_oub, &msg_out_oub);

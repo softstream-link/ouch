@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderModified {
@@ -12,16 +11,14 @@ pub struct OrderModified {
     pub user_ref_number: UserRefNumber,
     pub side: Side,
     pub quantity: Quantity,
-    
 }
 
 impl<T> From<(&T, Side)> for OrderModified
-where
-    T: CancelableOrder,
+where T: CancelableOrder
 {
     fn from(value: (&T, Side)) -> Self {
         let (ord, side) = value;
-        Self {            
+        Self {
             packet_type: PacketTypeOrderModified::default(),
 
             timestamp: Timestamp::default(), // Venue assigned
@@ -34,11 +31,10 @@ where
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

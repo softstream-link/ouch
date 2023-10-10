@@ -34,10 +34,9 @@ where
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
+    use links_core::unittest::setup;
     use byteserde::prelude::*;
     use log::info;
 

@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderRejected {
@@ -12,16 +11,14 @@ pub struct OrderRejected {
     pub user_ref_number: UserRefNumber,
     pub reason: RejectReason,
     pub clt_order_id: CltOrderId,
-    
 }
 
 impl<T> From<(&T, RejectReason)> for OrderRejected
-where
-    T: CancelableOrder,
+where T: CancelableOrder
 {
     fn from(value: (&T, RejectReason)) -> Self {
         let (ord, reason) = value;
-        Self {            
+        Self {
             packet_type: PacketTypeOrderRejected::default(),
 
             timestamp: Timestamp::default(), // Venue assigned
@@ -34,11 +31,10 @@ where
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

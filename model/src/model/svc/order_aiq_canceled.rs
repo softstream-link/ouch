@@ -1,14 +1,13 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderAiqCanceled {
     packet_type: PacketTypeOrderAiqCanceled,
-    
+
     timestamp: Timestamp, // Venue assigned
-    
+
     user_ref_number: UserRefNumber,
     decrement_shares: Quantity,
     reason: CancelReasonAiq,
@@ -16,12 +15,9 @@ pub struct OrderAiqCanceled {
     execution_price: Price,
     liquidity_flag: LiquidityFlag,
     aiq_strategy: AiqStrategy,
-
-
 }
 impl<T> From<&T> for OrderAiqCanceled
-where
-    T: CancelableOrder,
+where T: CancelableOrder
 {
     fn from(enter_order: &T) -> Self {
         Self {
@@ -38,11 +34,10 @@ where
     }
 }
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

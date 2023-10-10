@@ -39,3 +39,6 @@ links_core = { path = "../links/core" , features = ["unittest"]}
 log = { version = "0.4" }
 env_logger = { version = "0.10" }
 colored = { version = "2.0" }
+
+# benches
+criterion = { version = "0.5" }

@@ -4,7 +4,6 @@ pub type CltOuch<CallbackRecvSend> =
     CltSoupBinTcp<CltOuchMessenger, CallbackRecvSend, CLT_OUCH_MAX_FRAME_SIZE>;
 
 #[cfg(test)]
-#[cfg(feature = "unittest")]
 mod test {
 
     use crate::prelude::*;

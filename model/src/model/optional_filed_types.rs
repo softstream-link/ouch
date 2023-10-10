@@ -35,9 +35,11 @@ pub trait OptionTag {
 macro_rules! option_tag {
     ($name:ident, $tag:literal) => {
         impl OptionTag for $name {
+            #[inline(always)]
             fn tag() -> u8 {
                 $tag
             }
+            #[inline(always)]
             fn tag_as_slice() -> &'static [u8] {
                 &[$tag]
             }

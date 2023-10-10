@@ -1,4 +1,5 @@
-pub use super::appendages::*;
+pub use super::optional_filed_types::*;
+
 pub use aiq_strategy::AiqStrategy;
 pub use broken_trade_reason::BrokenTradeReason;
 pub use cancel_reason::CancelReason;
@@ -94,9 +95,9 @@ pub mod clt_order_id {
         }
     }
     #[cfg(test)]
-    #[cfg(feature="unittest")]
+    
     mod test {
-        use crate::unittest::setup;
+        use links_core::unittest::setup;
         use log::info;
 
         use super::*;
@@ -243,6 +244,7 @@ pub mod qty{
     use super::*;
     u32_tuple!(Quantity, "be", ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default);
 }
+
 pub mod user_ref {
     use super::*;
     #[rustfmt::skip]
@@ -263,11 +265,11 @@ pub mod user_ref {
         }
     }
     #[cfg(test)]
-    #[cfg(feature="unittest")]
+    
     mod test {
         use log::info;
 
-        use crate::unittest::setup;
+        use links_core::unittest::setup;
 
         use super::*;
 
@@ -342,9 +344,9 @@ pub mod timestamp {
     }
 
     #[cfg(test)]
-    #[cfg(feature="unittest")]
+    
     mod test {
-        use crate::unittest::setup;
+        use links_core::unittest::setup;
         use log::info;
 
         use super::*;
@@ -393,12 +395,12 @@ pub mod order_reference_number {
     }
 
     #[cfg(test)]
-    #[cfg(feature="unittest")]
+    
     mod test {
         use log::info;
 
         use super::*;
-        use crate::unittest::setup;
+        use links_core::unittest::setup;
         #[test]
         fn test_order_ref_number_iterator() {
             setup::log::configure();

@@ -1,14 +1,13 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderCanceled {
     packet_type: PacketTypeOrderCanceled,
-    
+
     timestamp: Timestamp, // Venue assigned
-    
+
     orig_user_ref_number: UserRefNumber,
     user_ref_number: UserRefNumber,
     quantity: Quantity,
@@ -28,11 +27,10 @@ impl From<(&EnterOrder, &CancelOrder)> for OrderCanceled {
     }
 }
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

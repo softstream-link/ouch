@@ -4,7 +4,6 @@ pub type SvcOuch<CallbackRecvSend> =
     SvcSoupBinTcp<SvcOuchMessenger, CallbackRecvSend, SVC_OUCH_MAX_FRAME_SIZE>;
 
 #[cfg(test)]
-#[cfg(feature = "unittest")]
 mod test {
 
     use std::num::NonZeroUsize;

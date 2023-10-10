@@ -2,7 +2,6 @@ use crate::prelude::*;
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderExecuted {
@@ -18,7 +17,7 @@ pub struct OrderExecuted {
     #[byteserde(replace( appendages.byte_len() ))]
     appendage_length: u16,
     #[byteserde(deplete(appendage_length))]
-    pub appendages: OptionalAppendage,
+    pub appendages: EnterOrderAppendage,
 }
 
 impl From<&EnterOrder> for OrderExecuted {
@@ -34,19 +33,15 @@ impl From<&EnterOrder> for OrderExecuted {
             liquidity_flag: LiquidityFlag::added(),
             match_number: MatchNumber::default(),
             appendage_length: enter_order.appendages.byte_len() as u16,
-            appendages: enter_order.appendages, 
-
+            appendages: enter_order.appendages,
         }
     }
 }
 
-
-
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
+    use links_core::unittest::setup;
 
     use log::info;
 

@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct ModifyOrder {
@@ -22,11 +21,10 @@ impl Default for ModifyOrder {
     }
 }
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
     use byteserde::prelude::*;
-    use crate::unittest::setup;
+    use links_core::unittest::setup;
 
     use log::info;
 

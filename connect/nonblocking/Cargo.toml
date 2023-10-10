@@ -15,16 +15,21 @@ categories.workspace = true
 [dependencies]
 ouch_connect_core = { workspace = true }
 
-log = { workspace = true, optional = true }
-env_logger = { workspace = true, optional = true }
-colored = { workspace = true, optional = true }
-
 
 [dev-dependencies]
 # includes network related methods for setting up unit tests
 links_core = { workspace = true, features = ["unittest"] }
 
-[features]
-default = []
-full = ["unittest"]
-unittest = ["dep:log", "dep:env_logger", "dep:colored"]
+# benchmarking
+criterion = { workspace = true }
+
+# logging
+log = { workspace = true }
+env_logger = { workspace = true }
+colored = { workspace = true }
+
+
+# BENCHMARKS
+[[bench]]
+name = "ouch_nonblocking_bench"
+harness = false

@@ -2,7 +2,6 @@ use crate::prelude::*;
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct OrderRestated {
@@ -12,11 +11,11 @@ pub struct OrderRestated {
 
     pub user_ref_number: UserRefNumber,
     pub reason: RestatedReason,
- 
+
     #[byteserde(replace( appendages.byte_len() ))]
     appendage_length: u16,
     #[byteserde(deplete(appendage_length))]
-    pub appendages: OptionalAppendage,
+    pub appendages: EnterOrderAppendage,
 }
 
 impl From<(&EnterOrder, RestatedReason)> for OrderRestated {
@@ -36,11 +35,9 @@ impl From<(&EnterOrder, RestatedReason)> for OrderRestated {
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
-
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

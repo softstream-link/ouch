@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
-#[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
 pub struct CancelOrder {
@@ -10,11 +9,11 @@ pub struct CancelOrder {
     pub quantity: Quantity,
 }
 pub trait CancelableOrder {
-    /// Copy 
+    /// Copy
     fn user_ref_number(&self) -> UserRefNumber;
-    /// Copy 
+    /// Copy
     fn quantity(&self) -> Quantity;
-    /// Copy 
+    /// Copy
     fn cl_ord_id(&self) -> CltOrderId;
 }
 impl<T: CancelableOrder> From<&T> for CancelOrder {
@@ -37,12 +36,11 @@ impl CancelOrder {
 }
 
 #[cfg(test)]
-#[cfg(feature="unittest")]
 mod test {
     use super::*;
-    use crate::unittest::setup;
-    use log::info;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
+    use log::info;
 
     #[test]
     fn test_msg() {
