@@ -12,17 +12,9 @@ fn ouch_enter_order_send(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let mut svc = SvcOuch::bind(
-                addr,
-                DevNullCallback::new_ref(),
-                NonZeroUsize::new(1).unwrap(),
-                Some("ouch/venue"),
-            )
-            .unwrap();
+            let mut svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
             info!("svc {}", svc);
-            svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout())
-                .unwrap()
-                .unwrap();
+            svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
             info!("svc {}", svc);
 
             while let Ok(opt) = svc.recv_busywait() {
@@ -61,19 +53,10 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let svc = SvcOuch::bind(
-                addr,
-                DevNullCallback::new_ref(),
-                NonZeroUsize::new(1).unwrap(),
-                Some("ouch/venue"),
-            )
-            .unwrap();
+            let svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
             info!("svc {}", svc);
 
-            let mut clt = svc
-                .accept_busywait_timeout(setup::net::default_connect_timeout())
-                .unwrap()
-                .unwrap();
+            let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
             info!("svc {}", svc);
 
             let mut order_accepted: SvcOuchMsg = OrderAccepted::from(&EnterOrder::default()).into();
@@ -116,24 +99,17 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let svc = SvcOuch::bind(
-                addr,
-                DevNullCallback::new_ref(),
-                NonZeroUsize::new(1).unwrap(),
-                Some("ouch/venue"),
-            )
-            .unwrap();
+            let svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
 
-            let mut clt = svc
-                .accept_busywait_timeout(setup::net::default_connect_timeout())
-                .unwrap()
-                .unwrap();
+            let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
 
             let mut order_accepted: SvcOuchMsg = OrderAccepted::from(&EnterOrder::default()).into();
 
             loop {
-                let _enter_order = clt.recv_busywait().unwrap().unwrap();
-                clt.send_busywait(&mut order_accepted).unwrap();
+                match clt.recv_busywait().unwrap() {
+                    None => break,
+                    Some(_) => clt.send_busywait(&mut order_accepted).unwrap(),
+                }
             }
         })
         .unwrap();
@@ -161,10 +137,5 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
 }
 
 // criterion_group!(benches, ouch_enter_order_accepted_round_trip);
-criterion_group!(
-    benches,
-    ouch_enter_order_send,
-    ouch_order_accepted_recv,
-    ouch_enter_order_accepted_round_trip
-);
+criterion_group!(benches, ouch_enter_order_send, ouch_order_accepted_recv, ouch_enter_order_accepted_round_trip);
 criterion_main!(benches);
