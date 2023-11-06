@@ -9,3 +9,8 @@ cargo test --doc
 cargo doc
 cargo clippy --all-features -- --deny warnings
 ```
+
+# Expand Model
+```shell
+cargo expand --package ouch_model
+```

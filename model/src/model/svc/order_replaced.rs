@@ -31,8 +31,8 @@ pub struct OrderReplacedAppendage {
     #[byteserde(eq(PostOnly::tag_as_slice()))]
     pub post_only: Option<TagValueElement<PostOnly>>,
 
-    #[byteserde(eq(ExpireTime::tag_as_slice()))]
-    pub expire_time: Option<TagValueElement<ExpireTime>>,
+    #[byteserde(eq(ExpireTimeSec::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTimeSec>>,
 
     #[byteserde(eq(TradeNow::tag_as_slice()))]
     pub trade_now: Option<TagValueElement<TradeNow>>,

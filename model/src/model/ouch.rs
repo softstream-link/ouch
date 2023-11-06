@@ -1,9 +1,6 @@
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 use derive_more::TryInto;
-use soupbintcp_model::prelude::{
-    CltSoupBinTcpMsg, SoupBinTcpMsg, SoupBinTcpPayload, SvcSoupBinTcpMsg,
-    SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG,
-};
+use soupbintcp_model::prelude::{CltSoupBinTcpMsg, SoupBinTcpMsg, SoupBinTcpPayload, SvcSoupBinTcpMsg, SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG};
 
 use crate::prelude::*;
 
@@ -28,12 +25,10 @@ pub enum CltOuchPayload {
 impl SoupBinTcpPayload<CltOuchPayload> for CltOuchPayload {}
 
 pub const SVC_OUCH_MAX_PLD_SIZE: usize = 72; // TODO revise Options fields and remeasure
-pub const SVC_OUCH_MAX_FRAME_SIZE: usize =
-    SVC_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
+pub const SVC_OUCH_MAX_FRAME_SIZE: usize = SVC_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
 
 pub const CLT_OUCH_MAX_PLD_SIZE: usize = 51; // TODO revise Options fields and remeasure
-pub const CLT_OUCH_MAX_FRAME_SIZE: usize =
-    CLT_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
+pub const CLT_OUCH_MAX_FRAME_SIZE: usize = CLT_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
 /// Both [ReplaceOrder] & [OrderReplaced] are serialized as b'U' hence it is impossible to distinguish deserialization type unless they are in two different enums.
 #[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug, TryInto)]
@@ -65,7 +60,7 @@ pub enum SvcOuchPayload {
     #[byteserde(eq(PacketTypeBrokenTrade::as_slice()))]
     BrokenTrade(BrokenTrade),    
     #[byteserde(eq(PacketTypePriorityUpdate::as_slice()))]
-    PrioUpdate(PriorityUpdate),
+    PriUpdate(PriorityUpdate),
     #[byteserde(eq(PacketTypeAccountQueryResponse::as_slice()))]
     AccQryRes(AccountQueryResponse),
     #[byteserde(eq(PacketTypeSystemEvent::as_slice()))]
@@ -79,7 +74,6 @@ pub type SvcOuchMsg = SvcSoupBinTcpMsg<SvcOuchPayload>;
 
 pub type UniOuchMsg = SoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
 
-pub use from_clt_pld::*;
 mod from_clt_pld {
     use super::*;
     impl From<EnterOrder> for CltOuchMsg {
@@ -144,7 +138,6 @@ mod from_clt_pld {
     }
 }
 
-pub use from_svc_pld::*;
 mod from_svc_pld {
     use super::*;
     impl From<OrderAccepted> for SvcOuchMsg {
@@ -282,7 +275,7 @@ mod from_svc_pld {
     impl From<PriorityUpdate> for SvcOuchMsg {
         #[inline(always)]
         fn from(payload: PriorityUpdate) -> Self {
-            SvcOuchMsg::udata(SvcOuchPayload::PrioUpdate(payload))
+            SvcOuchMsg::udata(SvcOuchPayload::PriUpdate(payload))
         }
     }
     impl From<PriorityUpdate> for UniOuchMsg {
@@ -318,25 +311,25 @@ mod from_svc_pld {
 }
 
 #[cfg(test)]
-#[cfg(feature = "unittest")]
 mod test {
 
-    use links_core::unittest::setup;
     use crate::{
         model::ouch::{CLT_OUCH_MAX_PLD_SIZE, SVC_OUCH_MAX_PLD_SIZE},
         prelude::*,
     };
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     // TODO max message length needed to optimize stack serialization assume 512 bytes for now
     #[test]
     fn test_ouch_with_envelope_ser_des() {
-        setup::log::configure();
+        setup::log::configure_compact();
 
         let enter_ord = EnterOrder::default();
         let replace_ord = ReplaceOrder::from(&enter_ord);
         let cancel_ord = CancelOrder::from(&enter_ord);
+        let modify_order = ModifyOrder::from((&enter_ord, Side::buy(), 10.into()));
 
         let ord_accepted = OrderAccepted::from(&enter_ord);
         let ord_replaced = OrderReplaced::from((&enter_ord, &replace_ord));
@@ -347,7 +340,7 @@ mod test {
         let ord_rejected = OrderRejected::from((&enter_ord, RejectReason::halted()));
         let can_pending = CancelPending::from(&enter_ord);
         let can_reject = CancelReject::from(&enter_ord);
-        let prio_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
+        let pri_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
         let ord_modified = OrderModified::from((&enter_ord, Side::buy()));
         let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display()));
 
@@ -355,7 +348,7 @@ mod test {
             enter_ord.into(),
             replace_ord.into(),
             cancel_ord.into(),
-            ModifyOrder::default().into(),
+            modify_order.into(),
             AccountQueryRequest::default().into(),
             ord_accepted.into(),
             ord_executed.into(),
@@ -368,7 +361,7 @@ mod test {
             can_reject.into(),
             ord_aqi_canceled.into(),
             brkn_trade.into(),
-            prio_update.into(),
+            pri_update.into(),
             AccountQueryResponse::default().into(),
             SystemEvent::default().into(),
         ];
@@ -406,11 +399,12 @@ mod test {
 
     #[test]
     fn test_ouch5_max_size() {
-        setup::log::configure();
+        setup::log::configure_compact();
 
         let enter_ord = EnterOrder::default();
         let replace_ord = ReplaceOrder::from(&enter_ord);
         let cancel_ord = CancelOrder::from(&enter_ord);
+        let modify_ord = ModifyOrder::from((&enter_ord, Side::buy(), 10.into()));
 
         let ord_accepted = OrderAccepted::from(&enter_ord);
         let ord_replaced = OrderReplaced::from((&enter_ord, &replace_ord));
@@ -421,14 +415,14 @@ mod test {
         let ord_rejected = OrderRejected::from((&enter_ord, RejectReason::halted()));
         let can_pending = CancelPending::from(&enter_ord);
         let can_reject = CancelReject::from(&enter_ord);
-        let prio_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
+        let pri_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
         let ord_modified = OrderModified::from((&enter_ord, Side::buy()));
         let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display()));
         let inb = vec![
             CltOuchPayload::Enter(enter_ord),
             CltOuchPayload::Replace(replace_ord),
             CltOuchPayload::Cancel(cancel_ord),
-            CltOuchPayload::Modify(ModifyOrder::default()),
+            CltOuchPayload::Modify(modify_ord),
             CltOuchPayload::AccQry(AccountQueryRequest::default()),
         ];
         let oub = vec![
@@ -442,30 +436,24 @@ mod test {
             SvcOuchPayload::Rejected(ord_rejected),
             SvcOuchPayload::CanPending(can_pending),
             SvcOuchPayload::CanReject(can_reject),
-            SvcOuchPayload::PrioUpdate(prio_update),
+            SvcOuchPayload::PriUpdate(pri_update),
             SvcOuchPayload::Modified(ord_modified),
             SvcOuchPayload::Restated(ord_rstd),
             SvcOuchPayload::AccQryRes(AccountQueryResponse::default()),
         ];
 
-        let inb = inb
-            .into_iter()
-            .map(|msg| (msg.byte_len(), msg))
-            .collect::<Vec<_>>();
-        // for (len, msg) in inb.iter() {
-        //     info!("len: {:>3}, msg: Ouch5Inb::{:?}", len,  msg);
-        // }
+        let inb = inb.into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
+        for (byte_len, msg) in inb.iter() {
+            info!("byte_len: {:>3}, msg: {:?}", byte_len, msg);
+        }
         let max_frame_size_clt = inb.iter().map(|(len, _)| *len).max().unwrap();
         info!("max_frame_size_clt: {}", max_frame_size_clt);
         assert_eq!(max_frame_size_clt, CLT_OUCH_MAX_PLD_SIZE);
 
-        let oub = oub
-            .into_iter()
-            .map(|msg| (msg.byte_len(), msg))
-            .collect::<Vec<_>>();
-        // for (len, msg) in oub.iter() {
-        //     info!("len: {:>3}, msg: Ouch5Oub::{:?}", len, msg);
-        // }
+        let oub = oub.into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
+        for (byte_len, msg) in oub.iter() {
+            info!("byte_len: {:>3}, msg: {:?}", byte_len, msg);
+        }
         let max_frame_size_svc = oub.iter().map(|(len, _)| *len).max().unwrap();
         info!("max_frame_size_svc: {}", max_frame_size_svc);
         assert_eq!(max_frame_size_svc, SVC_OUCH_MAX_PLD_SIZE);

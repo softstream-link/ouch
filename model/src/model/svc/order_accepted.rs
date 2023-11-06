@@ -1,4 +1,4 @@
-use crate::{model::clt::enter_order::EnterOrderAppendage, prelude::*};
+use crate::{model::clt::_01_enter_order::EnterOrderAppendage, prelude::*};
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 
@@ -62,8 +62,8 @@ pub struct OrderAcceptedAppendage {
     #[byteserde(eq(Route::tag_as_slice()))]
     pub route: Option<TagValueElement<Route>>,
 
-    #[byteserde(eq(ExpireTime::tag_as_slice()))]
-    pub expire_time: Option<TagValueElement<ExpireTime>>,
+    #[byteserde(eq(ExpireTimeSec::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTimeSec>>,
 
     #[byteserde(eq(TradeNow::tag_as_slice()))]
     pub trade_now: Option<TagValueElement<TradeNow>>,

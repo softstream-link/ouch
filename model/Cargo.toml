@@ -15,20 +15,21 @@ categories.workspace = true
 description = "Data model bindings for ouch exchange protocol"
 
 [dependencies]
+# derives
 byteserde = { workspace = true }
 byteserde_derive = { workspace = true }
 byteserde_types = { workspace = true }
 derive_more = { workspace = true }
+serde = { workspace = true }
 
+# time for data model
 chrono = { workspace = true }
 
+# root data model
 soupbintcp_model = { workspace = true }
-
+links_core = { workspace = true }
 
 [dev-dependencies]
-# includes network related methods for setting up unit tests
-links_core = { workspace = true, features = ["unittest"] }
-
 # benchmarking
 criterion = { workspace = true }
 
@@ -36,6 +37,16 @@ criterion = { workspace = true }
 log = { workspace = true }
 env_logger = { workspace = true }
 colored = { workspace = true }
+
+# testing
+links_core = { workspace = true, features = ["unittest"] }
+serde_json = { workspace = true }
+
+
+[features]
+default = []
+full = ["unittest"]
+unittest = []       # exists to provide a vector of all possible ouch messages
 
 
 # BENCHMARKS

@@ -16,8 +16,7 @@ pub struct BrokenTrade {
 }
 
 impl<T> From<&T> for BrokenTrade
-where
-    T: CancelableOrder,
+where T: CancelableOrder
 {
     fn from(ord: &T) -> Self {
         Self {
@@ -27,7 +26,7 @@ where
 
             user_ref_number: ord.user_ref_number(),
             match_number: MatchNumber::default(),
-            reason: BrokenTradeReason::errorneous(),
+            reason: BrokenTradeReason::erroneous(),
             clt_order_id: ord.cl_ord_id(),
         }
     }
@@ -36,8 +35,8 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use links_core::unittest::setup;
     use byteserde::prelude::*;
+    use links_core::unittest::setup;
     use log::info;
 
     #[test]

@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
+use serde::{Deserialize, Serialize};
+
+use super::_04_modify_order::ModifiableOrder;
 
 // page 5 from https://nasdaqtrader.com/content/technicalsupport/specifications/TradingProducts/Ouch5.0.pdf
 // Firm
@@ -21,64 +24,83 @@ use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedL
 // GroupID
 // SharesLocated
 
-#[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default)]
+#[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]
 #[byteserde(peek(1, 1))] // peek(start, len) -> peek one byte after skipping one
 pub struct EnterOrderAppendage {
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(Firm::tag_as_slice()))]
     pub firm: Option<TagValueElement<Firm>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(MinQty::tag_as_slice()))]
     pub min_qty: Option<TagValueElement<MinQty>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(CustomerType::tag_as_slice()))]
     pub customer_type: Option<TagValueElement<CustomerType>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(MaxFloor::tag_as_slice()))]
     pub max_floor: Option<TagValueElement<MaxFloor>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(PriceType::tag_as_slice()))]
     pub price_type: Option<TagValueElement<PriceType>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(PegOffset::tag_as_slice()))]
     pub peg_offset: Option<TagValueElement<PegOffset>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(DiscretionPrice::tag_as_slice()))]
     pub discretion_price: Option<TagValueElement<DiscretionPrice>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(DiscretionPriceType::tag_as_slice()))]
     pub discretion_price_type: Option<TagValueElement<DiscretionPriceType>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(DiscretionPegOffset::tag_as_slice()))]
     pub discretion_peg_offset: Option<TagValueElement<DiscretionPegOffset>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(PostOnly::tag_as_slice()))]
     pub post_only: Option<TagValueElement<PostOnly>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(RandomReserves::tag_as_slice()))]
     pub random_reserves: Option<TagValueElement<RandomReserves>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(Route::tag_as_slice()))]
     pub route: Option<TagValueElement<Route>>,
 
-    #[byteserde(eq(ExpireTime::tag_as_slice()))]
-    pub expire_time: Option<TagValueElement<ExpireTime>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[byteserde(eq(ExpireTimeSec::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTimeSec>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(TradeNow::tag_as_slice()))]
     pub trade_now: Option<TagValueElement<TradeNow>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(HandleInst::tag_as_slice()))]
     pub handle_inst: Option<TagValueElement<HandleInst>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(GroupId::tag_as_slice()))]
     pub group_id: Option<TagValueElement<GroupId>>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(SharesLocated::tag_as_slice()))]
     pub shares_located: Option<TagValueElement<SharesLocated>>,
 }
 
-#[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug)]
+#[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
+#[serde(from = "EnterOrderJsonDesShadow")]
 pub struct EnterOrder {
+    #[serde(default, skip_serializing)]
     packet_type: PacketTypeEnterOrder,
     pub user_ref_number: UserRefNumber,
     pub side: Side,
@@ -91,6 +113,7 @@ pub struct EnterOrder {
     pub int_mkt_sweep_eligibility: IntMktSweepEligibility,
     pub cross_type: CrossType,
     pub clt_order_id: CltOrderId,
+    #[serde(skip)]
     #[byteserde(replace( appendages.byte_len() ))]
     appendage_length: u16,
     #[byteserde(deplete(appendage_length))]
@@ -130,14 +153,28 @@ impl EnterOrder {
         }
     }
 }
-
 impl Default for EnterOrder {
+    /// Buy 100 shares of DUMMY at 1.2345
     #[inline(always)]
     fn default() -> Self {
         let appendages = EnterOrderAppendage {
-            firm: Some(TagValueElement::new(Firm::new(*b"ABCD"))),
-            min_qty: Some(TagValueElement::new(MinQty::new(100))),
-            ..Default::default()
+            firm: Some(b"    ".into()),
+            min_qty: Some(0.into()),
+            customer_type: Some(CustomerType::default().into()),
+            max_floor: Some(0.into()),
+            price_type: Some(PriceType::default().into()),
+            peg_offset: Some((-1.1234).into()),
+            discretion_price: Some(0.into()),
+            discretion_price_type: Some(DiscretionPriceType::default().into()),
+            discretion_peg_offset: Some((-1.1234).into()),
+            post_only: Some(PostOnly::default().into()),
+            random_reserves: Some(RandomReserves::default().into()),
+            route: Some(b"ABCD".into()),
+            expire_time: Some(ExpireTimeSec::default().into()),
+            trade_now: Some(TradeNow::default().into()),
+            handle_inst: Some(HandleInst::default().into()),
+            group_id: Some(GroupId::default().into()),
+            shares_located: Some(SharesLocated::default().into()),
         };
         Self {
             packet_type: PacketTypeEnterOrder::default(),
@@ -157,7 +194,6 @@ impl Default for EnterOrder {
         }
     }
 }
-
 impl CancelableOrder for EnterOrder {
     fn user_ref_number(&self) -> UserRefNumber {
         self.user_ref_number
@@ -169,17 +205,64 @@ impl CancelableOrder for EnterOrder {
         self.clt_order_id
     }
 }
+impl ModifiableOrder for EnterOrder {
+    fn quantity(&self) -> Quantity {
+        self.quantity
+    }
+    fn side(&self) -> Side {
+        self.side
+    }
+    fn user_ref_number(&self) -> UserRefNumber {
+        self.user_ref_number
+    }
+}
 
+#[derive(Deserialize)]
+struct EnterOrderJsonDesShadow {
+    user_ref_number: UserRefNumber,
+    side: Side,
+    quantity: Quantity,
+    symbol: Symbol,
+    price: Price,
+    time_in_force: TimeInForce,
+    display: Display,
+    capacity: Capacity,
+    int_mkt_sweep_eligibility: IntMktSweepEligibility,
+    cross_type: CrossType,
+    clt_order_id: CltOrderId,
+    appendages: EnterOrderAppendage,
+}
+impl From<EnterOrderJsonDesShadow> for EnterOrder {
+    fn from(shadow: EnterOrderJsonDesShadow) -> Self {
+        Self {
+            packet_type: PacketTypeEnterOrder::default(),
+            user_ref_number: shadow.user_ref_number,
+            side: shadow.side,
+            quantity: shadow.quantity,
+            symbol: shadow.symbol,
+            price: shadow.price,
+            time_in_force: shadow.time_in_force,
+            display: shadow.display,
+            capacity: shadow.capacity,
+            int_mkt_sweep_eligibility: shadow.int_mkt_sweep_eligibility,
+            cross_type: shadow.cross_type,
+            clt_order_id: shadow.clt_order_id,
+            appendage_length: shadow.appendages.byte_len() as u16,
+            appendages: shadow.appendages,
+        }
+    }
+}
 #[cfg(test)]
 mod test {
     use super::*;
     use links_core::unittest::setup;
 
     use log::info;
+    use serde_json::{from_str, to_string};
 
     #[test]
-    fn test_msg() {
-        setup::log::configure();
+    fn test_msg_byteserde() {
+        setup::log::configure_compact();
         let msg_inp = EnterOrder::default();
 
         let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
@@ -189,6 +272,24 @@ mod test {
 
         info!("msg_inp: {:?}", msg_inp);
         info!("msg_out: {:?}", msg_out);
+        assert_eq!(msg_out, msg_inp);
+    }
+
+    #[test]
+    fn test_msg_serde() {
+        setup::log::configure_compact();
+        let msg_inp = EnterOrder::default();
+        // info!("msg_inp: {:?}", msg_inp);
+
+        let json_out = to_string(&msg_inp).unwrap();
+        info!("json_out: {}", json_out);
+        assert_eq!(
+            json_out,
+            r#"{"user_ref_number":1,"side":"B","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"0","display":"Y","capacity":"A","int_mkt_sweep_eligibility":"Y","cross_type":"N","clt_order_id":"1","appendages":{"firm":"","min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"route":"ABCD","expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#
+        );
+
+        let msg_out: EnterOrder = from_str(&json_out).unwrap();
+        // info!("msg_out: {:?}", msg_out);
         assert_eq!(msg_out, msg_inp);
     }
 }

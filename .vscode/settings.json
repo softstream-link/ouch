@@ -1,16 +1,27 @@
 {
+    "rust-analyzer.cargo.features": [
+        "full"
+    ],
     "cSpell.words": [
+        "brkn",
         "busywait",
         "byteserde",
+        "chrono",
         "clippy",
+        "endofday",
         "hbeat",
+        "nanos",
         "nbbo",
         "nextest",
         "nonblocking",
         "qbbo",
+        "recver",
+        "riskless",
+        "rstd",
         "rustfmt",
         "sdata",
         "soupbintcp",
+        "startofday",
         "udata",
         "unsequenced"
     ],

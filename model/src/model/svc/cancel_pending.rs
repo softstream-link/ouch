@@ -14,8 +14,7 @@ pub struct CancelPending {
 }
 
 impl<T> From<&T> for CancelPending
-where
-    T: CancelableOrder,
+where T: CancelableOrder
 {
     fn from(ord: &T) -> Self {
         Self {
