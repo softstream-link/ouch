@@ -27,7 +27,8 @@ pub use user_ref::*;
 
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf, ByteSerializedSizeOf};
 use byteserde_types::{char_ascii, const_char_ascii, string_ascii_fixed, u16_tuple, u32_tuple, u64_tuple};
-use serde::{Deserialize, Serialize};
+use links_core::core::macros::short_type_name;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 // const char ascii
 pub mod ouch_packet_types {
@@ -115,8 +116,6 @@ pub mod clt_order_id {
 // char ascii
 pub mod side {
     use super::*;
-    use links_core::core::macros::short_type_name;
-    use serde::{Deserializer, Serializer};
     char_ascii!(Side, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl Side {
@@ -162,7 +161,7 @@ pub mod side {
 
 pub mod time_in_force {
     use super::*;
-    char_ascii!(TimeInForce, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(TimeInForce, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl TimeInForce{
         pub fn market_hours() -> Self { TimeInForce(b'0') }
@@ -170,61 +169,175 @@ pub mod time_in_force {
         pub fn good_till_extended_hours() -> Self { TimeInForce(b'5') }
         pub fn good_till_triggered() -> Self { TimeInForce(b'6') }
         pub fn after_hours() -> Self { TimeInForce(b'E') }
-        pub fn is_market_hours(tif: &TimeInForce) -> bool { Self::market_hours() == *tif }
-        pub fn is_immediate_or_cancel(tif: &TimeInForce) -> bool { Self::immediate_or_cancel() == *tif }
-        pub fn is_good_till_extended_hours(tif: &TimeInForce) -> bool { Self::good_till_extended_hours() == *tif }
-        pub fn is_good_till_triggered(tif: &TimeInForce) -> bool { Self::good_till_triggered() == *tif }
-        pub fn is_after_hours(tif: &TimeInForce) -> bool { Self::after_hours() == *tif }
+        pub fn is_market_hours(&self) -> bool { self.0 == b'0' }
+        pub fn is_immediate_or_cancel(&self) -> bool { self.0 == b'3' }
+        pub fn is_good_till_extended_hours(&self) -> bool { self.0 == b'5' }
+        pub fn is_good_till_triggered(&self) -> bool { self.0 == b'6' }
+        pub fn is_after_hours(&self) -> bool { self.0 == b'E' }
+    }
+    impl Serialize for TimeInForce {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_market_hours() {
+                serializer.serialize_str("MARKET_HOURS")
+            } else if self.is_immediate_or_cancel() {
+                serializer.serialize_str("IMMEDIATE_OR_CANCEL")
+            } else if self.is_good_till_extended_hours() {
+                serializer.serialize_str("GOOD_TILL_EXTENDED_HOURS")
+            } else if self.is_good_till_triggered() {
+                serializer.serialize_str("GOOD_TILL_TRIGGERED")
+            } else if self.is_after_hours() {
+                serializer.serialize_str("AFTER_HOURS")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for TimeInForce {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "MARKET_HOURS" | "0" => Ok(Self::market_hours()),
+                "IMMEDIATE_OR_CANCEL" | "3" => Ok(Self::immediate_or_cancel()),
+                "GOOD_TILL_EXTENDED_HOURS" | "5" => Ok(Self::good_till_extended_hours()),
+                "GOOD_TILL_TRIGGERED" | "6" => Ok(Self::good_till_triggered()),
+                "AFTER_HOURS" | "E" => Ok(Self::after_hours()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
 pub mod display {
+
     use super::*;
-    char_ascii!(Display, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(Display, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl Display {
         pub fn visible() -> Self { Display(b'Y') }
         pub fn hidden() -> Self { Display(b'N') }
         pub fn attributable() -> Self { Display(b'A') }
         pub fn conformant() -> Self { Display(b'Z') }
-        pub fn is_visible(display: &Display) -> bool { Self::visible() == *display }
-        pub fn is_hidden(display: &Display) -> bool { Self::hidden() == *display }
-        pub fn is_attributable(display: &Display) -> bool { Self::attributable() == *display }
-        pub fn is_conformant(display: &Display) -> bool { Self::conformant() == *display }
+        pub fn is_visible(&self) -> bool { self.0 == b'Y' }
+        pub fn is_hidden(&self) -> bool { self.0 == b'N' }
+        pub fn is_attributable(&self) -> bool { self.0 == b'A' }
+        pub fn is_conformant(&self) -> bool { self.0 == b'Z' }
+    }
+    impl Serialize for Display {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_visible() {
+                serializer.serialize_str("VISIBLE")
+            } else if self.is_hidden() {
+                serializer.serialize_str("HIDDEN")
+            } else if self.is_attributable() {
+                serializer.serialize_str("ATTRIBUTABLE")
+            } else if self.is_conformant() {
+                serializer.serialize_str("CONFORMANT")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for Display {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "VISIBLE" | "Y" => Ok(Self::visible()),
+                "HIDDEN" | "N" => Ok(Self::hidden()),
+                "ATTRIBUTABLE" | "A" => Ok(Self::attributable()),
+                "CONFORMANT" | "Z" => Ok(Self::conformant()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
 pub mod capacity {
     use super::*;
-    char_ascii!(Capacity, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(Capacity, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl Capacity{
         pub fn agency() -> Self { Capacity(b'A') }
         pub fn principal() -> Self { Capacity(b'P') }
         pub fn riskless_principal() -> Self { Capacity(b'R') }
         pub fn other() -> Self { Capacity(b'O') }
-        pub fn is_agency(capacity: &Capacity) -> bool { Self::agency() == *capacity }
-        pub fn is_principal(capacity: &Capacity) -> bool { Self::principal() == *capacity }
-        pub fn is_riskless_principal(capacity: &Capacity) -> bool { Self::riskless_principal() == *capacity }
-        pub fn is_other(capacity: &Capacity) -> bool { Self::other() == *capacity }
+        pub fn is_agency(&self) -> bool { self.0 == b'A' }
+        pub fn is_principal(&self) -> bool { self.0 == b'P' }
+        pub fn is_riskless_principal(&self) -> bool { self.0 == b'R' }
+        pub fn is_other(&self) -> bool { self.0 == b'O' }
+    }
+    impl Serialize for Capacity {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_agency() {
+                serializer.serialize_str("AGENCY")
+            } else if self.is_principal() {
+                serializer.serialize_str("PRINCIPAL")
+            } else if self.is_riskless_principal() {
+                serializer.serialize_str("RISKLESS_PRINCIPAL")
+            } else if self.is_other() {
+                serializer.serialize_str("OTHER")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for Capacity {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "AGENCY" | "A" => Ok(Self::agency()),
+                "PRINCIPAL" | "P" => Ok(Self::principal()),
+                "RISKLESS_PRINCIPAL" | "R" => Ok(Self::riskless_principal()),
+                "OTHER" | "O" => Ok(Self::other()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
 pub mod int_mkt_sweep_eligibility {
     use super::*;
-    char_ascii!(IntMktSweepEligibility, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(IntMktSweepEligibility, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl IntMktSweepEligibility{
         pub fn eligible() -> Self { IntMktSweepEligibility(b'Y') }
         pub fn not_eligible() -> Self { IntMktSweepEligibility(b'N') }
-        pub fn is_eligible(eligibility: &IntMktSweepEligibility) -> bool { Self::eligible() == *eligibility }
-        pub fn is_not_eligible(eligibility: &IntMktSweepEligibility) -> bool { Self::not_eligible() == *eligibility }
+        pub fn is_eligible(&self) -> bool { self.0 == b'Y' }
+        pub fn is_not_eligible(&self) -> bool { self.0 == b'N' }
+    }
+    impl Serialize for IntMktSweepEligibility {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_eligible() {
+                serializer.serialize_str("ELIGIBLE")
+            } else if self.is_not_eligible() {
+                serializer.serialize_str("NOT_ELIGIBLE")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for IntMktSweepEligibility {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "ELIGIBLE" | "Y" => Ok(Self::eligible()),
+                "NOT_ELIGIBLE" | "N" => Ok(Self::not_eligible()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
 pub mod cross_type {
     use super::*;
-    char_ascii!(CrossType, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(CrossType, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl CrossType{
         pub fn continuous_market() -> Self { CrossType(b'N') }
@@ -235,14 +348,55 @@ pub mod cross_type {
         pub fn retail() -> Self { CrossType(b'R') }
         pub fn extended_life() -> Self { CrossType(b'E') }
         pub fn after_hours_close() -> Self { CrossType(b'A') }
-        pub fn is_continuous_market(cross_type: &CrossType) -> bool { Self::continuous_market() == *cross_type }
-        pub fn is_opening_cross(cross_type: &CrossType) -> bool { Self::opening_cross() == *cross_type }
-        pub fn is_closing_cross(cross_type: &CrossType) -> bool { Self::closing_cross() == *cross_type }
-        pub fn is_halt_ipo(cross_type: &CrossType) -> bool { Self::halt_ipo() == *cross_type }
-        pub fn is_supplemental(cross_type: &CrossType) -> bool { Self::supplemental() == *cross_type }
-        pub fn is_retail(cross_type: &CrossType) -> bool { Self::retail() == *cross_type }
-        pub fn is_extended_life(cross_type: &CrossType) -> bool { Self::extended_life() == *cross_type }
-        pub fn is_after_hours_close(cross_type: &CrossType) -> bool { Self::after_hours_close() == *cross_type }
+        pub fn is_continuous_market(&self) -> bool { self.0 == b'N' }
+        pub fn is_opening_cross(&self) -> bool { self.0 == b'O' }
+        pub fn is_closing_cross(&self) -> bool { self.0 == b'C' }
+        pub fn is_halt_ipo(&self) -> bool { self.0 == b'H' }
+        pub fn is_supplemental(&self) -> bool { self.0 == b'S' }
+        pub fn is_retail(&self) -> bool { self.0 == b'R' }
+        pub fn is_extended_life(&self) -> bool { self.0 == b'E' }
+        pub fn is_after_hours_close(&self) -> bool { self.0 == b'A' }
+    }
+    impl Serialize for CrossType {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_continuous_market() {
+                serializer.serialize_str("CONTINUOUS_MARKET")
+            } else if self.is_opening_cross() {
+                serializer.serialize_str("OPENING_CROSS")
+            } else if self.is_closing_cross() {
+                serializer.serialize_str("CLOSING_CROSS")
+            } else if self.is_halt_ipo() {
+                serializer.serialize_str("HALT_IPO")
+            } else if self.is_supplemental() {
+                serializer.serialize_str("SUPPLEMENTAL")
+            } else if self.is_retail() {
+                serializer.serialize_str("RETAIL")
+            } else if self.is_extended_life() {
+                serializer.serialize_str("EXTENDED_LIFE")
+            } else if self.is_after_hours_close() {
+                serializer.serialize_str("AFTER_HOURS_CLOSE")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for CrossType {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "CONTINUOUS_MARKET" | "N" => Ok(Self::continuous_market()),
+                "OPENING_CROSS" | "O" => Ok(Self::opening_cross()),
+                "CLOSING_CROSS" | "C" => Ok(Self::closing_cross()),
+                "HALT_IPO" | "H" => Ok(Self::halt_ipo()),
+                "SUPPLEMENTAL" | "S" => Ok(Self::supplemental()),
+                "RETAIL" | "R" => Ok(Self::retail()),
+                "EXTENDED_LIFE" | "E" => Ok(Self::extended_life()),
+                "AFTER_HOURS_CLOSE" | "A" => Ok(Self::after_hours_close()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
@@ -253,8 +407,41 @@ pub mod event_code {
     impl EventCode{
         pub fn start_of_day() -> Self { EventCode(b'S') }
         pub fn end_of_day() -> Self { EventCode(b'E') }
-        pub fn is_startofday(side: &EventCode) -> bool { Self::start_of_day() == *side }
-        pub fn is_endofday(side: &EventCode) -> bool { Self::end_of_day() == *side }
+        pub fn market_hours() -> Self { EventCode(b'M') }
+        pub fn after_hours() -> Self { EventCode(b'A') }
+        pub fn is_start_of_day(&self) -> bool { self.0 == b'S' }
+        pub fn is_end_of_day(&self) -> bool { self.0 == b'E' }
+        pub fn is_market_hours(&self) -> bool { self.0 == b'M' }
+        pub fn is_after_hours(&self) -> bool { self.0 == b'A' }
+    }
+    impl Serialize for EventCode {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_start_of_day() {
+                serializer.serialize_str("START_OF_DAY")
+            } else if self.is_end_of_day() {
+                serializer.serialize_str("END_OF_DAY")
+            } else if self.is_market_hours() {
+                serializer.serialize_str("MARKET_HOURS")
+            } else if self.is_after_hours() {
+                serializer.serialize_str("AFTER_HOURS")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for EventCode {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "START_OF_DAY" | "S" => Ok(Self::start_of_day()),
+                "END_OF_DAY" | "E" => Ok(Self::end_of_day()),
+                "MARKET_HOURS" | "M" => Ok(Self::market_hours()),
+                "AFTER_HOURS" | "A" => Ok(Self::after_hours()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
@@ -265,8 +452,31 @@ pub mod order_state {
     impl OrderState{
         pub fn live() -> Self { OrderState(b'L') }
         pub fn dead() -> Self { OrderState(b'D') }
-        pub fn is_live(side: &OrderState) -> bool { Self::live() == *side }
-        pub fn is_dead(side: &OrderState) -> bool { Self::dead() == *side }
+        pub fn is_live(&self) -> bool { self.0 == b'L' }
+        pub fn is_dead(&self) -> bool { self.0 == b'D' }
+    }
+    impl Serialize for OrderState {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_live() {
+                serializer.serialize_str("LIVE")
+            } else if self.is_dead() {
+                serializer.serialize_str("DEAD")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for OrderState {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "LIVE" | "L" => Ok(Self::live()),
+                "DEAD" | "D" => Ok(Self::dead()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 // numerics
@@ -503,20 +713,79 @@ pub mod cancel_reason {
         pub fn open_protection() -> Self{ CancelReason(b'X') }
         pub fn system_cancel() -> Self{ CancelReason(b'Z') }
         pub fn exceeds_allowable_shares() -> Self{ CancelReason(b'e') }
-        pub fn is_reg_restriction(reason: &CancelReason) -> bool{ Self::reg_restriction() == *reason }
-        pub fn is_closed(reason: &CancelReason) -> bool{ Self::closed() == *reason }
-        pub fn is_post_only_cancel_nms(reason: &CancelReason) -> bool{ Self::post_only_cancel_nms() == *reason }
-        pub fn is_post_only_cancel_displayed(reason: &CancelReason) -> bool{ Self::post_only_cancel_displayed() == *reason }
-        pub fn is_halted(reason: &CancelReason) -> bool{ Self::halted() == *reason }
-        pub fn is_immediate_or_cancel(reason: &CancelReason) -> bool{ Self::immediate_or_cancel() == *reason }
-        pub fn is_market_collars(reason: &CancelReason) -> bool{ Self::market_collars() == *reason }
-        pub fn is_self_match_prevention(reason: &CancelReason) -> bool{ Self::self_match_prevention() == *reason }
-        pub fn is_supervisory(reason: &CancelReason) -> bool{ Self::supervisory() == *reason }
-        pub fn is_timeout(reason: &CancelReason) -> bool{ Self::timeout() == *reason }
-        pub fn is_user_requested(reason: &CancelReason) -> bool{ Self::user_requested() == *reason }
-        pub fn is_open_protection(reason: &CancelReason) -> bool{ Self::open_protection() == *reason }
-        pub fn is_system_cancel(reason: &CancelReason) -> bool{ Self::system_cancel() == *reason }
-        pub fn is_exceeds_allowable_shares(reason: &CancelReason) -> bool{ Self::exceeds_allowable_shares() == *reason }
+        pub fn is_reg_restriction(&self) -> bool{ self.0 == b'D' }
+        pub fn is_closed(&self) -> bool{ self.0 == b'E' }
+        pub fn is_post_only_cancel_nms(&self) -> bool{ self.0 == b'F' }
+        pub fn is_post_only_cancel_displayed(&self) -> bool{ self.0 == b'G' }
+        pub fn is_halted(&self) -> bool{ self.0 == b'H' }
+        pub fn is_immediate_or_cancel(&self) -> bool{ self.0 == b'I' }
+        pub fn is_market_collars(&self) -> bool{ self.0 == b'K' }
+        pub fn is_self_match_prevention(&self) -> bool{ self.0 == b'Q' }
+        pub fn is_supervisory(&self) -> bool{ self.0 == b'S' }
+        pub fn is_timeout(&self) -> bool{ self.0 == b'T' }
+        pub fn is_user_requested(&self) -> bool{ self.0 == b'U' }
+        pub fn is_open_protection(&self) -> bool{ self.0 == b'X' }
+        pub fn is_system_cancel(&self) -> bool{ self.0 == b'Z' }
+        pub fn is_exceeds_allowable_shares(&self) -> bool{ self.0 == b'e' }        
+    }
+    impl Serialize for CancelReason {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_reg_restriction() {
+                serializer.serialize_str("REG_RESTRICTION")
+            } else if self.is_closed() {
+                serializer.serialize_str("CLOSED")
+            } else if self.is_post_only_cancel_nms() {
+                serializer.serialize_str("POST_ONLY_CANCEL_NMS")
+            } else if self.is_post_only_cancel_displayed() {
+                serializer.serialize_str("POST_ONLY_CANCEL_DISPLAYED")
+            } else if self.is_halted() {
+                serializer.serialize_str("HALTED")
+            } else if self.is_immediate_or_cancel() {
+                serializer.serialize_str("IMMEDIATE_OR_CANCEL")
+            } else if self.is_market_collars() {
+                serializer.serialize_str("MARKET_COLLARS")
+            } else if self.is_self_match_prevention() {
+                serializer.serialize_str("SELF_MATCH_PREVENTION")
+            } else if self.is_supervisory() {
+                serializer.serialize_str("SUPERVISORY")
+            } else if self.is_timeout() {
+                serializer.serialize_str("TIMEOUT")
+            } else if self.is_user_requested() {
+                serializer.serialize_str("USER_REQUESTED")
+            } else if self.is_open_protection() {
+                serializer.serialize_str("OPEN_PROTECTION")
+            } else if self.is_system_cancel() {
+                serializer.serialize_str("SYSTEM_CANCEL")
+            } else if self.is_exceeds_allowable_shares() {
+                serializer.serialize_str("EXCEEDS_ALLOWABLE_SHARES")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for CancelReason {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "REG_RESTRICTION" | "D" => Ok(Self::reg_restriction()),
+                "CLOSED" | "E" => Ok(Self::closed()),
+                "POST_ONLY_CANCEL_NMS" | "F" => Ok(Self::post_only_cancel_nms()),
+                "POST_ONLY_CANCEL_DISPLAYED" | "G" => Ok(Self::post_only_cancel_displayed()),
+                "HALTED" | "H" => Ok(Self::halted()),
+                "IMMEDIATE_OR_CANCEL" | "I" => Ok(Self::immediate_or_cancel()),
+                "MARKET_COLLARS" | "K" => Ok(Self::market_collars()),
+                "SELF_MATCH_PREVENTION" | "Q" => Ok(Self::self_match_prevention()),
+                "SUPERVISORY" | "S" => Ok(Self::supervisory()),
+                "TIMEOUT" | "T" => Ok(Self::timeout()),
+                "USER_REQUESTED" | "U" => Ok(Self::user_requested()),
+                "OPEN_PROTECTION" | "X" => Ok(Self::open_protection()),
+                "SYSTEM_CANCEL" | "Z" => Ok(Self::system_cancel()),
+                "EXCEEDS_ALLOWABLE_SHARES" | "e" => Ok(Self::exceeds_allowable_shares()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }
 
@@ -531,7 +800,7 @@ pub mod liquidity_flag {
     use super::*;
 
     #[rustfmt::skip]
-    char_ascii!(LiquidityFlag, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(LiquidityFlag, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl LiquidityFlag {
         pub fn added() -> Self{ LiquidityFlag(b'A') }
@@ -558,6 +827,30 @@ pub mod liquidity_flag {
         pub fn displayed_liq_adding_order_improves_nnbo() -> Self{ LiquidityFlag(b'7') }
         pub fn displayed_liq_adding_order_sets_qbbo() -> Self{ LiquidityFlag(b'8') }
         pub fn rpi_order_provides_liq_no_rpii() -> Self{ LiquidityFlag(b'1') }
+        pub fn is_added(&self) -> bool{ self.0 == b'A' }
+        pub fn is_closing_cross(&self) -> bool{ self.0 == b'C' }
+        pub fn is_retail_designated_that_added_display_liq(&self) -> bool{ self.0 == b'e' }
+        pub fn is_halt_ipo_cross(&self) -> bool{ self.0 == b'H' }
+        pub fn is_after_hours_closing_cross(&self) -> bool{ self.0 == b'i' }
+        pub fn is_non_display_adding_liq(&self) -> bool{ self.0 == b'J' }
+        pub fn is_rpi_order_provides_liq(&self) -> bool{ self.0 == b'j' }
+        pub fn is_added_liq_via_midpoint_order(&self) -> bool{ self.0 == b'k' }
+        pub fn is_halt_cross(&self) -> bool{ self.0 == b'K' }
+        pub fn is_closing_cross_imbalance(&self) -> bool{ self.0 == b'L' }
+        pub fn is_opening_cross_imbalance(&self) -> bool{ self.0 == b'M' }
+        pub fn is_removed_liq_at_midpoint(&self) -> bool{ self.0 == b'm' }
+        pub fn is_passing_midpoint_execution(&self) -> bool{ self.0 == b'N' }
+        pub fn is_midpoint_extended_life_order(&self) -> bool{ self.0 == b'n' }
+        pub fn is_opening_cross(&self) -> bool{ self.0 == b'O' }
+        pub fn is_removed_price_improving_non_display_liq(&self) -> bool{ self.0 == b'p' }
+        pub fn is_rmo_retail_order_removes_non_rpi_midpoint_liq(&self) -> bool{ self.0 == b'q' }
+        pub fn is_removed(&self) -> bool{ self.0 == b'R' }
+        pub fn is_retail_order_removes_rpi_liq(&self) -> bool{ self.0 == b'r' }
+        pub fn is_retain_order_removes_price_improving_non_display_liq_not_rpi_liq(&self) -> bool{ self.0 == b't' }
+        pub fn is_supplemental_order_execution(&self) -> bool{ self.0 == b'0' }
+        pub fn is_displayed_liq_adding_order_improves_nnbo(&self) -> bool{ self.0 == b'7' }
+        pub fn is_displayed_liq_adding_order_sets_qbbo(&self) -> bool{ self.0 == b'8' }
+        pub fn is_rpi_order_provides_liq_no_rpii(&self) -> bool{ self.0 == b'1' }
     }
 }
 
@@ -599,10 +892,10 @@ pub mod broken_trade_reason {
         pub fn consent() -> Self{ BrokenTradeReason(b'C') }
         pub fn supervisory() -> Self{ BrokenTradeReason(b'S') }
         pub fn external() -> Self{ BrokenTradeReason(b'X') }
-        pub fn is_erroneous(reason: &BrokenTradeReason) -> bool{ Self::erroneous() == *reason }
-        pub fn is_consent(reason: &BrokenTradeReason) -> bool{ Self::consent() == *reason }
-        pub fn is_supervisory(reason: &BrokenTradeReason) -> bool{ Self::supervisory() == *reason }
-        pub fn is_external(reason: &BrokenTradeReason) -> bool{ Self::external() == *reason }
+        pub fn is_erroneous(&self) -> bool{ self.0 == b'E' }
+        pub fn is_consent(&self) -> bool{ self.0 == b'C' }
+        pub fn is_supervisory(&self) -> bool{ self.0 == b'S' }
+        pub fn is_external(&self) -> bool{ self.0 == b'X' }
     }
 }
 
@@ -654,6 +947,32 @@ pub mod order_reject_reason {
         pub fn risk_symbol_message_rate_restriction() -> Self { RejectReason(0x28) }
         pub fn risk_port_message_rate_restriction() -> Self { RejectReason(0x29) }
         pub fn risk_duplicate_message_rate_restriction() -> Self { RejectReason(0x2A) }
+        pub fn is_quote_unavailable(&self) -> bool { self.0 == 0x01 }
+        pub fn is_destination_closed(&self) -> bool { self.0 == 0x02 }
+        pub fn is_invalid_display(&self) -> bool { self.0 == 0x03 }
+        pub fn is_invalid_max_floor(&self) -> bool { self.0 == 0x04 }
+        pub fn is_invalid_peg_type(&self) -> bool { self.0 == 0x05 }
+        pub fn is_fat_finger(&self) -> bool { self.0 == 0x06 }
+        pub fn is_halted(&self) -> bool { self.0 == 0x07 }
+        pub fn is_iso_not_allowed(&self) -> bool { self.0 == 0x08 }
+        pub fn is_invalid_side(&self) -> bool { self.0 == 0x09 }
+        pub fn is_processing_error(&self) -> bool { self.0 == 0x0A }
+        pub fn is_cancel_pending(&self) -> bool { self.0 == 0x0B }
+        pub fn is_firm_not_authorized(&self) -> bool { self.0 == 0x0C }
+        pub fn is_invalid_min_quantity(&self) -> bool { self.0 == 0x0D }
+        pub fn is_no_closing_reference_price(&self) -> bool { self.0 == 0x0E }
+        pub fn is_other(&self) -> bool { self.0 == 0x0F }
+        pub fn is_risk_aggregate_exposure_exceeded(&self) -> bool { self.0 == 0x20 }
+        pub fn is_risk_market_impact(&self) -> bool { self.0 == 0x21 }
+        pub fn is_risk_restricted_stock(&self) -> bool { self.0 == 0x22 }
+        pub fn is_risk_short_sell_restricted(&self) -> bool { self.0 == 0x23 }
+        pub fn is_risk_order_type_restricted(&self) -> bool { self.0 == 0x24 }
+        pub fn is_risk_exceeds_adv_limit(&self) -> bool { self.0 == 0x25 }
+        pub fn is_risk_fat_finger(&self) -> bool { self.0 == 0x26 }
+        pub fn is_risk_locate_required(&self) -> bool { self.0 == 0x27 }
+        pub fn is_risk_symbol_message_rate_restriction(&self) -> bool { self.0 == 0x28 }
+        pub fn is_risk_port_message_rate_restriction(&self) -> bool { self.0 == 0x29 }
+        pub fn is_risk_duplicate_message_rate_restriction(&self) -> bool { self.0 == 0x2A }
     }
 }
 
@@ -666,7 +985,30 @@ pub mod order_restated_reason {
     impl RestatedReason{
         pub fn refresh_of_display() -> Self { RestatedReason(b'R') }
         pub fn update_of_displayed_price() -> Self { RestatedReason(b'P') }
-        pub fn is_refresh_of_display(reason: &RestatedReason) -> bool { Self::refresh_of_display() == *reason }
-        pub fn is_update_of_displayed_price(reason: &RestatedReason) -> bool { Self::update_of_displayed_price() == *reason }
+        pub fn is_refresh_of_display(&self) -> bool { self.0 == b'R' }
+        pub fn is_update_of_displayed_price(&self) -> bool { self.0 == b'P' }
+    }
+    impl Serialize for RestatedReason {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_refresh_of_display() {
+                serializer.serialize_str("REFRESH_OF_DISPLAY")
+            } else if self.is_update_of_displayed_price() {
+                serializer.serialize_str("UPDATE_OF_DISPLAYED_PRICE")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for RestatedReason{
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "REFRESH_OF_DISPLAY" | "R" => Ok(Self::refresh_of_display()),
+                "UPDATE_OF_DISPLAYED_PRICE" | "P" => Ok(Self::update_of_displayed_price()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
     }
 }

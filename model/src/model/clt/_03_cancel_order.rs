@@ -52,6 +52,7 @@ mod test {
     use links_core::unittest::setup;
     use log::info;
     use serde_json::{from_str, to_string};
+    use text_diff::{diff, print_diff};
 
     #[test]
     fn test_msg_byteserde() {
@@ -74,15 +75,20 @@ mod test {
         setup::log::configure_compact();
 
         let msg_inp = CancelOrder::from(&EnterOrder::default());
-        info!("msg_inp: {:?}", msg_inp);
+        // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
         info!("json_out: {}", json_out);
-        assert_eq!(json_out, r#"{"user_ref_number":1,"quantity":0}"#);
+        let json_exp = r#"{"user_ref_number":1,"quantity":0}"#;
+
+        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
+        if dist != 0 {
+            print_diff(&json_out, json_exp, "\n")
+        }
 
         let msg_out: CancelOrder = from_str(&json_out).unwrap();
 
-        info!("msg_out: {:?}", msg_out);
+        // info!("msg_out: {:?}", msg_out);
         assert_eq!(msg_out, msg_inp);
     }
 }

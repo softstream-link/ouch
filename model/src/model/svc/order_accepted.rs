@@ -182,7 +182,7 @@ mod test {
         let enter_order = EnterOrder::default();
         let msg_inp = OrderAccepted::from(&enter_order);
 
-        let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
+        let ser: ByteSerializerStack<256> = to_serializer_stack(&msg_inp).unwrap();
         info!("ser: {:#x}", ser);
 
         let msg_out: OrderAccepted = from_serializer_stack(&ser).unwrap();

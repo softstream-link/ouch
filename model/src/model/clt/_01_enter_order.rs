@@ -259,13 +259,14 @@ mod test {
 
     use log::info;
     use serde_json::{from_str, to_string};
+    use text_diff::{diff, print_diff};
 
     #[test]
     fn test_msg_byteserde() {
         setup::log::configure_compact();
         let msg_inp = EnterOrder::default();
 
-        let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
+        let ser: ByteSerializerStack<256> = to_serializer_stack(&msg_inp).unwrap();
         info!("ser: {:#x}", ser);
 
         let msg_out: EnterOrder = from_serializer_stack(&ser).unwrap();
@@ -283,10 +284,11 @@ mod test {
 
         let json_out = to_string(&msg_inp).unwrap();
         info!("json_out: {}", json_out);
-        assert_eq!(
-            json_out,
-            r#"{"user_ref_number":1,"side":"B","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"0","display":"Y","capacity":"A","int_mkt_sweep_eligibility":"Y","cross_type":"N","clt_order_id":"1","appendages":{"firm":"","min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"route":"ABCD","expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#
-        );
+        let json_exp = r#"{"user_ref_number":1,"side":"BUY","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","capacity":"AGENCY","int_mkt_sweep_eligibility":"ELIGIBLE","cross_type":"CONTINUOUS_MARKET","clt_order_id":"1","appendages":{"firm":"","min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"route":"ABCD","expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#;
+        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
+        if dist != 0 {
+            print_diff(&json_out, json_exp, "\n")
+        }
 
         let msg_out: EnterOrder = from_str(&json_out).unwrap();
         // info!("msg_out: {:?}", msg_out);

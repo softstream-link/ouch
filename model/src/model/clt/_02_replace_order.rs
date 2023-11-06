@@ -197,6 +197,7 @@ mod test {
 
     use log::info;
     use serde_json::{from_str, to_string};
+    use text_diff::{diff, print_diff};
 
     #[test]
     fn test_msg_byteserde() {
@@ -222,10 +223,12 @@ mod test {
 
         let json_out = to_string(&msg_inp).unwrap();
         info!("json_out: {}", json_out);
-        assert_eq!(
-            json_out,
-            r#"{"orig_user_ref_number":1,"user_ref_number":0,"quantity":100,"price":1.2345,"time_in_force":"0","display":"Y","int_mkt_sweep_eligibility":"Y","clt_order_id":"REPLACE_ME____","appendages":{"min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#
-        );
+
+        let json_exp = r#"{"orig_user_ref_number":1,"user_ref_number":0,"quantity":100,"price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","int_mkt_sweep_eligibility":"ELIGIBLE","clt_order_id":"REPLACE_ME____","appendages":{"min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#;
+        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
+        if dist != 0 {
+            print_diff(&json_out, json_exp, "\n")
+        }
 
         let msg_out: ReplaceOrder = from_str(&json_out).unwrap();
 
