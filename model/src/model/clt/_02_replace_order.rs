@@ -65,8 +65,8 @@ pub struct ReplaceOrderAppendage {
     pub random_reserves: Option<TagValueElement<RandomReserves>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[byteserde(eq(ExpireTimeSec::tag_as_slice()))]
-    pub expire_time: Option<TagValueElement<ExpireTimeSec>>,
+    #[byteserde(eq(ExpireTime::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTime>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(TradeNow::tag_as_slice()))]
@@ -222,12 +222,12 @@ mod test {
         // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
+        let json_exp = r#"{"orig_user_ref_number":1,"user_ref_number":0,"quantity":100,"price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","int_mkt_sweep_eligibility":"ELIGIBLE","clt_order_id":"REPLACE_ME____","appendages":{"min_qty":0,"customer_type":"PORT_DEFAULT","max_floor":0,"price_type":"LIMIT","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"LIMIT","discretion_peg_offset":-1.1234,"post_only":"NO","random_reserves":0,"expire_time":0,"trade_now":"PORT_DEFAULT","handle_inst":"NO_INSTRUCTIONS","group_id":0,"shares_located":"NO"}}"#;
         info!("json_out: {}", json_out);
 
-        let json_exp = r#"{"orig_user_ref_number":1,"user_ref_number":0,"quantity":100,"price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","int_mkt_sweep_eligibility":"ELIGIBLE","clt_order_id":"REPLACE_ME____","appendages":{"min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#;
-        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
-        if dist != 0 {
-            print_diff(&json_out, json_exp, "\n")
+        if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {
+            print_diff(&json_out, json_exp, ",");
+            assert_eq!(json_out, json_exp);
         }
 
         let msg_out: ReplaceOrder = from_str(&json_out).unwrap();

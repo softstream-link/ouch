@@ -60,7 +60,7 @@ fn ouch_order_accepted(c: &mut Criterion) {
     //     })
     // });
 
-    let msg_inp: SvcSoupBinTcpMsg<SvcOuchPayload> = OrderAccepted::from(&EnterOrder::default()).into();
+    let msg_inp: SvcSoupBinTcpMsg<SvcOuchPayload> = OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into();
     c.bench_function("soupbintcp_ouch_order_accepted_ser", |b| {
         b.iter(|| {
             black_box({

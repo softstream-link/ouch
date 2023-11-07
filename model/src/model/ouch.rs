@@ -4,7 +4,7 @@ use soupbintcp_model::prelude::{CltSoupBinTcpMsg, SoupBinTcpMsg, SoupBinTcpPaylo
 
 use crate::prelude::*;
 
-use super::svc::order_aiq_canceled::OrderAiqCanceled;
+use super::svc::_04_order_aiq_canceled::OrderAiqCanceled;
 
 #[rustfmt::skip]
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Clone, Debug, TryInto)]
@@ -331,18 +331,18 @@ mod test {
         let cancel_ord = CancelOrder::from(&enter_ord);
         let modify_order = ModifyOrder::from((&enter_ord, Side::buy(), 10.into()));
 
-        let ord_accepted = OrderAccepted::from(&enter_ord);
+        let ord_accepted = OrderAccepted::from((&enter_ord, OrderReferenceNumber::default(), OrderState::live()));
         let ord_replaced = OrderReplaced::from((&enter_ord, &replace_ord));
         let ord_canceled = OrderCanceled::from((&enter_ord, &cancel_ord));
-        let ord_aqi_canceled = OrderAiqCanceled::from(&enter_ord);
+        let ord_aqi_canceled = OrderAiqCanceled::from((&enter_ord, 0.into(), CancelAiqReason::default(), 0.into(), 0.0.into(), LiquidityFlag::added(), AiqStrategy::default()));
         let ord_executed = OrderExecuted::from(&enter_ord);
-        let brkn_trade = BrokenTrade::from(&enter_ord);
+        let brkn_trade = BrokenTrade::from((&enter_ord, 1.into(), BrokenTradeReason::erroneous()));
         let ord_rejected = OrderRejected::from((&enter_ord, RejectReason::halted()));
         let can_pending = CancelPending::from(&enter_ord);
         let can_reject = CancelReject::from(&enter_ord);
         let pri_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
-        let ord_modified = OrderModified::from((&enter_ord, Side::buy()));
-        let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display()));
+        let ord_modified = OrderModified::from((&enter_ord, 1.into()));
+        let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display(), 1.into(), 0.0.into(), 1.into()));
 
         let msg_inp = vec![
             enter_ord.into(),
@@ -362,8 +362,8 @@ mod test {
             ord_aqi_canceled.into(),
             brkn_trade.into(),
             pri_update.into(),
-            AccountQueryResponse::default().into(),
-            SystemEvent::default().into(),
+            AccountQueryResponse::from(1).into(),
+            SystemEvent::start_of_day().into(),
         ];
         let mut ser = ByteSerializerStack::<1024>::default();
         for msg in msg_inp.iter() {
@@ -406,18 +406,18 @@ mod test {
         let cancel_ord = CancelOrder::from(&enter_ord);
         let modify_ord = ModifyOrder::from((&enter_ord, Side::buy(), 10.into()));
 
-        let ord_accepted = OrderAccepted::from(&enter_ord);
+        let ord_accepted = OrderAccepted::from((&enter_ord, OrderReferenceNumber::default(), OrderState::live()));
         let ord_replaced = OrderReplaced::from((&enter_ord, &replace_ord));
         let ord_canceled = OrderCanceled::from((&enter_ord, &cancel_ord));
-        let ord_aqi_canceled = OrderAiqCanceled::from(&enter_ord);
+        let ord_aqi_canceled = OrderAiqCanceled::from((&enter_ord, 0.into(), CancelAiqReason::default(), 0.into(), 0.0.into(), LiquidityFlag::added(), AiqStrategy::default()));
         let ord_executed = OrderExecuted::from(&enter_ord);
-        let brkn_trade = BrokenTrade::from(&enter_ord);
+        let brkn_trade = BrokenTrade::from((&enter_ord, 1.into(), BrokenTradeReason::erroneous()));
         let ord_rejected = OrderRejected::from((&enter_ord, RejectReason::halted()));
         let can_pending = CancelPending::from(&enter_ord);
         let can_reject = CancelReject::from(&enter_ord);
         let pri_update = PriorityUpdate::from((&enter_ord, OrderReferenceNumber::default()));
-        let ord_modified = OrderModified::from((&enter_ord, Side::buy()));
-        let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display()));
+        let ord_modified = OrderModified::from((&enter_ord, 1.into()));
+        let ord_rstd = OrderRestated::from((&enter_ord, RestatedReason::refresh_of_display(), 1.into(), 0.0.into(), 1.into()));
         let inb = vec![
             CltOuchPayload::Enter(enter_ord),
             CltOuchPayload::Replace(replace_ord),
@@ -426,7 +426,7 @@ mod test {
             CltOuchPayload::AccQry(AccountQueryRequest::default()),
         ];
         let oub = vec![
-            SvcOuchPayload::SysEvt(SystemEvent::default()),
+            SvcOuchPayload::SysEvt(SystemEvent::start_of_day()),
             SvcOuchPayload::Accepted(ord_accepted),
             SvcOuchPayload::Replaced(ord_replaced),
             SvcOuchPayload::Canceled(ord_canceled),
@@ -439,7 +439,7 @@ mod test {
             SvcOuchPayload::PriUpdate(pri_update),
             SvcOuchPayload::Modified(ord_modified),
             SvcOuchPayload::Restated(ord_rstd),
-            SvcOuchPayload::AccQryRes(AccountQueryResponse::default()),
+            SvcOuchPayload::AccQryRes(AccountQueryResponse::from(1)),
         ];
 
         let inb = inb.into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();

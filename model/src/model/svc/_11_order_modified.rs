@@ -4,42 +4,23 @@ use serde::{Deserialize, Serialize};
 
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Debug)]
 #[byteserde(endian = "be")]
-pub struct CancelOrder {
+pub struct OrderModified {
     #[serde(default, skip_serializing)]
-    packet_type: PacketTypeCancelOrder,
+    packet_type: PacketTypeOrderModified,
+    pub timestamp: Timestamp, // Venue assigned
     pub user_ref_number: UserRefNumber,
+    pub side: Side,
     pub quantity: Quantity,
 }
-pub trait CancelableOrder {
-    fn user_ref_number(&self) -> UserRefNumber;
-    fn quantity(&self) -> Quantity;
-    fn cl_ord_id(&self) -> CltOrderId;
-}
-impl<T: CancelableOrder> From<(&T, Quantity)> for CancelOrder {
-    fn from(value: (&T, Quantity)) -> Self {
-        let (ord, quantity) = (value.0, value.1);
 
+impl From<(&EnterOrder, Quantity)> for OrderModified {
+    fn from(value: (&EnterOrder, Quantity)) -> Self {
+        let (ord, quantity) = value;
         Self {
-            packet_type: PacketTypeCancelOrder::default(),
+            packet_type: PacketTypeOrderModified::default(),
+            timestamp: Timestamp::default(), // Venue assigned
             user_ref_number: ord.user_ref_number(),
-            quantity,
-        }
-    }
-}
-impl<T: CancelableOrder> From<&T> for CancelOrder {
-    fn from(ord: &T) -> Self {
-        Self {
-            packet_type: PacketTypeCancelOrder::default(),
-            user_ref_number: ord.user_ref_number(),
-            quantity: 0.into(),
-        }
-    }
-}
-impl CancelOrder {
-    pub fn new(user_ref_number: UserRefNumber, quantity: Quantity) -> Self {
-        Self {
-            packet_type: PacketTypeCancelOrder::default(),
-            user_ref_number,
+            side: ord.side,
             quantity,
         }
     }
@@ -58,27 +39,29 @@ mod test {
     fn test_msg_byteserde() {
         setup::log::configure_compact();
 
-        let msg_inp = CancelOrder::from(&EnterOrder::default());
+        let enter_order = EnterOrder::default();
+        let msg_inp = OrderModified::from((&enter_order, 1.into()));
 
         let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
         info!("ser: {:#x}", ser);
 
-        let msg_out: CancelOrder = from_serializer_stack(&ser).unwrap();
+        let msg_out: OrderModified = from_serializer_stack(&ser).unwrap();
 
         info!("msg_inp: {:?}", msg_inp);
         info!("msg_out: {:?}", msg_out);
         assert_eq!(msg_out, msg_inp);
     }
-
     #[test]
     fn test_msg_serde() {
         setup::log::configure_compact();
 
-        let msg_inp = CancelOrder::from(&EnterOrder::default());
+        let enter_order = EnterOrder::default();
+        let mut msg_inp = OrderModified::from((&enter_order, 1.into()));
+        msg_inp.timestamp = 1.into();
         // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
-        let json_exp = r#"{"user_ref_number":1,"quantity":0}"#;
+        let json_exp = r#"{"timestamp":1,"user_ref_number":1,"side":"BUY","quantity":1}"#;
         info!("json_out: {}", json_out);
 
         if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {
@@ -86,8 +69,7 @@ mod test {
             assert_eq!(json_out, json_exp);
         }
 
-        let msg_out: CancelOrder = from_str(&json_out).unwrap();
-
+        let msg_out: OrderModified = from_str(&json_out).unwrap();
         // info!("msg_out: {:?}", msg_out);
         assert_eq!(msg_out, msg_inp);
     }

@@ -1,40 +1,37 @@
 pub mod setup {
     pub mod model {
+
         use crate::prelude::*;
 
-        // #[rustfmt::skip]
-        // pub fn svc_msgs_default<P>() -> Vec<SvcSoupBinTcpMsg<P>>
-        // where
-        //     P: SoupBinTcpPayload<P> + Default,
-        // {
-        //     vec![
-        //         SvcSoupBinTcpMsg::Hbeat(SvcHeartbeat::default()),
-        //         SvcSoupBinTcpMsg::Dbg(Debug::default()),
-        //         SvcSoupBinTcpMsg::LoginAccepted(LoginAccepted::default()),
-        //         SvcSoupBinTcpMsg::LoginRejected(LoginRejected::not_authorized()),
-        //         SvcSoupBinTcpMsg::EndOfSession(EndOfSession::default()),
-        //         SvcSoupBinTcpMsg::SPayload(SPayload::new(P::default())),
-        //         SvcSoupBinTcpMsg::UPayload(UPayload::new(P::default())),
-        //     ]
-        // }
+        pub fn svc_msgs_default() -> Vec<SvcOuchMsg> {
+            vec![
+                SystemEvent::start_of_day().into(),
+                OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into(),
+                OrderReplaced::from((&EnterOrder::default(), &ReplaceOrder::from(&EnterOrder::default()))).into(),
+                OrderCanceled::from((&EnterOrder::default(), &CancelOrder::from((&EnterOrder::default(), 10.into())))).into(),
+                OrderAiqCanceled::from((&EnterOrder::default(), 0.into(), CancelAiqReason::default(), 0.into(), 0.0.into(), LiquidityFlag::added(), AiqStrategy::default())).into(),
+                OrderExecuted::from(&EnterOrder::default()).into(),
+                
+                SvcHeartbeat::default().into(),
+                Debug::default().into(),
+                LoginAccepted::default().into(),
+                LoginRejected::not_authorized().into(),
+                EndOfSession::default().into(),
+            ]
+        }
 
-        // #[rustfmt::skip]
-        pub fn clt_msgs_default<P>() -> Vec<CltOuchMsg>
-        where P: SoupBinTcpPayload<P>+Default {
+        pub fn clt_msgs_default() -> Vec<CltOuchMsg> {
             vec![
                 EnterOrder::default().into(),
                 ReplaceOrder::from(&EnterOrder::default()).into(),
                 CancelOrder::from((&EnterOrder::default(), 10.into())).into(),
                 ModifyOrder::from((&EnterOrder::default(), Side::sell(), 10.into())).into(),
-                // CltSoupBinTcpMsg::Hbeat(CltHeartbeat::default()),
-                // CltSoupBinTcpMsg::Dbg(Debug::default()),
-                // CltSoupBinTcpMsg::Login(LoginRequest::default()),
-                // CltSoupBinTcpMsg::Logout(LogoutRequest::default()),
-                // CltSoupBinTcpMsg::SPayload(SPayload::new(P::default())),
-                // CltSoupBinTcpMsg::UPayload(UPayload::new(P::default())),
+                AccountQueryRequest::default().into(),
+                CltHeartbeat::default().into(),
+                Debug::default().into(),
+                LoginRequest::default().into(),
+                LogoutRequest::default().into(),
             ]
         }
     }
 }
-
-

@@ -72,12 +72,12 @@ mod test {
         // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
-        info!("json_out: {}", json_out);
         let json_exp = r#"{"user_ref_number":1,"side":"BUY","quantity":10}"#;
+        info!("json_out: {}", json_out);
 
-        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
-        if dist != 0 {
-            print_diff(&json_out, json_exp, "\n")
+        if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {
+            print_diff(&json_out, json_exp, ",");
+            assert_eq!(json_out, json_exp);
         }
 
         let msg_out: ModifyOrder = from_str(&json_out).unwrap();

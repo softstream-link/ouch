@@ -3,7 +3,7 @@ pub use super::optional_filed_types::*;
 pub use aiq_strategy::AiqStrategy;
 pub use broken_trade_reason::BrokenTradeReason;
 pub use cancel_reason::CancelReason;
-pub use cancel_reason_aiq::CancelReasonAiq;
+pub use cancel_reason_aiq::CancelAiqReason;
 pub use capacity::Capacity;
 pub use clt_order_id::*;
 pub use cross_type::CrossType;
@@ -407,12 +407,8 @@ pub mod event_code {
     impl EventCode{
         pub fn start_of_day() -> Self { EventCode(b'S') }
         pub fn end_of_day() -> Self { EventCode(b'E') }
-        pub fn market_hours() -> Self { EventCode(b'M') }
-        pub fn after_hours() -> Self { EventCode(b'A') }
         pub fn is_start_of_day(&self) -> bool { self.0 == b'S' }
         pub fn is_end_of_day(&self) -> bool { self.0 == b'E' }
-        pub fn is_market_hours(&self) -> bool { self.0 == b'M' }
-        pub fn is_after_hours(&self) -> bool { self.0 == b'A' }
     }
     impl Serialize for EventCode {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -421,10 +417,6 @@ pub mod event_code {
                 serializer.serialize_str("START_OF_DAY")
             } else if self.is_end_of_day() {
                 serializer.serialize_str("END_OF_DAY")
-            } else if self.is_market_hours() {
-                serializer.serialize_str("MARKET_HOURS")
-            } else if self.is_after_hours() {
-                serializer.serialize_str("AFTER_HOURS")
             } else {
                 serializer.serialize_str("UNKNOWN")
             }
@@ -437,8 +429,6 @@ pub mod event_code {
             match value.as_str() {
                 "START_OF_DAY" | "S" => Ok(Self::start_of_day()),
                 "END_OF_DAY" | "E" => Ok(Self::end_of_day()),
-                "MARKET_HOURS" | "M" => Ok(Self::market_hours()),
-                "AFTER_HOURS" | "A" => Ok(Self::after_hours()),
                 _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
             }
         }
@@ -593,8 +583,8 @@ pub mod timestamp {
     use super::*;
     use chrono::{DateTime, Local, NaiveDateTime, Utc};
 
-    #[rustfmt::skip]
-    u64_tuple!(Timestamp, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Debug, Clone, Copy)]);
+    // TODO add json friendly serialization 1h:30m:15s:123ms:456us:789ns example: 01:30:15.123456789
+    u64_tuple!(Timestamp, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]);
     impl From<DateTime<Local>> for Timestamp {
         /// Converts into nanoseconds from last midnight of a given [`DateTime<Local>`] and into a [Timestamp]
         fn from(dt: DateTime<Local>) -> Self {
@@ -617,6 +607,7 @@ pub mod timestamp {
         }
     }
     impl Default for Timestamp {
+        #[inline(always)]
         fn default() -> Self {
             Timestamp::from(Local::now())
         }
@@ -652,7 +643,7 @@ pub mod timestamp {
 pub mod order_reference_number {
     use super::*;
     #[rustfmt::skip]
-    u64_tuple!(OrderReferenceNumber, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default)]);
+    u64_tuple!(OrderReferenceNumber, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
 
     #[derive(Default)]
     pub struct OrderReferenceNumberIterator {
@@ -793,14 +784,14 @@ pub mod cancel_reason_aiq {
     use super::*;
 
     #[rustfmt::skip]
-    const_char_ascii!(CancelReasonAiq, b'Q', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(CancelAiqReason, b'Q', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
 }
 
 pub mod liquidity_flag {
     use super::*;
 
     #[rustfmt::skip]
-    char_ascii!(LiquidityFlag, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(LiquidityFlag,  #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     #[rustfmt::skip]
     impl LiquidityFlag {
         pub fn added() -> Self{ LiquidityFlag(b'A') }
@@ -852,12 +843,101 @@ pub mod liquidity_flag {
         pub fn is_displayed_liq_adding_order_sets_qbbo(&self) -> bool{ self.0 == b'8' }
         pub fn is_rpi_order_provides_liq_no_rpii(&self) -> bool{ self.0 == b'1' }
     }
+    impl Serialize for LiquidityFlag {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_added() {
+                serializer.serialize_str("ADDED")
+            } else if self.is_closing_cross() {
+                serializer.serialize_str("CLOSING_CROSS")
+            } else if self.is_retail_designated_that_added_display_liq() {
+                serializer.serialize_str("RETAIL_DESIGNATED_THAT_ADDED_DISPLAY_LIQ")
+            } else if self.is_halt_ipo_cross() {
+                serializer.serialize_str("HALT_IPO_CROSS")
+            } else if self.is_after_hours_closing_cross() {
+                serializer.serialize_str("AFTER_HOURS_CLOSING_CROSS")
+            } else if self.is_non_display_adding_liq() {
+                serializer.serialize_str("NON_DISPLAY_ADDING_LIQ")
+            } else if self.is_rpi_order_provides_liq() {
+                serializer.serialize_str("RPI_ORDER_PROVIDES_LIQ")
+            } else if self.is_added_liq_via_midpoint_order() {
+                serializer.serialize_str("ADDED_LIQ_VIA_MIDPOINT_ORDER")
+            } else if self.is_halt_cross() {
+                serializer.serialize_str("HALT_CROSS")
+            } else if self.is_closing_cross_imbalance() {
+                serializer.serialize_str("CLOSING_CROSS_IMBALANCE")
+            } else if self.is_opening_cross_imbalance() {
+                serializer.serialize_str("OPENING_CROSS_IMBALANCE")
+            } else if self.is_removed_liq_at_midpoint() {
+                serializer.serialize_str("REMOVED_LIQ_AT_MIDPOINT")
+            } else if self.is_passing_midpoint_execution() {
+                serializer.serialize_str("PASSING_MIDPOINT_EXECUTION")
+            } else if self.is_midpoint_extended_life_order() {
+                serializer.serialize_str("MIDPOINT_EXTENDED_LIFE_ORDER")
+            } else if self.is_opening_cross() {
+                serializer.serialize_str("OPENING_CROSS")
+            } else if self.is_removed_price_improving_non_display_liq() {
+                serializer.serialize_str("REMOVED_PRICE_IMPROVING_NON_DISPLAY_LIQ")
+            } else if self.is_rmo_retail_order_removes_non_rpi_midpoint_liq() {
+                serializer.serialize_str("RMO_RETAIL_ORDER_REMOVES_NON_RPI_MIDPOINT_LIQ")
+            } else if self.is_removed() {
+                serializer.serialize_str("REMOVED")
+            } else if self.is_retail_order_removes_rpi_liq() {
+                serializer.serialize_str("RETAIL_ORDER_REMOVES_RPI_LIQ")
+            } else if self.is_retain_order_removes_price_improving_non_display_liq_not_rpi_liq() {
+                serializer.serialize_str("RETAIN_ORDER_REMOVES_PRICE_IMPROVING_NON_DISPLAY_LIQ_NOT_RPI_LIQ")
+            } else if self.is_supplemental_order_execution() {
+                serializer.serialize_str("SUPPLEMENTAL_ORDER_EXECUTION")
+            } else if self.is_displayed_liq_adding_order_improves_nnbo() {
+                serializer.serialize_str("DISPLAYED_LIQ_ADDING_ORDER_IMPROVES_NNBO")
+            } else if self.is_displayed_liq_adding_order_sets_qbbo() {
+                serializer.serialize_str("DISPLAYED_LIQ_ADDING_ORDER_SETS_QBBO")
+            } else if self.is_rpi_order_provides_liq_no_rpii() {
+                serializer.serialize_str("RPI_ORDER_PROVIDES_LIQ_NO_RPII")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for LiquidityFlag {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "ADDED" | "A" => Ok(Self::added()),
+                "CLOSING_CROSS" | "C" => Ok(Self::closing_cross()),
+                "RETAIL_DESIGNATED_THAT_ADDED_DISPLAY_LIQ" | "e" => Ok(Self::retail_designated_that_added_display_liq()),
+                "HALT_IPO_CROSS" | "H" => Ok(Self::halt_ipo_cross()),
+                "AFTER_HOURS_CLOSING_CROSS" | "i" => Ok(Self::after_hours_closing_cross()),
+                "NON_DISPLAY_ADDING_LIQ" | "J" => Ok(Self::non_display_adding_liq()),
+                "RPI_ORDER_PROVIDES_LIQ" | "j" => Ok(Self::rpi_order_provides_liq()),
+                "ADDED_LIQ_VIA_MIDPOINT_ORDER" | "k" => Ok(Self::added_liq_via_midpoint_order()),
+                "HALT_CROSS" | "K" => Ok(Self::halt_cross()),
+                "CLOSING_CROSS_IMBALANCE" | "L" => Ok(Self::closing_cross_imbalance()),
+                "OPENING_CROSS_IMBALANCE" | "M" => Ok(Self::opening_cross_imbalance()),
+                "REMOVED_LIQ_AT_MIDPOINT" | "m" => Ok(Self::removed_liq_at_midpoint()),
+                "PASSING_MIDPOINT_EXECUTION" | "N" => Ok(Self::passing_midpoint_execution()),
+                "MIDPOINT_EXTENDED_LIFE_ORDER" | "n" => Ok(Self::midpoint_extended_life_order()),
+                "OPENING_CROSS" | "O" => Ok(Self::opening_cross()),
+                "REMOVED_PRICE_IMPROVING_NON_DISPLAY_LIQ" | "p" => Ok(Self::removed_price_improving_non_display_liq()),
+                "RMO_RETAIL_ORDER_REMOVES_NON_RPI_MIDPOINT_LIQ" | "q" => Ok(Self::rmo_retail_order_removes_non_rpi_midpoint_liq()),
+                "REMOVED" | "R" => Ok(Self::removed()),
+                "RETAIL_ORDER_REMOVES_RPI_LIQ" | "r" => Ok(Self::retail_order_removes_rpi_liq()),
+                "RETAIN_ORDER_REMOVES_PRICE_IMPROVING_NON_DISPLAY_LIQ_NOT_RPI_LIQ" | "t" => Ok(Self::retain_order_removes_price_improving_non_display_liq_not_rpi_liq()),
+                "SUPPLEMENTAL_ORDER_EXECUTION" | "0" => Ok(Self::supplemental_order_execution()),
+                "DISPLAYED_LIQ_ADDING_ORDER_IMPROVES_NNBO" | "7" => Ok(Self::displayed_liq_adding_order_improves_nnbo()),
+                "DISPLAYED_LIQ_ADDING_ORDER_SETS_QBBO" | "8" => Ok(Self::displayed_liq_adding_order_sets_qbbo()),
+                "RPI_ORDER_PROVIDES_LIQ_NO_RPII" | "1" => Ok(Self::rpi_order_provides_liq_no_rpii()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
+    }
 }
 
 pub mod aiq_strategy {
     use super::*;
 
-    char_ascii!(AiqStrategy, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    char_ascii!(AiqStrategy, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     impl Default for AiqStrategy {
         fn default() -> Self {
             AiqStrategy(b'?') // specification does not list valid values
@@ -868,7 +948,7 @@ pub mod aiq_strategy {
 pub mod match_number {
     use super::*;
 
-    u64_tuple!(MatchNumber, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default)]);
+    u64_tuple!(MatchNumber, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
     #[derive(Default)]
     pub struct MatchNumberIterator {
         last: u64,
@@ -897,12 +977,41 @@ pub mod broken_trade_reason {
         pub fn is_supervisory(&self) -> bool{ self.0 == b'S' }
         pub fn is_external(&self) -> bool{ self.0 == b'X' }
     }
+    impl Serialize for BrokenTradeReason {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer {
+            if self.is_erroneous() {
+                serializer.serialize_str("ERRONEOUS")
+            } else if self.is_consent() {
+                serializer.serialize_str("CONSENT")
+            } else if self.is_supervisory() {
+                serializer.serialize_str("SUPERVISORY")
+            } else if self.is_external() {
+                serializer.serialize_str("EXTERNAL")
+            } else {
+                serializer.serialize_str("UNKNOWN")
+            }
+        }
+    }
+    impl<'de> Deserialize<'de> for BrokenTradeReason {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where D: Deserializer<'de> {
+            let value = String::deserialize(deserializer)?.to_uppercase();
+            match value.as_str() {
+                "ERRONEOUS" | "E" => Ok(Self::erroneous()),
+                "CONSENT" | "C" => Ok(Self::consent()),
+                "SUPERVISORY" | "S" => Ok(Self::supervisory()),
+                "EXTERNAL" | "X" => Ok(Self::external()),
+                _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+            }
+        }
+    }
 }
 
 pub mod order_reject_reason {
     use super::*;
 
-    u16_tuple!(RejectReason, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy, Debug, Default)]);
+    u16_tuple!(RejectReason, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
     #[rustfmt::skip]
     impl RejectReason{
         pub fn quote_unavailable() -> Self{ RejectReason(0x01) }
@@ -1000,7 +1109,7 @@ pub mod order_restated_reason {
             }
         }
     }
-    impl<'de> Deserialize<'de> for RestatedReason{
+    impl<'de> Deserialize<'de> for RestatedReason {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where D: Deserializer<'de> {
             let value = String::deserialize(deserializer)?.to_uppercase();

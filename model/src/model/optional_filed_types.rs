@@ -1,7 +1,9 @@
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf, ByteSerializedSizeOf};
 use byteserde_types::{char_ascii, f32_tuple, string_ascii_fixed, u16_tuple, u32_tuple, u64_tuple};
+use links_core::core::macros::short_type_name;
 use serde::{Deserialize, Serialize};
+use serde::{Deserializer, Serializer};
 use std::mem::size_of;
 
 pub use optional_values::{
@@ -112,19 +114,19 @@ macro_rules! f32_unsigned_price_u64 {
                 TagValueElement::new(v)
             }
         }
-        impl Serialize for $TYPE {
+        impl serde::Serialize for $TYPE {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where S: serde::Serializer {
                 serializer.serialize_f32(f32::from(self))
             }
         }
-        impl<'de> Deserialize<'de> for $TYPE {
+        impl<'de> serde::Deserialize<'de> for $TYPE {
             fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
                 let f = f32::deserialize(deserializer)?;
                 Ok(f.into())
             }
         }
-        impl Debug for $TYPE {
+        impl std::fmt::Debug for $TYPE {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.debug_tuple(short_type_name::<$TYPE>()).field(&f32::from(self)).finish()
             }
@@ -239,7 +241,7 @@ mod optional_values {
     }
     pub mod customer_type {
         use super::*;
-        char_ascii!(CustomerType, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(CustomerType,  #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(CustomerType, 4);
         char_ascii_into_tag_value!(CustomerType);
 
@@ -248,9 +250,10 @@ mod optional_values {
             pub fn retail() -> Self{ CustomerType(b'R') }
             pub fn non_retail() -> Self{ CustomerType(b'N') }
             pub fn port_default() -> Self{ CustomerType(b' ') }
-            pub fn is_retail(other: CustomerType) -> bool{ CustomerType(b'R') == other}
-            pub fn is_non_retail(other: CustomerType) -> bool{ CustomerType(b'N') == other }
-            pub fn is_port_default(other: CustomerType) -> bool{ CustomerType(b' ') == other }
+            pub fn is_retail(&self) -> bool{ self.0 == b'R' }
+            pub fn is_non_retail(&self) -> bool{ self.0 == b'N' }
+            pub fn is_port_default(&self) -> bool{ self.0 == b' ' }
+
         }
         impl Default for CustomerType {
             /// Space, Port Default
@@ -259,7 +262,32 @@ mod optional_values {
                 CustomerType::port_default()
             }
         }
-
+        impl Serialize for CustomerType {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_retail() {
+                    serializer.serialize_str("RETAIL")
+                } else if self.is_non_retail() {
+                    serializer.serialize_str("NON_RETAIL")
+                } else if self.is_port_default() {
+                    serializer.serialize_str("PORT_DEFAULT")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for CustomerType {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "RETAIL" | "R" => Ok(CustomerType::retail()),
+                    "NON_RETAIL" | "N" => Ok(CustomerType::non_retail()),
+                    "PORT_DEFAULT" | " " => Ok(CustomerType::port_default()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
+            }
+        }
         #[cfg(test)]
         mod test {
             use crate::prelude::*;
@@ -275,7 +303,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""N""#);
+                assert_eq!(json_out, r#""NON_RETAIL""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -321,7 +349,7 @@ mod optional_values {
     }
     pub mod price_type {
         use super::*;
-        char_ascii!(PriceType, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(PriceType, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(PriceType, 6);
         char_ascii_into_tag_value!(PriceType);
 
@@ -332,11 +360,12 @@ mod optional_values {
             pub fn mid_point_peg() -> Self{ PriceType(b'M') }
             pub fn primary_peg() -> Self{ PriceType(b'R') }
             pub fn market_maker_peg() -> Self{ PriceType(b'Q') }
-            pub fn is_limit(other: PriceType) -> bool{ PriceType(b'L') == other }
-            pub fn is_market_peg(other: PriceType) -> bool{ PriceType(b'P') == other }
-            pub fn is_mid_point_peg(other: PriceType) -> bool{ PriceType(b'M') == other }
-            pub fn is_primary_peg(other: PriceType) -> bool{ PriceType(b'R') == other }
-            pub fn is_market_maker_peg(other: PriceType) -> bool{ PriceType(b'Q') == other }
+            pub fn is_limit(&self) -> bool{ self.0 == b'L' }
+            pub fn is_market_peg(&self) -> bool{ self.0 == b'P' }
+            pub fn is_mid_point_peg(&self) -> bool{ self.0 == b'M' }
+            pub fn is_primary_peg(&self) -> bool{ self.0 == b'R' }
+            pub fn is_market_maker_peg(&self) -> bool{ self.0 == b'Q' }
+
         }
         impl Default for PriceType {
             /// 'L', Limit
@@ -345,7 +374,38 @@ mod optional_values {
                 PriceType::limit()
             }
         }
-
+        impl Serialize for PriceType {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_limit() {
+                    serializer.serialize_str("LIMIT")
+                } else if self.is_market_peg() {
+                    serializer.serialize_str("MARKET_PEG")
+                } else if self.is_mid_point_peg() {
+                    serializer.serialize_str("MID_POINT_PEG")
+                } else if self.is_primary_peg() {
+                    serializer.serialize_str("PRIMARY_PEG")
+                } else if self.is_market_maker_peg() {
+                    serializer.serialize_str("MARKET_MAKER_PEG")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for PriceType {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "LIMIT" | "L" => Ok(PriceType::limit()),
+                    "MARKET_PEG" | "P" => Ok(PriceType::market_peg()),
+                    "MID_POINT_PEG" | "M" => Ok(PriceType::mid_point_peg()),
+                    "PRIMARY_PEG" | "R" => Ok(PriceType::primary_peg()),
+                    "MARKET_MAKER_PEG" | "Q" => Ok(PriceType::market_maker_peg()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
+            }
+        }
         #[cfg(test)]
         mod test {
             use crate::prelude::*;
@@ -361,7 +421,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""L""#);
+                assert_eq!(json_out, r#""LIMIT""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -412,7 +472,6 @@ mod optional_values {
     pub mod discretion_price {
         use super::*;
         use links_core::core::macros::short_type_name;
-        use std::fmt::Debug;
 
         u64_tuple!(DiscretionPrice, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(DiscretionPrice, 9);
@@ -456,7 +515,7 @@ mod optional_values {
     }
     pub mod discretion_price_type {
         use super::*;
-        char_ascii!(DiscretionPriceType, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(DiscretionPriceType, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(DiscretionPriceType, 10);
         char_ascii_into_tag_value!(DiscretionPriceType);
 
@@ -466,16 +525,45 @@ mod optional_values {
             pub fn market_peg() -> Self{ DiscretionPriceType(b'P') }
             pub fn mid_point_peg() -> Self{ DiscretionPriceType(b'M') }
             pub fn primary_peg() -> Self{ DiscretionPriceType(b'R') }
-            pub fn is_limit(other: DiscretionPriceType) -> bool{ DiscretionPriceType(b'L') == other }
-            pub fn is_market_peg(other: DiscretionPriceType) -> bool{ DiscretionPriceType(b'P') == other }
-            pub fn is_mid_point_peg(other: DiscretionPriceType) -> bool{ DiscretionPriceType(b'M') == other }
-            pub fn is_primary_peg(other: DiscretionPriceType) -> bool{ DiscretionPriceType(b'R') == other }
+            pub fn is_limit(&self) -> bool{ self.0 == b'L' }
+            pub fn is_market_peg(&self) -> bool{ self.0 == b'P' }
+            pub fn is_mid_point_peg(&self) -> bool{ self.0 == b'M' }
+            pub fn is_primary_peg(&self) -> bool{ self.0 == b'R' }
         }
         impl Default for DiscretionPriceType {
             /// 'L', Limit
             #[inline(always)]
             fn default() -> Self {
                 DiscretionPriceType::limit()
+            }
+        }
+        impl Serialize for DiscretionPriceType {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_limit() {
+                    serializer.serialize_str("LIMIT")
+                } else if self.is_market_peg() {
+                    serializer.serialize_str("MARKET_PEG")
+                } else if self.is_mid_point_peg() {
+                    serializer.serialize_str("MID_POINT_PEG")
+                } else if self.is_primary_peg() {
+                    serializer.serialize_str("PRIMARY_PEG")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for DiscretionPriceType {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "LIMIT" | "L" => Ok(DiscretionPriceType::limit()),
+                    "MARKET_PEG" | "P" => Ok(DiscretionPriceType::market_peg()),
+                    "MID_POINT_PEG" | "M" => Ok(DiscretionPriceType::mid_point_peg()),
+                    "PRIMARY_PEG" | "R" => Ok(DiscretionPriceType::primary_peg()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
             }
         }
 
@@ -494,7 +582,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""L""#);
+                assert_eq!(json_out, r#""LIMIT""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -544,7 +632,7 @@ mod optional_values {
         use std::char;
 
         use super::*;
-        char_ascii!(PostOnly, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(PostOnly, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(PostOnly, 12);
         char_ascii_into_tag_value!(PostOnly);
 
@@ -552,14 +640,37 @@ mod optional_values {
         impl PostOnly{
             pub fn yes() -> Self{ PostOnly(b'P') }
             pub fn no() -> Self{ PostOnly(b'N') }
-            pub fn is_yes(other: PostOnly) -> bool{ PostOnly(b'P') == other }
-            pub fn is_no(other: PostOnly) -> bool{ PostOnly(b'N') == other }
+            pub fn is_yes(&self) -> bool { self.0 == b'P' }
+            pub fn is_no(&self) -> bool { self.0 == b'N' }
         }
         impl Default for PostOnly {
             /// 'N', No Post
             #[inline(always)]
             fn default() -> Self {
                 PostOnly::no()
+            }
+        }
+        impl Serialize for PostOnly {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_yes() {
+                    serializer.serialize_str("YES")
+                } else if self.is_no() {
+                    serializer.serialize_str("NO")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for PostOnly {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "YES" | "Y" => Ok(PostOnly::yes()),
+                    "NO" | "N" => Ok(PostOnly::no()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
             }
         }
 
@@ -578,7 +689,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""P""#);
+                assert_eq!(json_out, r#""YES""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -656,15 +767,15 @@ mod optional_values {
     }
     pub mod expire_time {
         use super::*;
-        u32_tuple!(ExpireTimeSec, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]);
-        option_tag!(ExpireTimeSec, 15);
-        numeric_into_tag_value!(ExpireTimeSec, u32);
+        u32_tuple!(ExpireTime, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]);
+        option_tag!(ExpireTime, 15);
+        numeric_into_tag_value!(ExpireTime, u32);
 
-        impl Default for ExpireTimeSec {
+        impl Default for ExpireTime {
             /// Zero, no expire time
             #[inline(always)]
             fn default() -> Self {
-                ExpireTimeSec(0)
+                ExpireTime(0)
             }
         }
         #[cfg(test)]
@@ -676,7 +787,7 @@ mod optional_values {
             #[test]
             fn test_msg_serde() {
                 setup::log::configure_compact();
-                type T = TagValueElement<ExpireTimeSec>;
+                type T = TagValueElement<ExpireTime>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
 
@@ -692,7 +803,7 @@ mod optional_values {
     }
     pub mod trade_now {
         use super::*;
-        char_ascii!(TradeNow, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(TradeNow, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(TradeNow, 16);
         char_ascii_into_tag_value!(TradeNow);
 
@@ -701,9 +812,9 @@ mod optional_values {
             pub fn yes() -> Self{ TradeNow(b'Y') }
             pub fn no() -> Self{ TradeNow(b'N') }
             pub fn port_default() -> Self{ TradeNow(b' ') }
-            pub fn is_yes(other: TradeNow) -> bool{ TradeNow(b'Y') == other }
-            pub fn is_no(other: TradeNow) -> bool{ TradeNow(b'N') == other }
-            pub fn is_port_default(other: TradeNow) -> bool{ TradeNow(b' ') == other }
+            pub fn is_yes(&self) -> bool{ self.0 == b'Y' }
+            pub fn is_no(&self) -> bool{ self.0 == b'N' }
+            pub fn is_port_default(&self) -> bool{ self.0 == b' ' }
         }
         impl Default for TradeNow {
             /// Space, port default
@@ -712,6 +823,33 @@ mod optional_values {
                 TradeNow::port_default()
             }
         }
+        impl Serialize for TradeNow {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_yes() {
+                    serializer.serialize_str("YES")
+                } else if self.is_no() {
+                    serializer.serialize_str("NO")
+                } else if self.is_port_default() {
+                    serializer.serialize_str("PORT_DEFAULT")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for TradeNow {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "YES" | "Y" => Ok(TradeNow::yes()),
+                    "NO" | "N" => Ok(TradeNow::no()),
+                    "PORT_DEFAULT" | " " => Ok(TradeNow::port_default()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
+            }
+        }
+
         #[cfg(test)]
         mod test {
             use crate::prelude::*;
@@ -727,7 +865,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""Y""#);
+                assert_eq!(json_out, r#""YES""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -737,7 +875,7 @@ mod optional_values {
     }
     pub mod handle_inst {
         use super::*;
-        char_ascii!(HandleInst, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(HandleInst, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(HandleInst, 17);
         char_ascii_into_tag_value!(HandleInst);
 
@@ -751,13 +889,14 @@ mod optional_values {
             pub fn extended_life_continuous() -> Self{ HandleInst(b'B') }
             pub fn direct_listing_capital_raise() -> Self{ HandleInst(b'D') }
             pub fn hidden_price_improvement() -> Self{ HandleInst(b'R') }
-            pub fn is_imbalance_only(other: HandleInst) -> bool{ HandleInst(b'I') == other }
-            pub fn is_retail_order_type_1(other: HandleInst) -> bool{ HandleInst(b'O') == other }
-            pub fn is_retail_order_type_2(other: HandleInst) -> bool{ HandleInst(b'T') == other }
-            pub fn is_retail_price_improvement(other: HandleInst) -> bool{ HandleInst(b'Q') == other }
-            pub fn is_extended_life_continuous(other: HandleInst) -> bool{ HandleInst(b'B') == other }
-            pub fn is_direct_listing_capital_raise(other: HandleInst) -> bool{ HandleInst(b'D') == other }
-            pub fn is_hidden_price_improvement(other: HandleInst) -> bool{ HandleInst(b'R') == other }
+            pub fn is_no_instructions(&self) -> bool{ self.0 == b' ' }
+            pub fn is_imbalance_only(&self) -> bool{ self.0 == b'I' }
+            pub fn is_retail_order_type_1(&self) -> bool{ self.0 == b'O' }
+            pub fn is_retail_order_type_2(&self) -> bool{ self.0 == b'T' }
+            pub fn is_retail_price_improvement(&self) -> bool{ self.0 == b'Q' }
+            pub fn is_extended_life_continuous(&self) -> bool{ self.0 == b'B' }
+            pub fn is_direct_listing_capital_raise(&self) -> bool{ self.0 == b'D' }
+            pub fn is_hidden_price_improvement(&self) -> bool{ self.0 == b'R' }
         }
         impl Default for HandleInst {
             /// Space, No Instructions
@@ -766,6 +905,48 @@ mod optional_values {
                 HandleInst::no_instructions()
             }
         }
+        impl Serialize for HandleInst {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_no_instructions() {
+                    serializer.serialize_str("NO_INSTRUCTIONS")
+                } else if self.is_imbalance_only() {
+                    serializer.serialize_str("IMBALANCE_ONLY")
+                } else if self.is_retail_order_type_1() {
+                    serializer.serialize_str("RETAIL_ORDER_TYPE_1")
+                } else if self.is_retail_order_type_2() {
+                    serializer.serialize_str("RETAIL_ORDER_TYPE_2")
+                } else if self.is_retail_price_improvement() {
+                    serializer.serialize_str("RETAIL_PRICE_IMPROVEMENT")
+                } else if self.is_extended_life_continuous() {
+                    serializer.serialize_str("EXTENDED_LIFE_CONTINUOUS")
+                } else if self.is_direct_listing_capital_raise() {
+                    serializer.serialize_str("DIRECT_LISTING_CAPITAL_RAISE")
+                } else if self.is_hidden_price_improvement() {
+                    serializer.serialize_str("HIDDEN_PRICE_IMPROVEMENT")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for HandleInst {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "NO_INSTRUCTIONS" | " " => Ok(HandleInst::no_instructions()),
+                    "IMBALANCE_ONLY" | "I" => Ok(HandleInst::imbalance_only()),
+                    "RETAIL_ORDER_TYPE_1" | "O" => Ok(HandleInst::retail_order_type_1()),
+                    "RETAIL_ORDER_TYPE_2" | "T" => Ok(HandleInst::retail_order_type_2()),
+                    "RETAIL_PRICE_IMPROVEMENT" | "Q" => Ok(HandleInst::retail_price_improvement()),
+                    "EXTENDED_LIFE_CONTINUOUS" | "B" => Ok(HandleInst::extended_life_continuous()),
+                    "DIRECT_LISTING_CAPITAL_RAISE" | "D" => Ok(HandleInst::direct_listing_capital_raise()),
+                    "HIDDEN_PRICE_IMPROVEMENT" | "R" => Ok(HandleInst::hidden_price_improvement()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
+            }
+        }
+
         #[cfg(test)]
         mod test {
             use crate::prelude::*;
@@ -782,7 +963,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""I""#);
+                assert_eq!(json_out, r#""IMBALANCE_ONLY""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -792,7 +973,7 @@ mod optional_values {
     }
     pub mod bbo_weight_indicator {
         use super::*;
-        char_ascii!(BBOWeightIndicator, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(BBOWeightIndicator, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(BBOWeightIndicator, 18);
         char_ascii_into_tag_value!(BBOWeightIndicator);
 
@@ -805,13 +986,51 @@ mod optional_values {
             pub fn unspecified() -> Self{ BBOWeightIndicator(b' ') }
             pub fn sets_qbbo_while_joining_nbbo() -> Self{ BBOWeightIndicator(b'S') }
             pub fn improves_nbbo_upon_entry() -> Self{ BBOWeightIndicator(b'N') }
-            pub fn is_zero_point_2(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'0') == other }
-            pub fn is_point_2_one(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'1') == other }
-            pub fn is_one_two(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'2') == other }
-            pub fn is_two_above(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'3') == other }
-            pub fn is_unspecified(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b' ') == other }
-            pub fn is_sets_qbbo_while_joining_nbbo(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'S') == other }
-            pub fn is_improves_nbbo_upon_entry(other: BBOWeightIndicator) -> bool{ BBOWeightIndicator(b'N') == other }
+            pub fn is_zero_point_2(&self) -> bool{ self.0 == b'0' }
+            pub fn is_point_2_one(&self) -> bool{ self.0 == b'1' }
+            pub fn is_one_two(&self) -> bool{ self.0 == b'2' }
+            pub fn is_two_above(&self) -> bool{ self.0 == b'3' }
+            pub fn is_unspecified(&self) -> bool{ self.0 == b' ' }
+            pub fn is_sets_qbbo_while_joining_nbbo(&self) -> bool{ self.0 == b'S' }
+            pub fn is_improves_nbbo_upon_entry(&self) -> bool{ self.0 == b'N' }
+        }
+        impl Serialize for BBOWeightIndicator {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_zero_point_2() {
+                    serializer.serialize_str("ZERO_POINT_2")
+                } else if self.is_point_2_one() {
+                    serializer.serialize_str("POINT_2_ONE")
+                } else if self.is_one_two() {
+                    serializer.serialize_str("ONE_TWO")
+                } else if self.is_two_above() {
+                    serializer.serialize_str("TWO_ABOVE")
+                } else if self.is_unspecified() {
+                    serializer.serialize_str("UNSPECIFIED")
+                } else if self.is_sets_qbbo_while_joining_nbbo() {
+                    serializer.serialize_str("SETS_QBBO_WHILE_JOINING_NBBO")
+                } else if self.is_improves_nbbo_upon_entry() {
+                    serializer.serialize_str("IMPROVES_NBBO_UPON_ENTRY")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for BBOWeightIndicator {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "ZERO_POINT_2" | "0" => Ok(BBOWeightIndicator::zero_point_2()),
+                    "POINT_2_ONE" | "1" => Ok(BBOWeightIndicator::point_2_one()),
+                    "ONE_TWO" | "2" => Ok(BBOWeightIndicator::one_two()),
+                    "TWO_ABOVE" | "3" => Ok(BBOWeightIndicator::two_above()),
+                    "UNSPECIFIED" | " " => Ok(BBOWeightIndicator::unspecified()),
+                    "SETS_QBBO_WHILE_JOINING_NBBO" | "S" => Ok(BBOWeightIndicator::sets_qbbo_while_joining_nbbo()),
+                    "IMPROVES_NBBO_UPON_ENTRY" | "N" => Ok(BBOWeightIndicator::improves_nbbo_upon_entry()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
+            }
         }
 
         #[cfg(test)]
@@ -830,7 +1049,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""0""#);
+                assert_eq!(json_out, r#""ZERO_POINT_2""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);
@@ -868,11 +1087,13 @@ mod optional_values {
             }
         }
     }
+    // THIS IS A UN-SIGNED PRICE
     pub mod display_price {
         use super::*;
-        u64_tuple!(DisplayPrice, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Debug, Clone, Copy)]);
+        u64_tuple!(DisplayPrice, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(DisplayPrice, 23);
         numeric_into_tag_value!(DisplayPrice, u64);
+        f32_unsigned_price_u64!(DisplayPrice);
 
         #[cfg(test)]
         mod test {
@@ -937,7 +1158,7 @@ mod optional_values {
     }
     pub mod shares_located {
         use super::*;
-        char_ascii!(SharesLocated, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        char_ascii!(SharesLocated, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(SharesLocated, 25);
         char_ascii_into_tag_value!(SharesLocated);
 
@@ -945,14 +1166,37 @@ mod optional_values {
         impl SharesLocated{
             pub fn yes() -> Self{ SharesLocated(b'Y') }
             pub fn no() -> Self{ SharesLocated(b'N') }
-            pub fn is_yes(other: SharesLocated) -> bool{ SharesLocated(b'Y') == other }
-            pub fn is_no(other: SharesLocated) -> bool{ SharesLocated(b'N') == other }
+            pub fn is_yes(&self) -> bool{ self.0 == b'Y' }
+            pub fn is_no(&self) -> bool{ self.0 == b'N' }
         }
         impl Default for SharesLocated {
             /// 'N', No
             #[inline(always)]
             fn default() -> Self {
                 SharesLocated::no()
+            }
+        }
+        impl Serialize for SharesLocated {
+            fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+            where S: Serializer {
+                if self.is_yes() {
+                    serializer.serialize_str("YES")
+                } else if self.is_no() {
+                    serializer.serialize_str("NO")
+                } else {
+                    serializer.serialize_str("UNKNOWN")
+                }
+            }
+        }
+        impl<'de> Deserialize<'de> for SharesLocated {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where D: Deserializer<'de> {
+                let value = String::deserialize(deserializer)?.to_uppercase();
+                match value.as_str() {
+                    "YES" | "Y" => Ok(SharesLocated::yes()),
+                    "NO" | "N" => Ok(SharesLocated::no()),
+                    _ => panic!("Unknown value for {}: {}", short_type_name::<Self>(), value),
+                }
             }
         }
 
@@ -972,7 +1216,7 @@ mod optional_values {
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, r#""Y""#);
+                assert_eq!(json_out, r#""YES""#);
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);

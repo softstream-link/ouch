@@ -76,8 +76,8 @@ pub struct EnterOrderAppendage {
     pub route: Option<TagValueElement<Route>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[byteserde(eq(ExpireTimeSec::tag_as_slice()))]
-    pub expire_time: Option<TagValueElement<ExpireTimeSec>>,
+    #[byteserde(eq(ExpireTime::tag_as_slice()))]
+    pub expire_time: Option<TagValueElement<ExpireTime>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[byteserde(eq(TradeNow::tag_as_slice()))]
@@ -158,7 +158,7 @@ impl Default for EnterOrder {
     #[inline(always)]
     fn default() -> Self {
         let appendages = EnterOrderAppendage {
-            firm: Some(b"    ".into()),
+            firm: Some(b"????".into()),
             min_qty: Some(0.into()),
             customer_type: Some(CustomerType::default().into()),
             max_floor: Some(0.into()),
@@ -169,8 +169,8 @@ impl Default for EnterOrder {
             discretion_peg_offset: Some((-1.1234).into()),
             post_only: Some(PostOnly::default().into()),
             random_reserves: Some(RandomReserves::default().into()),
-            route: Some(b"ABCD".into()),
-            expire_time: Some(ExpireTimeSec::default().into()),
+            route: Some(b"????".into()),
+            expire_time: Some(ExpireTime::default().into()),
             trade_now: Some(TradeNow::default().into()),
             handle_inst: Some(HandleInst::default().into()),
             group_id: Some(GroupId::default().into()),
@@ -283,11 +283,12 @@ mod test {
         // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
+        let json_exp = r#"{"user_ref_number":1,"side":"BUY","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","capacity":"AGENCY","int_mkt_sweep_eligibility":"ELIGIBLE","cross_type":"CONTINUOUS_MARKET","clt_order_id":"1","appendages":{"firm":"????","min_qty":0,"customer_type":"PORT_DEFAULT","max_floor":0,"price_type":"LIMIT","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"LIMIT","discretion_peg_offset":-1.1234,"post_only":"NO","random_reserves":0,"route":"????","expire_time":0,"trade_now":"PORT_DEFAULT","handle_inst":"NO_INSTRUCTIONS","group_id":0,"shares_located":"NO"}}"#;
         info!("json_out: {}", json_out);
-        let json_exp = r#"{"user_ref_number":1,"side":"BUY","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","capacity":"AGENCY","int_mkt_sweep_eligibility":"ELIGIBLE","cross_type":"CONTINUOUS_MARKET","clt_order_id":"1","appendages":{"firm":"","min_qty":0,"customer_type":" ","max_floor":0,"price_type":"L","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"L","discretion_peg_offset":-1.1234,"post_only":"N","random_reserves":0,"route":"ABCD","expire_time":0,"trade_now":" ","handle_inst":" ","group_id":0,"shares_located":"N"}}"#;
-        let (dist, _) = diff(&json_out, json_exp, "\n"); // pretty print the diff
-        if dist != 0 {
-            print_diff(&json_out, json_exp, "\n")
+        
+        if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {
+            print_diff(&json_out, json_exp, ",");
+            assert_eq!(json_out, json_exp);
         }
 
         let msg_out: EnterOrder = from_str(&json_out).unwrap();
