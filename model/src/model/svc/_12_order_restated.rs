@@ -38,17 +38,18 @@ pub struct OrderRestated {
 impl From<(&EnterOrder, RestatedReason, DisplayQty, DisplayPrice, SecondaryOrdRefNum)> for OrderRestated {
     fn from(value: (&EnterOrder, RestatedReason, DisplayQty, DisplayPrice, SecondaryOrdRefNum)) -> Self {
         let (ord, reason, display_qty, display_price, secondary_ord_ref_num) = value;
+        let appendages = OrderRestatedAppendage {
+            display_qty: Some(display_qty.into()),
+            display_price: Some(display_price.into()),
+            secondary_order_ref_num: Some(secondary_ord_ref_num.into()),
+        };
         Self {
             packet_type: PacketTypeOrderRestated::default(),
             timestamp: Timestamp::default(), // Venue assigned
             user_ref_number: ord.user_ref_number,
             restate_reason: reason,
-            appendage_length: ord.appendages.byte_len() as u16,
-            appendages: OrderRestatedAppendage {
-                display_qty: Some(display_qty.into()),
-                display_price: Some(display_price.into()),
-                secondary_order_ref_num: Some(secondary_ord_ref_num.into()),
-            },
+            appendage_length: appendages.byte_len() as u16,
+            appendages,
         }
     }
 }

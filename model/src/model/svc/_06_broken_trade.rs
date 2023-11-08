@@ -14,9 +14,8 @@ pub struct BrokenTrade {
     pub clt_order_id: CltOrderId,
 }
 
-impl<T> From<(&T, MatchNumber, BrokenTradeReason)> for BrokenTrade
-where T: CancelableOrder
-{
+impl<T: CancelableOrder> From<(&T, MatchNumber, BrokenTradeReason)> for BrokenTrade {
+    /// `T`: [CancelableOrder]
     fn from(value: (&T, MatchNumber, BrokenTradeReason)) -> Self {
         let (ord, match_number, broken_trade_reason) = value;
         Self {

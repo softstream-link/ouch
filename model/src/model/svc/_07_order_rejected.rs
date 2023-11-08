@@ -9,14 +9,13 @@ pub struct OrderRejected {
     packet_type: PacketTypeOrderRejected,
     pub timestamp: Timestamp, // Venue assigned
     pub user_ref_number: UserRefNumber,
-    pub reject_reason: RejectReason,
+    pub reject_reason: OrderRejectReason,
     pub clt_order_id: CltOrderId,
 }
 
-impl<T> From<(&T, RejectReason)> for OrderRejected
-where T: CancelableOrder
-{
-    fn from(value: (&T, RejectReason)) -> Self {
+impl<T: CancelableOrder> From<(&T, OrderRejectReason)> for OrderRejected {
+    /// `T`: [CancelableOrder]
+    fn from(value: (&T, OrderRejectReason)) -> Self {
         let (ord, reject_reason) = value;
         Self {
             packet_type: PacketTypeOrderRejected::default(),
@@ -34,7 +33,7 @@ mod test {
     use byteserde::prelude::*;
     use links_core::unittest::setup;
     use log::info;
-    use serde_json::{to_string, from_str};
+    use serde_json::{from_str, to_string};
     use text_diff::{diff, print_diff};
 
     #[test]
@@ -42,7 +41,7 @@ mod test {
         setup::log::configure_compact();
 
         let enter_order = EnterOrder::default();
-        let msg_inp = OrderRejected::from((&enter_order, RejectReason::quote_unavailable()));
+        let msg_inp = OrderRejected::from((&enter_order, OrderRejectReason::quote_unavailable()));
 
         let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
         info!("ser: {:#x}", ser);
@@ -59,7 +58,7 @@ mod test {
         setup::log::configure_compact();
 
         let enter_order = EnterOrder::default();
-        let mut msg_inp = OrderRejected::from((&enter_order, RejectReason::quote_unavailable()));
+        let mut msg_inp = OrderRejected::from((&enter_order, OrderRejectReason::quote_unavailable()));
         msg_inp.timestamp = 1.into();
         // info!("msg_inp: {:?}", msg_inp);
 

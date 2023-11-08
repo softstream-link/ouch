@@ -17,9 +17,8 @@ pub struct OrderAiqCanceled {
     pub liquidity_flag: LiquidityFlag,
     pub aiq_strategy: AiqStrategy,
 }
-impl<T> From<(&T, Quantity, CancelAiqReason, Quantity, Price, LiquidityFlag, AiqStrategy)> for OrderAiqCanceled
-where T: CancelableOrder
-{
+impl<T: CancelableOrder> From<(&T, Quantity, CancelAiqReason, Quantity, Price, LiquidityFlag, AiqStrategy)> for OrderAiqCanceled {
+    /// `T`: [CancelableOrder]
     fn from(value: (&T, Quantity, CancelAiqReason, Quantity, Price, LiquidityFlag, AiqStrategy)) -> Self {
         let (ord, decrement_shares, cancel_aiq_reason, prevented_from_trading, execution_price, liquidity_flag, aiq_strategy) = value;
         Self {
@@ -41,7 +40,7 @@ mod test {
     use byteserde::prelude::*;
     use links_core::unittest::setup;
     use log::info;
-    use serde_json::{to_string, from_str};
+    use serde_json::{from_str, to_string};
     use text_diff::{diff, print_diff};
 
     #[test]

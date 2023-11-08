@@ -13,7 +13,7 @@ pub use int_mkt_sweep_eligibility::IntMktSweepEligibility;
 pub use liquidity_flag::LiquidityFlag;
 pub use match_number::MatchNumber;
 pub use order_reference_number::OrderReferenceNumber;
-pub use order_reject_reason::RejectReason;
+pub use order_reject_reason::OrderRejectReason;
 pub use order_restated_reason::RestatedReason;
 pub use order_state::OrderState;
 pub use ouch_packet_types::*;
@@ -1011,51 +1011,51 @@ pub mod broken_trade_reason {
 pub mod order_reject_reason {
     use super::*;
 
-    u16_tuple!(RejectReason, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
+    u16_tuple!(OrderRejectReason, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
     #[rustfmt::skip]
-    impl RejectReason{
-        pub fn quote_unavailable() -> Self{ RejectReason(0x01) }
-        pub fn destination_closed() -> Self{ RejectReason(0x02) }
-        pub fn invalid_display() -> Self{ RejectReason(0x03) }
-        pub fn invalid_max_floor() -> Self{ RejectReason(0x04) }
-        pub fn invalid_peg_type() -> Self{ RejectReason(0x05) }
-        pub fn fat_finger() -> Self{ RejectReason(0x06) }
-        pub fn halted() -> Self { RejectReason(0x07) }
-        pub fn iso_not_allowed() -> Self { RejectReason(0x08) } 
-        pub fn invalid_side() -> Self { RejectReason(0x09) } 
-        pub fn processing_error() -> Self { RejectReason(0x0A) } 
-        pub fn cancel_pending() -> Self { RejectReason(0x0B) } 
-        pub fn firm_not_authorized() -> Self { RejectReason(0x0C) } 
-        pub fn invalid_min_quantity() -> Self { RejectReason(0x0D) } 
-        pub fn no_closing_reference_price() -> Self { RejectReason(0x0E) } 
-        pub fn other() -> Self { RejectReason(0x0F) } 
-        pub fn cancel_not_allowed() -> Self { RejectReason(0x10) } 
-        pub fn pegging_not_allowed() -> Self { RejectReason(0x11) } 
-        pub fn crossed_market() -> Self { RejectReason(0x12) } 
-        pub fn invalid_quantity() -> Self { RejectReason(0x13) } 
-        pub fn invalid_cross_order() -> Self { RejectReason(0x14) } 
-        pub fn replace_not_allowed() -> Self { RejectReason(0x15) } 
-        pub fn routing_not_allowed() -> Self { RejectReason(0x16) } 
-        pub fn invalid_symbol() -> Self { RejectReason(0x17) } 
-        pub fn test() -> Self { RejectReason(0x18) } 
-        pub fn late_loc_too_aggressive() -> Self { RejectReason(0x19) } 
-        pub fn retail_not_allowed() -> Self { RejectReason(0x1A) } 
-        pub fn invalid_midpoint_post_only_price() -> Self { RejectReason(0x1B) } 
-        pub fn invalid_destination() -> Self { RejectReason(0x1C) } 
-        pub fn invalid_price() -> Self { RejectReason(0x1D) } 
-        pub fn shares_exceed_threshold() -> Self { RejectReason(0x1E) } 
-        pub fn exceeds_maximum_allowed_notional_value() -> Self { RejectReason(0x1F) } 
-        pub fn risk_aggregate_exposure_exceeded() -> Self { RejectReason(0x20) } 
-        pub fn risk_market_impact() -> Self { RejectReason(0x21) } 
-        pub fn risk_restricted_stock() -> Self { RejectReason(0x22) } 
-        pub fn risk_short_sell_restricted() -> Self { RejectReason(0x23) }
-        pub fn risk_order_type_restricted() -> Self { RejectReason(0x24) }
-        pub fn risk_exceeds_adv_limit() -> Self { RejectReason(0x25) }
-        pub fn risk_fat_finger() -> Self { RejectReason(0x26) }
-        pub fn risk_locate_required() -> Self { RejectReason(0x27) }
-        pub fn risk_symbol_message_rate_restriction() -> Self { RejectReason(0x28) }
-        pub fn risk_port_message_rate_restriction() -> Self { RejectReason(0x29) }
-        pub fn risk_duplicate_message_rate_restriction() -> Self { RejectReason(0x2A) }
+    impl OrderRejectReason{
+        pub fn quote_unavailable() -> Self{ OrderRejectReason(0x01) }
+        pub fn destination_closed() -> Self{ OrderRejectReason(0x02) }
+        pub fn invalid_display() -> Self{ OrderRejectReason(0x03) }
+        pub fn invalid_max_floor() -> Self{ OrderRejectReason(0x04) }
+        pub fn invalid_peg_type() -> Self{ OrderRejectReason(0x05) }
+        pub fn fat_finger() -> Self{ OrderRejectReason(0x06) }
+        pub fn halted() -> Self { OrderRejectReason(0x07) }
+        pub fn iso_not_allowed() -> Self { OrderRejectReason(0x08) } 
+        pub fn invalid_side() -> Self { OrderRejectReason(0x09) } 
+        pub fn processing_error() -> Self { OrderRejectReason(0x0A) } 
+        pub fn cancel_pending() -> Self { OrderRejectReason(0x0B) } 
+        pub fn firm_not_authorized() -> Self { OrderRejectReason(0x0C) } 
+        pub fn invalid_min_quantity() -> Self { OrderRejectReason(0x0D) } 
+        pub fn no_closing_reference_price() -> Self { OrderRejectReason(0x0E) } 
+        pub fn other() -> Self { OrderRejectReason(0x0F) } 
+        pub fn cancel_not_allowed() -> Self { OrderRejectReason(0x10) } 
+        pub fn pegging_not_allowed() -> Self { OrderRejectReason(0x11) } 
+        pub fn crossed_market() -> Self { OrderRejectReason(0x12) } 
+        pub fn invalid_quantity() -> Self { OrderRejectReason(0x13) } 
+        pub fn invalid_cross_order() -> Self { OrderRejectReason(0x14) } 
+        pub fn replace_not_allowed() -> Self { OrderRejectReason(0x15) } 
+        pub fn routing_not_allowed() -> Self { OrderRejectReason(0x16) } 
+        pub fn invalid_symbol() -> Self { OrderRejectReason(0x17) } 
+        pub fn test() -> Self { OrderRejectReason(0x18) } 
+        pub fn late_loc_too_aggressive() -> Self { OrderRejectReason(0x19) } 
+        pub fn retail_not_allowed() -> Self { OrderRejectReason(0x1A) } 
+        pub fn invalid_midpoint_post_only_price() -> Self { OrderRejectReason(0x1B) } 
+        pub fn invalid_destination() -> Self { OrderRejectReason(0x1C) } 
+        pub fn invalid_price() -> Self { OrderRejectReason(0x1D) } 
+        pub fn shares_exceed_threshold() -> Self { OrderRejectReason(0x1E) } 
+        pub fn exceeds_maximum_allowed_notional_value() -> Self { OrderRejectReason(0x1F) } 
+        pub fn risk_aggregate_exposure_exceeded() -> Self { OrderRejectReason(0x20) } 
+        pub fn risk_market_impact() -> Self { OrderRejectReason(0x21) } 
+        pub fn risk_restricted_stock() -> Self { OrderRejectReason(0x22) } 
+        pub fn risk_short_sell_restricted() -> Self { OrderRejectReason(0x23) }
+        pub fn risk_order_type_restricted() -> Self { OrderRejectReason(0x24) }
+        pub fn risk_exceeds_adv_limit() -> Self { OrderRejectReason(0x25) }
+        pub fn risk_fat_finger() -> Self { OrderRejectReason(0x26) }
+        pub fn risk_locate_required() -> Self { OrderRejectReason(0x27) }
+        pub fn risk_symbol_message_rate_restriction() -> Self { OrderRejectReason(0x28) }
+        pub fn risk_port_message_rate_restriction() -> Self { OrderRejectReason(0x29) }
+        pub fn risk_duplicate_message_rate_restriction() -> Self { OrderRejectReason(0x2A) }
         pub fn is_quote_unavailable(&self) -> bool { self.0 == 0x01 }
         pub fn is_destination_closed(&self) -> bool { self.0 == 0x02 }
         pub fn is_invalid_display(&self) -> bool { self.0 == 0x03 }

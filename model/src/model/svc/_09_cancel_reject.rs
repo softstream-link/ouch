@@ -13,9 +13,7 @@ pub struct CancelReject {
     
 }
 
-impl<T> From<&T> for CancelReject
-where T: CancelableOrder
-{
+impl<T: CancelableOrder> From<&T> for CancelReject {
     fn from(ord: &T) -> Self {
         Self {
             packet_type: PacketTypeCancelReject::default(),
