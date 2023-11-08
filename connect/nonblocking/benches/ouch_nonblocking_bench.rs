@@ -59,7 +59,7 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
             let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
             info!("svc {}", svc);
 
-            let mut order_accepted: SvcOuchMsg = OrderAccepted::from(&EnterOrder::default()).into();
+            let mut order_accepted: SvcOuchMsg = OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into();
 
             // while let Ok(_status) = svc.send_nonblocking(&mut order_accepted) {}
             loop {
@@ -103,7 +103,7 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
 
             let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
 
-            let mut order_accepted: SvcOuchMsg = OrderAccepted::from(&EnterOrder::default()).into();
+            let mut order_accepted: SvcOuchMsg = OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into();
 
             loop {
                 match clt.recv_busywait().unwrap() {

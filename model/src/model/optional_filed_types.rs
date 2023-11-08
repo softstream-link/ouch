@@ -1106,12 +1106,12 @@ mod optional_values {
             fn test_msg_serde() {
                 setup::log::configure_compact();
                 type T = TagValueElement<DisplayPrice>;
-                let msg_inp: T = 1.into();
+                let msg_inp: T = 1.1234.into();
                 info!("msg_inp: {:?}", msg_inp);
 
                 let json_out = to_string(&msg_inp).unwrap();
                 info!("json_out: {}", json_out);
-                assert_eq!(json_out, "1");
+                assert_eq!(json_out, "1.1234");
 
                 let msg_out: T = from_str(&json_out).unwrap();
                 info!("msg_out: {:?}", msg_out);

@@ -63,7 +63,7 @@ mod test {
         // info!("msg_inp: {:?}", msg_inp);
 
         let json_out = to_string(&msg_inp).unwrap();
-        let json_exp = r#"{"timestamp":1,"user_ref_number":1,"reason":1,"clt_order_id":"1"}"#;
+        let json_exp = r#"{"timestamp":1,"user_ref_number":1,"reject_reason":1,"clt_order_id":"1"}"#;
         info!("json_out: {}", json_out);
 
         if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {

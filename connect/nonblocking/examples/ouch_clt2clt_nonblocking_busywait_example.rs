@@ -38,8 +38,8 @@ fn run() -> Result<(), Box<dyn Error>> {
                 .unwrap();
             info!("clt: {}", clt);
 
-            let mut order_accepted: SvcOuchMsg = OrderAccepted::from(&EnterOrder::default()).into();
-            let mut msg_recv_count = 0_usize;
+            let mut order_accepted: SvcOuchMsg = OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into();
+            let mut msg_recv_count = 0;
             loop {
                 if let Ok(Some(_msg)) = clt.recv_busywait() {
                     msg_recv_count += 1;
@@ -65,11 +65,9 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     let mut enter_order: CltOuchMsg = EnterOrder::default().into();
 
-    // send the first message to the server to establish connection
-    clt.send_busywait_timeout(&mut enter_order, setup::net::default_connect_timeout())?;
     let now = Instant::now();
     for _ in 0..WRITE_N_TIMES {
-        clt.send_busywait(&mut enter_order)?;
+        clt.send_busywait_timeout(&mut enter_order, setup::net::default_connect_timeout())?;
         let _msg = clt.recv_busywait().unwrap().unwrap();
     }
     let elapsed = now.elapsed();
