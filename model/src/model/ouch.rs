@@ -11,6 +11,13 @@ pub const SVC_OUCH_MAX_FRAME_SIZE: usize = SVC_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MA
 pub const CLT_OUCH_MAX_PLD_SIZE: usize = 134; // TODO revise Options fields and remeasure
 pub const CLT_OUCH_MAX_FRAME_SIZE: usize = CLT_OUCH_MAX_PLD_SIZE + SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG;
 
+pub const OUCH_MAX_FRAME_SIZE: usize = {
+    if SVC_OUCH_MAX_FRAME_SIZE > CLT_OUCH_MAX_FRAME_SIZE {
+        SVC_OUCH_MAX_FRAME_SIZE
+    } else {
+        CLT_OUCH_MAX_FRAME_SIZE
+    }
+};
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Debug, TryInto)]
 #[try_into(owned, ref, ref_mut)]
 #[byteserde(peek(0, 1))]

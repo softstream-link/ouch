@@ -23,7 +23,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let svc_jh = Builder::new()
         .name("Acceptor-Thread".to_owned())
         .spawn(move || {
-            let svc = SvcOuch::bind(
+            let svc = SvcOuchSupervised::bind(
                 addr,
                 DevNullCallback::new_ref(),
                 NonZeroUsize::new(1).unwrap(),
@@ -53,7 +53,7 @@ fn run() -> Result<(), Box<dyn Error>> {
         })
         .unwrap();
 
-    let mut clt = CltOuch::connect(
+    let mut clt = CltOuchSupervised::connect(
         addr,
         setup::net::default_connect_timeout(),
         setup::net::default_connect_retry_after(),

@@ -1,7 +1,6 @@
+pub use crate::core::{CltOuchDevNullCallback, CltOuchLoggerCallback};
 pub use crate::core::{CltOuchMessenger, OuchFramer, SvcOuchMessenger};
-
-pub use soupbintcp_connect_nonblocking::prelude::*;
-
-pub use soupbintcp_connect_nonblocking::prelude::{DevNullCallback, LoggerCallback};
+pub use crate::core::{SvcOuchDevNullCallback, SvcOuchLoggerCallback};
 
 pub use ouch_model::prelude::*;
+pub use soupbintcp_connect_nonblocking::prelude::*;

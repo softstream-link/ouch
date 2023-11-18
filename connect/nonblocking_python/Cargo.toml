@@ -1,0 +1,34 @@
+[package]
+name = "ouch_connect_nonblocking_python"
+version.workspace = true
+authors.workspace = true
+readme = "readme.md"
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "ouch_connect_nonblocking_python"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.20"
+pyo3-log = "0.9" # allows rust logging to write to python logging
+# py03 ={ workspace = true }
+ouch_connect_nonblocking = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+links_core = { workspace = true , features = ["unittest"]}
+#      Running unittests src/lib.rs (target/debug/deps/ouch_connect_nonblocking_python-8da9e54f2d03c505)
+# dyld[13829]: Library not loaded: @rpath/libpython3.12.dylib
+# [dependencies.pyo3]
+# version = "0.20"
+# [features]
+# extension-module = ["pyo3/extension-module"]
+# default = ["extension-module"]

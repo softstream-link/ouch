@@ -1,7 +1,10 @@
-use ouch_connect_core::prelude::{SvcOuchMessenger, SvcSoupBinTcp, SVC_OUCH_MAX_FRAME_SIZE};
+use ouch_connect_core::prelude::{CltOuchPayload, SvcOuchPayload, SvcSoupBinTcpAcceptor, SvcSoupBinTcpRecver, SvcSoupBinTcpSender, SvcSoupBinTcpSupervised, OUCH_MAX_FRAME_SIZE};
 
-pub type SvcOuch<CallbackRecvSend> =
-    SvcSoupBinTcp<SvcOuchMessenger, CallbackRecvSend, SVC_OUCH_MAX_FRAME_SIZE>;
+pub type SvcOuchSupervised<CallbackRecvSend> = SvcSoupBinTcpSupervised<CltOuchPayload, SvcOuchPayload, CallbackRecvSend, OUCH_MAX_FRAME_SIZE>;
+
+pub type SvcOuchAcceptor<C> = SvcSoupBinTcpAcceptor<CltOuchPayload, SvcOuchPayload, C, OUCH_MAX_FRAME_SIZE>;
+pub type SvcOuchRecver<C> = SvcSoupBinTcpRecver<CltOuchPayload, SvcOuchPayload, C, OUCH_MAX_FRAME_SIZE>;
+pub type SvcOuchSender<C> = SvcSoupBinTcpSender<CltOuchPayload, SvcOuchPayload, C, OUCH_MAX_FRAME_SIZE>;
 
 #[cfg(test)]
 mod test {
@@ -18,40 +21,20 @@ mod test {
 
         let addr = setup::net::rand_avail_addr_port();
 
-        let mut svc = SvcOuch::bind(
-            addr,
-            LoggerCallback::new_ref(),
-            NonZeroUsize::new(1).unwrap(),
-            Some("ouch/unittest"),
-        )
-        .unwrap();
+        let mut svc = SvcOuchSupervised::bind(addr, LoggerCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/unittest")).unwrap();
         info!("svc: {}", svc);
 
-        let mut clt = CltOuch::connect(
-            addr,
-            setup::net::default_connect_timeout(),
-            setup::net::default_connect_retry_after(),
-            LoggerCallback::new_ref(),
-            Some("ouch/unittest"),
-        )
-        .unwrap();
+        let mut clt = CltOuchSupervised::connect(addr, setup::net::default_connect_timeout(), setup::net::default_connect_retry_after(), LoggerCallback::new_ref(), Some("ouch/unittest")).unwrap();
         info!("clt: {}", clt);
 
-        svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout())
-            .unwrap()
-            .unwrap();
+        svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
         info!("svc: {}", svc);
 
         let mut clt_msg = EnterOrder::default().into();
         // let mut clt_msg = CltSoupBinTcpMsg::Login(LoginRequest::default());
-        clt.send_busywait_timeout(&mut clt_msg, setup::net::default_connect_timeout())
-            .unwrap()
-            .unwrap();
+        clt.send_busywait_timeout(&mut clt_msg, setup::net::default_connect_timeout()).unwrap().unwrap();
 
-        let svc_msg = svc
-            .recv_busywait_timeout(setup::net::default_connect_timeout())
-            .unwrap()
-            .unwrap();
+        let svc_msg = svc.recv_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
 
         assert_eq!(clt_msg, svc_msg);
     }

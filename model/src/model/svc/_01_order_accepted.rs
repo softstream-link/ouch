@@ -165,11 +165,11 @@ impl From<(&EnterOrder, OrderReferenceNumber, OrderState)> for OrderAccepted {
             price: enter_order.price,
             time_in_force: enter_order.time_in_force,
             display: enter_order.display,
-            order_reference_number: order_reference_number, // Venue assigned
+            order_reference_number, // Venue assigned
             capacity: enter_order.capacity,
             int_mkt_sweep_eligibility: enter_order.int_mkt_sweep_eligibility,
             cross_type: enter_order.cross_type,
-            order_state: order_state, // Venue assigned
+            order_state, // Venue assigned
             clt_order_id: enter_order.clt_order_id,
             appendage_length: enter_order.appendages.byte_len() as u16,
             appendages: (&enter_order.appendages).into(),

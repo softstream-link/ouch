@@ -44,6 +44,7 @@ pub use crate::model::ouch::CLT_OUCH_MAX_FRAME_SIZE;
 pub use crate::model::ouch::CLT_OUCH_MAX_PLD_SIZE;
 pub use crate::model::ouch::SVC_OUCH_MAX_FRAME_SIZE;
 pub use crate::model::ouch::SVC_OUCH_MAX_PLD_SIZE;
+pub use crate::model::ouch::OUCH_MAX_FRAME_SIZE;
 
 // soup bin
 pub use soupbintcp_model::prelude::*;

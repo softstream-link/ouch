@@ -12,7 +12,7 @@ fn ouch_enter_order_send(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let mut svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
+            let mut svc = SvcOuchSupervised::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
             info!("svc {}", svc);
             svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
             info!("svc {}", svc);
@@ -25,7 +25,7 @@ fn ouch_enter_order_send(c: &mut Criterion) {
         })
         .unwrap();
 
-    let mut clt = CltOuch::connect(
+    let mut clt = CltOuchSupervised::connect(
         addr,
         setup::net::default_connect_timeout(),
         setup::net::default_connect_retry_after(),
@@ -53,7 +53,7 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
+            let svc = SvcOuchSupervised::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
             info!("svc {}", svc);
 
             let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
@@ -71,7 +71,7 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
         })
         .unwrap();
 
-    let mut clt = CltOuch::connect(
+    let mut clt = CltOuchSupervised::connect(
         addr,
         setup::net::default_connect_timeout(),
         setup::net::default_connect_retry_after(),
@@ -99,7 +99,7 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
     Builder::new()
         .name("Svc-Thread".to_string())
         .spawn(move || {
-            let svc = SvcOuch::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
+            let svc = SvcOuchSupervised::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
 
             let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
 
@@ -114,7 +114,7 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
         })
         .unwrap();
 
-    let mut clt = CltOuch::connect(
+    let mut clt = CltOuchSupervised::connect(
         addr,
         setup::net::default_connect_timeout(),
         setup::net::default_connect_retry_after(),
