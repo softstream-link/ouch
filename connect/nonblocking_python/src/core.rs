@@ -1,8 +1,8 @@
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-
-use ouch_connect_nonblocking::prelude::{ConId as ConIdRs, PoolAcceptStatus, SendStatus};
+use links_core::asserted_short_name;
+use ouch_connect_nonblocking::prelude::{ConId as ConIdRs, PoolAcceptStatus, SendStatus as SendStatusRs};
+use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 
 #[pyclass]
 #[derive(Debug, Clone)]
@@ -27,33 +27,61 @@ impl ConId {
 }
 
 #[pyclass]
-pub enum Status {
+pub enum AcceptStatus {
     Ok,
     Busy,
 }
-// #[pymethods]
-// impl Status {
-//     // pub fn __hash__(&self) -> u64 {
-//     //     match self {
-//     //         Self::Ok => 0,
-//     //         Self::Busy => 1,
-//     //     }
-//     // }
-// }
-impl From<SendStatus> for Status {
-    fn from(status: SendStatus) -> Self {
-        match status {
-            SendStatus::Completed => Self::Ok,
-            SendStatus::WouldBlock => Self::Busy,
-        }
-    }
-}
-impl From<PoolAcceptStatus> for Status {
+impl From<PoolAcceptStatus> for AcceptStatus {
     fn from(value: PoolAcceptStatus) -> Self {
         match value {
             PoolAcceptStatus::Accepted => Self::Ok,
             PoolAcceptStatus::WouldBlock => Self::Busy,
         }
+    }
+}
+
+#[pyclass]
+pub enum SendStatus {
+    Ok,
+    Busy,
+}
+impl From<SendStatusRs> for SendStatus {
+    fn from(status: SendStatusRs) -> Self {
+        match status {
+            SendStatusRs::Completed => Self::Ok,
+            SendStatusRs::WouldBlock => Self::Busy,
+        }
+    }
+}
+
+#[pyclass]
+pub struct RecvStatus(pub Option<Py<PyDict>>);
+#[pymethods]
+impl RecvStatus {
+    pub fn __eq__(&self, other: &Self) -> bool {
+        self.0.is_some() == other.0.is_some()
+    }
+    pub fn __repr__(&self) -> String {
+        match &self.0 {
+            None => format!("{}.Busy", asserted_short_name!("RecvStatus", Self)),
+            Some(payload) => format!("{}.Ok({})", asserted_short_name!("RecvStatus", Self), payload),
+        }
+    }
+    pub fn payload(&self) -> PyResult<Py<PyDict>> {
+        match &self.0 {
+            Some(msg_dict) => Ok(msg_dict.clone()), // clone is a ref counted
+            None => Err(PyTypeError::new_err(format!("Payload only available when variant is {}.Ok", asserted_short_name!("RecvStatus", Self)))),
+        }
+    }
+    #[classattr]
+    #[allow(non_snake_case)]
+    pub fn Busy() -> Self {
+        Self(None)
+    }
+    #[classattr]
+    #[allow(non_snake_case)]
+    pub fn Ok() -> Self {
+        Self(Some(Python::with_gil(|py| PyDict::new(py).into())))
     }
 }
 
@@ -89,12 +117,6 @@ impl From<ConIdRs> for ConId {
         Self::from(&value)
     }
 }
-
-// #[pymodule]
-// fn ouch_connect_nonblocking_python(_py: Python, m: &PyModule) -> PyResult<()> {
-//     m.add_class::<ConId>()?;
-//     Ok(())
-// }
 
 #[cfg(test)]
 mod test {

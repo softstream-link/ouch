@@ -2,12 +2,14 @@
     "rust-analyzer.cargo.features": [
         "full"
     ],
+    "workbench.editor.revealIfOpen": true,
     "cSpell.words": [
         "asctime",
         "brkn",
         "busywait",
         "byteserde",
         "chrono",
+        "classattr",
         "clippy",
         "endofday",
         "freethreaded",

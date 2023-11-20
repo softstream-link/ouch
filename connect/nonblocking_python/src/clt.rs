@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 
 use crate::callbacks::PythonProxyCallback;
-use crate::core::Status;
+use crate::core::SendStatus;
 use crate::dict_2_json;
 
 #[pyclass]
@@ -27,7 +27,7 @@ impl CltOuchSupervised {
     fn __repr__(&self) -> String {
         format!("{}", self.0)
     }
-    fn send(&mut self, msg_any: &PyAny) -> PyResult<Status>{
+    fn send(&mut self, msg_any: &PyAny) -> PyResult<SendStatus>{
         let json = {
             if let Ok(msg_dict) = msg_any.downcast::<PyDict>() {
                 dict_2_json(msg_dict)

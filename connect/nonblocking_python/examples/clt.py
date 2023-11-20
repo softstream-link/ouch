@@ -1,11 +1,14 @@
 import logging
-from json import dumps
+from json import dumps, loads
 from ouch_connect_nonblocking_python import (
     CltOuchSupervised,
     SvcOuchSupervised,
     Callback,
     ConId,
-    Status,
+    SendStatus,
+    AcceptStatus,
+    RecvStatus,
+    MsgDict,
 )
 
 FORMAT = "%(levelname)s %(name)s %(asctime)-15s %(threadName)s %(filename)s:%(lineno)d %(message)s"
@@ -16,11 +19,11 @@ log = logging.getLogger(__name__)
 
 
 class LoggerCallback(Callback):
-    def on_sent(self, con_id: ConId, msg: str):
-        log.info(f"on_sent: {con_id} {msg}")
+    def on_sent(self, con_id: ConId, msg: MsgDict):
+        log.info(f"on_sent: {con_id} {msg} {type(msg)}")
 
-    def on_recv(self, con_id: ConId, msg: str):
-        log.info(f"on_recv: {con_id} {msg}")
+    def on_recv(self, con_id: ConId, msg: MsgDict):
+        log.info(f"on_recv: {con_id} {msg} {type(msg)}")
 
 
 svc = SvcOuchSupervised("127.0.0.1:8080", LoggerCallback(), 1, "test")
@@ -28,10 +31,11 @@ svc = SvcOuchSupervised("127.0.0.1:8080", LoggerCallback(), 1, "test")
 clt = CltOuchSupervised("127.0.0.1:8080", LoggerCallback())
 
 
-assert svc.accept() == Status.Ok
-assert svc.accept() == Status.Busy
+assert svc.pool_accept() == AcceptStatus.Ok
+assert svc.pool_accept() == AcceptStatus.Busy
 
-msg = {"HBeat": {}}
-clt.send(msg)
+assert clt.send({"HBeat": {}}) == SendStatus.Ok
 
-# clt.send(dumps("{HBeat:{}}"))
+status = svc.recv()
+assert status == RecvStatus.Ok
+print(status.payload(), type(status.payload()))

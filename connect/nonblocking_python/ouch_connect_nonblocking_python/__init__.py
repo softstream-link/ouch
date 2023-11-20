@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
-from logging import error
+from logging import error, info
+from typing import Any
 from .ouch_connect_nonblocking_python import *
 
 
@@ -18,17 +19,21 @@ class ConId(Enum):
     peer: str
 
 
-
+type MsgDict = dict[str, str | int | float | bool | Any]
 
 
 class Callback(ABC):
     @abstractmethod
-    def on_recv(self, con_id: ConId, msg: str) -> None:
+    def on_recv(self, con_id: ConId, msg: MsgDict) -> None:
         ...
 
     @abstractmethod
-    def on_sent(self, con_id: ConId, msg: str) -> None:
+    def on_sent(self, con_id: ConId, msg: MsgDict) -> None:
         ...
 
-    def on_fail(self, con_id: ConId, msg: str, err: str) -> None:
+    def on_fail(self, con_id: ConId, msg: MsgDict, err: str) -> None:
         error(f"on_fail: {con_id} {msg} {err}")
+
+    def on_send(self, con_id: ConId, msg: MsgDict) -> None:
+        # info(f"on_send: {con_id} {msg}")
+        pass
