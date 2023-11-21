@@ -4,3 +4,4 @@ pub use crate::core::{SvcOuchDevNullCallback, SvcOuchLoggerCallback};
 
 pub use ouch_model::prelude::*;
 pub use soupbintcp_connect_nonblocking::prelude::*;
+pub use soupbintcp_connect_nonblocking::prelude::asserted_short_name;

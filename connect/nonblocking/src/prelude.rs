@@ -4,3 +4,4 @@ pub use crate::pool::{SvcOuchPoolAcceptor, SvcOuchRecversPool, SvcOuchSendersPoo
 pub use crate::svc::{SvcOuchAcceptor, SvcOuchRecver, SvcOuchSender, SvcOuchSupervised};
 
 pub use ouch_connect_core::prelude::*;
+pub use ouch_connect_core::prelude::asserted_short_name;

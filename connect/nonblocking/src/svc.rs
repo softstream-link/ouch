@@ -27,7 +27,7 @@ mod test {
         let mut clt = CltOuchSupervised::connect(addr, setup::net::default_connect_timeout(), setup::net::default_connect_retry_after(), LoggerCallback::new_ref(), Some("ouch/unittest")).unwrap();
         info!("clt: {}", clt);
 
-        svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
+        svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap_accepted();
         info!("svc: {}", svc);
 
         let mut clt_msg = EnterOrder::default().into();

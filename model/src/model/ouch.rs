@@ -173,7 +173,7 @@ mod test {
     // TODO max message length needed to optimize stack serialization assume 512 bytes for now
     #[test]
     fn test_ouch_with_envelope_ser_des() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let mut msg_inp = vec![];
         for clt in clt_msgs_default() {
@@ -218,7 +218,7 @@ mod test {
 
     #[test]
     fn test_ouch5_max_size() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let inb = clt_msgs_default().into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
         for (byte_len, clt_msg) in inb.iter() {

@@ -201,7 +201,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let msg_inp = ReplaceOrder::from(&EnterOrder::default());
 
         let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
@@ -216,7 +216,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let msg_inp = ReplaceOrder::from(&EnterOrder::default());
         // info!("msg_inp: {:?}", msg_inp);

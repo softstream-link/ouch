@@ -149,7 +149,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<SecondaryOrdRefNum>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -186,7 +186,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<Firm>;
                 let msg_inp: T = b"ABCD".into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -224,7 +224,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<MinQty>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -296,7 +296,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<CustomerType>;
                 let msg_inp: T = b'N'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -332,7 +332,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<MaxFloor>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -414,7 +414,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<PriceType>;
                 let msg_inp: T = b'L'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -453,7 +453,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<PegOffset>;
                 let msg_inp: T = (-1.1234).into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -493,7 +493,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<DiscretionPrice>;
                 let msg_inp: T = 1.1234.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -575,7 +575,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<DiscretionPriceType>;
                 let msg_inp: T = b'L'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -613,7 +613,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<DiscretionPegOffset>;
                 let msg_inp: T = (-1.1234).into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -682,7 +682,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<PostOnly>;
                 let msg_inp: T = b'P'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -719,7 +719,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<RandomReserves>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -748,7 +748,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<Route>;
                 let msg_inp: T = b"ABCD".into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -786,7 +786,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<ExpireTime>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -858,7 +858,7 @@ mod optional_values {
             use serde_json::{from_str, to_string};
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<TradeNow>;
                 let msg_inp: T = b'Y'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -956,7 +956,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<HandleInst>;
                 let msg_inp: T = b'I'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -1042,7 +1042,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<BBOWeightIndicator>;
                 let msg_inp: T = b'0'.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -1072,7 +1072,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<DisplayQty>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -1104,7 +1104,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<DisplayPrice>;
                 let msg_inp: T = 1.1234.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -1141,7 +1141,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<GroupId>;
                 let msg_inp: T = 1.into();
                 info!("msg_inp: {:?}", msg_inp);
@@ -1209,7 +1209,7 @@ mod optional_values {
 
             #[test]
             fn test_msg_serde() {
-                setup::log::configure_compact();
+                setup::log::configure_compact(log::LevelFilter::Info);
                 type T = TagValueElement<SharesLocated>;
                 let msg_inp: T = b'Y'.into();
                 info!("msg_inp: {:?}", msg_inp);

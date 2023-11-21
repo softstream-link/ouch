@@ -185,7 +185,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let enter_order = EnterOrder::default();
         let mut replace_order = ReplaceOrder::from(&enter_order);
         replace_order.quantity = Quantity::new(50);
@@ -204,7 +204,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let enter_order = EnterOrder::default();
         let mut replace_order = ReplaceOrder::from(&enter_order);
         replace_order.quantity = Quantity::new(50);

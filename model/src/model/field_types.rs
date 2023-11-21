@@ -130,7 +130,9 @@ pub mod side {
     }
     impl Serialize for Side {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_buy() {
                 serializer.serialize_str("BUY")
             } else if self.is_sell() {
@@ -146,7 +148,9 @@ pub mod side {
     }
     impl<'de> Deserialize<'de> for Side {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "BUY" | "B" => Ok(Self::buy()),
@@ -177,7 +181,9 @@ pub mod time_in_force {
     }
     impl Serialize for TimeInForce {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_market_hours() {
                 serializer.serialize_str("MARKET_HOURS")
             } else if self.is_immediate_or_cancel() {
@@ -195,7 +201,9 @@ pub mod time_in_force {
     }
     impl<'de> Deserialize<'de> for TimeInForce {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "MARKET_HOURS" | "0" => Ok(Self::market_hours()),
@@ -226,7 +234,9 @@ pub mod display {
     }
     impl Serialize for Display {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_visible() {
                 serializer.serialize_str("VISIBLE")
             } else if self.is_hidden() {
@@ -242,7 +252,9 @@ pub mod display {
     }
     impl<'de> Deserialize<'de> for Display {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "VISIBLE" | "Y" => Ok(Self::visible()),
@@ -271,7 +283,9 @@ pub mod capacity {
     }
     impl Serialize for Capacity {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_agency() {
                 serializer.serialize_str("AGENCY")
             } else if self.is_principal() {
@@ -287,7 +301,9 @@ pub mod capacity {
     }
     impl<'de> Deserialize<'de> for Capacity {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "AGENCY" | "A" => Ok(Self::agency()),
@@ -312,7 +328,9 @@ pub mod int_mkt_sweep_eligibility {
     }
     impl Serialize for IntMktSweepEligibility {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_eligible() {
                 serializer.serialize_str("ELIGIBLE")
             } else if self.is_not_eligible() {
@@ -324,7 +342,9 @@ pub mod int_mkt_sweep_eligibility {
     }
     impl<'de> Deserialize<'de> for IntMktSweepEligibility {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "ELIGIBLE" | "Y" => Ok(Self::eligible()),
@@ -359,7 +379,9 @@ pub mod cross_type {
     }
     impl Serialize for CrossType {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_continuous_market() {
                 serializer.serialize_str("CONTINUOUS_MARKET")
             } else if self.is_opening_cross() {
@@ -383,7 +405,9 @@ pub mod cross_type {
     }
     impl<'de> Deserialize<'de> for CrossType {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "CONTINUOUS_MARKET" | "N" => Ok(Self::continuous_market()),
@@ -412,7 +436,9 @@ pub mod event_code {
     }
     impl Serialize for EventCode {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_start_of_day() {
                 serializer.serialize_str("START_OF_DAY")
             } else if self.is_end_of_day() {
@@ -424,7 +450,9 @@ pub mod event_code {
     }
     impl<'de> Deserialize<'de> for EventCode {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "START_OF_DAY" | "S" => Ok(Self::start_of_day()),
@@ -447,7 +475,9 @@ pub mod order_state {
     }
     impl Serialize for OrderState {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_live() {
                 serializer.serialize_str("LIVE")
             } else if self.is_dead() {
@@ -459,7 +489,9 @@ pub mod order_state {
     }
     impl<'de> Deserialize<'de> for OrderState {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "LIVE" | "L" => Ok(Self::live()),
@@ -535,7 +567,9 @@ pub mod price {
     }
     impl Serialize for Price {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: serde::Serializer {
+        where
+            S: serde::Serializer,
+        {
             serializer.serialize_f32(f32::from(self))
         }
     }
@@ -560,7 +594,7 @@ pub mod price {
 
         #[test]
         fn test_price() {
-            setup::log::configure_compact();
+            setup::log::configure_compact(log::LevelFilter::Info);
             let msg_in = Price::from(1.1234);
             info!("msg_in: {:?}", msg_in);
 
@@ -721,7 +755,9 @@ pub mod cancel_reason {
     }
     impl Serialize for CancelReason {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_reg_restriction() {
                 serializer.serialize_str("REG_RESTRICTION")
             } else if self.is_closed() {
@@ -757,7 +793,9 @@ pub mod cancel_reason {
     }
     impl<'de> Deserialize<'de> for CancelReason {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "REG_RESTRICTION" | "D" => Ok(Self::reg_restriction()),
@@ -845,7 +883,9 @@ pub mod liquidity_flag {
     }
     impl Serialize for LiquidityFlag {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_added() {
                 serializer.serialize_str("ADDED")
             } else if self.is_closing_cross() {
@@ -901,7 +941,9 @@ pub mod liquidity_flag {
     }
     impl<'de> Deserialize<'de> for LiquidityFlag {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "ADDED" | "A" => Ok(Self::added()),
@@ -979,7 +1021,9 @@ pub mod broken_trade_reason {
     }
     impl Serialize for BrokenTradeReason {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_erroneous() {
                 serializer.serialize_str("ERRONEOUS")
             } else if self.is_consent() {
@@ -995,7 +1039,9 @@ pub mod broken_trade_reason {
     }
     impl<'de> Deserialize<'de> for BrokenTradeReason {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "ERRONEOUS" | "E" => Ok(Self::erroneous()),
@@ -1099,7 +1145,9 @@ pub mod order_restated_reason {
     }
     impl Serialize for RestatedReason {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer {
+        where
+            S: Serializer,
+        {
             if self.is_refresh_of_display() {
                 serializer.serialize_str("REFRESH_OF_DISPLAY")
             } else if self.is_update_of_displayed_price() {
@@ -1111,7 +1159,9 @@ pub mod order_restated_reason {
     }
     impl<'de> Deserialize<'de> for RestatedReason {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: Deserializer<'de> {
+        where
+            D: Deserializer<'de>,
+        {
             let value = String::deserialize(deserializer)?.to_uppercase();
             match value.as_str() {
                 "REFRESH_OF_DISPLAY" | "R" => Ok(Self::refresh_of_display()),

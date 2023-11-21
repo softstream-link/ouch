@@ -37,7 +37,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let enter_order = EnterOrder::default();
         let mut cancel_order = CancelOrder::from(&enter_order);
         cancel_order.user_ref_number = UserRefNumber::new(enter_order.user_ref_number.value() + 1);
@@ -56,7 +56,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let enter_order = EnterOrder::default();
         let mut cancel_order = CancelOrder::from(&enter_order);
         cancel_order.user_ref_number = UserRefNumber::new(enter_order.user_ref_number.value() + 1);

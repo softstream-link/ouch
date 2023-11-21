@@ -37,7 +37,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let msg_inp = AccountQueryRequest::default();
         // info!("msg_inp: {:?}", msg_inp);

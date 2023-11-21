@@ -1,5 +1,7 @@
 use crate::{core::ConId, json_2_dict};
-use ouch_connect_nonblocking::prelude::{asserted_short_name, CallbackRecv, CallbackRecvSend, CallbackSend, CltOuchMessenger, CltOuchMsg, ConId as ConIdRs, Messenger, SvcOuchMessenger, SvcOuchMsg};
+
+use ouch_connect_nonblocking::prelude::ConId as ConIdRs;
+use ouch_connect_nonblocking::prelude::{asserted_short_name, CallbackRecv, CallbackRecvSend, CallbackSend, CltOuchMessenger, Messenger, SvcOuchMessenger};
 use pyo3::prelude::*;
 use serde_json::to_string;
 use std::{
@@ -11,6 +13,7 @@ use std::{
 pub struct PythonProxyCallback(PyObject);
 impl PythonProxyCallback {
     pub fn new_ref(callback: PyObject) -> Arc<Self> {
+        // TODO add assert to ensure that callback has correct methods or instance of Callback
         Arc::new(Self(callback))
     }
 }
@@ -20,7 +23,7 @@ impl Display for PythonProxyCallback {
     }
 }
 impl CallbackRecv<SvcOuchMessenger> for PythonProxyCallback {
-    fn on_recv(&self, con_id: &ConIdRs, msg: &CltOuchMsg) {
+    fn on_recv(&self, con_id: &ConIdRs, msg: &<SvcOuchMessenger as Messenger>::RecvT) {
         let name = "on_recv";
         let args = (ConId::from(con_id), json_2_dict(to_string(msg).unwrap().as_str()));
         let kwargs = None;
@@ -28,7 +31,7 @@ impl CallbackRecv<SvcOuchMessenger> for PythonProxyCallback {
     }
 }
 impl CallbackRecv<CltOuchMessenger> for PythonProxyCallback {
-    fn on_recv(&self, con_id: &ConIdRs, msg: &SvcOuchMsg) {
+    fn on_recv(&self, con_id: &ConIdRs, msg: &<CltOuchMessenger as Messenger>::RecvT) {
         let name = "on_recv";
         let args = (ConId::from(con_id), json_2_dict(to_string(msg).unwrap().as_str()));
         let kwargs = None;

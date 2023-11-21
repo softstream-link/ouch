@@ -37,7 +37,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let msg_inp = UserRefNumber::new(1).into();
 
         let ser: ByteSerializerStack<128> = to_serializer_stack(&msg_inp).unwrap();
@@ -52,7 +52,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
         let mut msg_inp: AccountQueryResponse = 1.into();
         msg_inp.timestamp = 1.into();
         // info!("msg_inp: {:?}", msg_inp);

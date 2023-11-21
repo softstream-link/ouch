@@ -22,7 +22,7 @@ pyo3-log = "0.9" # allows rust logging to write to python logging
 ouch_connect_nonblocking = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }
-links_core = { workspace = true } # macro
+lazy_static = { workspace = true }
 
 [dev-dependencies]
 links_core = { workspace = true , features = ["unittest"]}

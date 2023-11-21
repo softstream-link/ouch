@@ -230,7 +230,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let msg_inp = OrderAccepted::from((&enter_order, OrderReferenceNumber::new(1), OrderState::live()));
@@ -247,7 +247,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let mut msg_inp = OrderAccepted::from((&enter_order, OrderReferenceNumber::new(1), OrderState::live()));

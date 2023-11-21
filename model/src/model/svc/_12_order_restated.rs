@@ -84,7 +84,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let msg_inp = OrderRestated::from((&enter_order, RestatedReason::refresh_of_display(), 1.into(), 0.0.into(), 1.into()));
@@ -101,7 +101,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let mut msg_inp = OrderRestated::from((&enter_order, RestatedReason::refresh_of_display(), 1.into(), 0.0.into(), 1.into()));

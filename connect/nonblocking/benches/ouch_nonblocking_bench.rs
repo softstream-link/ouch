@@ -14,7 +14,7 @@ fn ouch_enter_order_send(c: &mut Criterion) {
         .spawn(move || {
             let mut svc = SvcOuchSupervised::bind(addr, DevNullCallback::new_ref(), NonZeroUsize::new(1).unwrap(), Some("ouch/venue")).unwrap();
             info!("svc {}", svc);
-            svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap();
+            svc.pool_accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap_accepted();
             info!("svc {}", svc);
 
             while let Ok(opt) = svc.recv_busywait() {

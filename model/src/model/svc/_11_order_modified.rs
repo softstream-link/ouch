@@ -37,7 +37,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let msg_inp = OrderModified::from((&enter_order, 1.into()));
@@ -53,7 +53,7 @@ mod test {
     }
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let mut msg_inp = OrderModified::from((&enter_order, 1.into()));

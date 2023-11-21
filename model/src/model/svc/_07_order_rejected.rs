@@ -38,7 +38,7 @@ mod test {
 
     #[test]
     fn test_msg_byteserde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let msg_inp = OrderRejected::from((&enter_order, OrderRejectReason::quote_unavailable()));
@@ -55,7 +55,7 @@ mod test {
 
     #[test]
     fn test_msg_serde() {
-        setup::log::configure_compact();
+        setup::log::configure_compact(log::LevelFilter::Info);
 
         let enter_order = EnterOrder::default();
         let mut msg_inp = OrderRejected::from((&enter_order, OrderRejectReason::quote_unavailable()));

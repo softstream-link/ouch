@@ -1,5 +1,6 @@
-use links_core::asserted_short_name;
-use ouch_connect_nonblocking::prelude::{ConId as ConIdRs, PoolAcceptStatus, SendStatus as SendStatusRs};
+use std::time::Duration;
+
+use ouch_connect_nonblocking::prelude::{asserted_short_name, ConId as ConIdRs, PoolAcceptStatus, SendStatus as SendStatusRs};
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -29,13 +30,13 @@ impl ConId {
 #[pyclass]
 pub enum AcceptStatus {
     Ok,
-    Busy,
+    WouldBlock,
 }
 impl From<PoolAcceptStatus> for AcceptStatus {
     fn from(value: PoolAcceptStatus) -> Self {
         match value {
             PoolAcceptStatus::Accepted => Self::Ok,
-            PoolAcceptStatus::WouldBlock => Self::Busy,
+            PoolAcceptStatus::WouldBlock => Self::WouldBlock,
         }
     }
 }
@@ -43,13 +44,13 @@ impl From<PoolAcceptStatus> for AcceptStatus {
 #[pyclass]
 pub enum SendStatus {
     Ok,
-    Busy,
+    WouldBlock,
 }
 impl From<SendStatusRs> for SendStatus {
     fn from(status: SendStatusRs) -> Self {
         match status {
             SendStatusRs::Completed => Self::Ok,
-            SendStatusRs::WouldBlock => Self::Busy,
+            SendStatusRs::WouldBlock => Self::WouldBlock,
         }
     }
 }
@@ -75,7 +76,7 @@ impl RecvStatus {
     }
     #[classattr]
     #[allow(non_snake_case)]
-    pub fn Busy() -> Self {
+    pub fn WouldBlock() -> Self {
         Self(None)
     }
     #[classattr]
@@ -115,6 +116,16 @@ impl From<&ConIdRs> for ConId {
 impl From<ConIdRs> for ConId {
     fn from(value: ConIdRs) -> Self {
         Self::from(&value)
+    }
+}
+
+pub fn timeout_selector(priority_1: Option<f64>, priority_2: Option<f64> ) -> Duration {
+    match priority_1 {
+        Some(timeout) => Duration::from_secs_f64(timeout),
+        None => match priority_2 {
+            Some(timeout) => Duration::from_secs_f64(timeout),
+            None => Duration::from_secs(0),
+        },
     }
 }
 
