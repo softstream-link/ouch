@@ -3,7 +3,7 @@ use crate::core::{timeout_selector, RecvStatus, SendStatus};
 use crate::POLL_HANDLER;
 use crate::{dict_2_json, json_2_dict};
 use ouch_connect_nonblocking::prelude::{asserted_short_name, RecvNonBlocking, SendNonBlocking};
-use ouch_connect_nonblocking::prelude::{CltOuchSender as CltOuchSenderRs, CltOuchSupervised as CltOuchSupervisedRs, RecvStatus as RecvStatusRs};
+use ouch_connect_nonblocking::prelude::{CltOuchSender as CltOuchSenderRs, CltOuchManual as CltOuchSupervisedRs, RecvStatus as RecvStatusRs};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 

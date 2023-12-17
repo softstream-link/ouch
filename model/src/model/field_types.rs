@@ -33,39 +33,38 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 // const char ascii
 pub mod ouch_packet_types {
     use super::*;
-    // TODO how will packet_type field play between soupbintcp and ouch?
     // inbound
-    const_char_ascii!(PacketTypeEnterOrder, b'O', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeReplaceOrder, b'U', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeCancelOrder, b'X', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeModifyOrder, b'M', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeAccountQueryRequest, b'Q', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeEnterOrder, b'O', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeReplaceOrder, b'U', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeCancelOrder, b'X', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeModifyOrder, b'M', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeAccountQueryRequest, b'Q', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
 
     // outbound
-    const_char_ascii!(PacketTypeSystemEvent, b'S', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderAccepted, b'A', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderReplaced, b'U', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderCanceled, b'C', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderAiqCanceled, b'D', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderExecuted, b'E', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeBrokenTrade, b'B', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderRejected, b'J', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeCancelPending, b'P', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeCancelReject, b'I', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypePriorityUpdate, b'T', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderModified, b'M', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeOrderRestated, b'R', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
-    const_char_ascii!(PacketTypeAccountQueryResponse, b'Q', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeSystemEvent, b'S', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderAccepted, b'A', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderReplaced, b'U', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderCanceled, b'C', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderAiqCanceled, b'D', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderExecuted, b'E', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeBrokenTrade, b'B', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderRejected, b'J', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeCancelPending, b'P', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeCancelReject, b'I', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypePriorityUpdate, b'T', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderModified, b'M', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeOrderRestated, b'R', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(PacketTypeAccountQueryResponse, b'Q', true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
 }
 // fixed ascii strings
 pub mod string_ascii_fixed {
     use super::*;
-    string_ascii_fixed!(Symbol, 9, b' ', false, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    string_ascii_fixed!(Symbol, 9, b' ', false, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
 }
 
 pub mod clt_order_id {
     use super::*;
-    string_ascii_fixed!(CltOrderId, 14, b' ', false, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    string_ascii_fixed!(CltOrderId, 14, b' ', false, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
     impl Default for CltOrderId {
         fn default() -> Self {
             Self::new(b"REPLACE_ME____".to_owned())
@@ -822,7 +821,7 @@ pub mod cancel_reason_aiq {
     use super::*;
 
     #[rustfmt::skip]
-    const_char_ascii!(CancelAiqReason, b'Q', #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+    const_char_ascii!(CancelAiqReason, b'Q',true, #[derive(ByteSerializeStack, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
 }
 
 pub mod liquidity_flag {

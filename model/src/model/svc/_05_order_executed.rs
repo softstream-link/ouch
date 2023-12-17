@@ -39,7 +39,7 @@ impl From<&EnterOrder> for OrderExecuted {
 }
 
 #[derive(Deserialize)]
-struct OrderExecutedJsonDes{
+struct OrderExecutedJsonDes {
     timestamp: Timestamp, // Venue assigned
     user_ref_number: UserRefNumber,
     quantity: Quantity,
@@ -48,7 +48,7 @@ struct OrderExecutedJsonDes{
     match_number: MatchNumber,
     appendages: EnterOrderAppendage,
 }
-impl From<OrderExecutedJsonDes> for OrderExecuted{
+impl From<OrderExecutedJsonDes> for OrderExecuted {
     fn from(value: OrderExecutedJsonDes) -> Self {
         Self {
             packet_type: PacketTypeOrderExecuted::default(),
@@ -105,11 +105,9 @@ mod test {
             print_diff(&json_out, json_exp, ",");
             assert_eq!(json_out, json_exp);
         }
-        
+
         let msg_out: OrderExecuted = serde_json::from_str(&json_out).unwrap();
         // info!("msg_out: {:?}", msg_out);
         assert_eq!(msg_out, msg_inp);
-
-
     }
 }

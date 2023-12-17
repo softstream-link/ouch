@@ -285,7 +285,7 @@ mod test {
         let json_out = to_string(&msg_inp).unwrap();
         let json_exp = r#"{"user_ref_number":1,"side":"BUY","quantity":100,"symbol":"DUMMY","price":1.2345,"time_in_force":"MARKET_HOURS","display":"VISIBLE","capacity":"AGENCY","int_mkt_sweep_eligibility":"ELIGIBLE","cross_type":"CONTINUOUS_MARKET","clt_order_id":"1","appendages":{"firm":"????","min_qty":0,"customer_type":"PORT_DEFAULT","max_floor":0,"price_type":"LIMIT","peg_offset":-1.1234,"discretion_price":0.0,"discretion_price_type":"LIMIT","discretion_peg_offset":-1.1234,"post_only":"NO","random_reserves":0,"route":"????","expire_time":0,"trade_now":"PORT_DEFAULT","handle_inst":"NO_INSTRUCTIONS","group_id":0,"shares_located":"NO"}}"#;
         info!("json_out: {}", json_out);
-        
+
         if matches!(diff(&json_out, json_exp, ","), (dist, _) if dist != 0) {
             print_diff(&json_out, json_exp, ",");
             assert_eq!(json_out, json_exp);

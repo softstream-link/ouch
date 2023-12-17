@@ -116,7 +116,9 @@ macro_rules! f32_unsigned_price_u64 {
         }
         impl serde::Serialize for $TYPE {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: serde::Serializer {
+            where
+                S: serde::Serializer,
+            {
                 serializer.serialize_f32(f32::from(self))
             }
         }
@@ -166,7 +168,7 @@ mod optional_values {
     }
     pub mod firm {
         use super::*;
-        string_ascii_fixed!(Firm, 4, b' ', true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        string_ascii_fixed!(Firm, 4, b' ', true, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(Firm, 2);
         string_ascii_fixed_into_tag_value!(Firm);
 
@@ -264,7 +266,9 @@ mod optional_values {
         }
         impl Serialize for CustomerType {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_retail() {
                     serializer.serialize_str("RETAIL")
                 } else if self.is_non_retail() {
@@ -278,7 +282,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for CustomerType {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "RETAIL" | "R" => Ok(CustomerType::retail()),
@@ -376,7 +382,9 @@ mod optional_values {
         }
         impl Serialize for PriceType {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_limit() {
                     serializer.serialize_str("LIMIT")
                 } else if self.is_market_peg() {
@@ -394,7 +402,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for PriceType {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "LIMIT" | "L" => Ok(PriceType::limit()),
@@ -539,7 +549,9 @@ mod optional_values {
         }
         impl Serialize for DiscretionPriceType {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_limit() {
                     serializer.serialize_str("LIMIT")
                 } else if self.is_market_peg() {
@@ -555,7 +567,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for DiscretionPriceType {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "LIMIT" | "L" => Ok(DiscretionPriceType::limit()),
@@ -652,7 +666,9 @@ mod optional_values {
         }
         impl Serialize for PostOnly {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_yes() {
                     serializer.serialize_str("YES")
                 } else if self.is_no() {
@@ -664,7 +680,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for PostOnly {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "YES" | "Y" => Ok(PostOnly::yes()),
@@ -736,7 +754,7 @@ mod optional_values {
     }
     pub mod route {
         use super::*;
-        string_ascii_fixed!(Route, 4, b' ', true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
+        string_ascii_fixed!(Route, 4, b' ', true, true, #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(Route, 14);
         string_ascii_fixed_into_tag_value!(Route);
 
@@ -825,7 +843,9 @@ mod optional_values {
         }
         impl Serialize for TradeNow {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_yes() {
                     serializer.serialize_str("YES")
                 } else if self.is_no() {
@@ -839,7 +859,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for TradeNow {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "YES" | "Y" => Ok(TradeNow::yes()),
@@ -907,7 +929,9 @@ mod optional_values {
         }
         impl Serialize for HandleInst {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_no_instructions() {
                     serializer.serialize_str("NO_INSTRUCTIONS")
                 } else if self.is_imbalance_only() {
@@ -931,7 +955,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for HandleInst {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "NO_INSTRUCTIONS" | " " => Ok(HandleInst::no_instructions()),
@@ -996,7 +1022,9 @@ mod optional_values {
         }
         impl Serialize for BBOWeightIndicator {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_zero_point_2() {
                     serializer.serialize_str("ZERO_POINT_2")
                 } else if self.is_point_2_one() {
@@ -1018,7 +1046,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for BBOWeightIndicator {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "ZERO_POINT_2" | "0" => Ok(BBOWeightIndicator::zero_point_2()),
@@ -1178,7 +1208,9 @@ mod optional_values {
         }
         impl Serialize for SharesLocated {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-            where S: Serializer {
+            where
+                S: Serializer,
+            {
                 if self.is_yes() {
                     serializer.serialize_str("YES")
                 } else if self.is_no() {
@@ -1190,7 +1222,9 @@ mod optional_values {
         }
         impl<'de> Deserialize<'de> for SharesLocated {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-            where D: Deserializer<'de> {
+            where
+                D: Deserializer<'de>,
+            {
                 let value = String::deserialize(deserializer)?.to_uppercase();
                 match value.as_str() {
                     "YES" | "Y" => Ok(SharesLocated::yes()),
@@ -1229,7 +1263,7 @@ mod optional_values {
 #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedLenOf, PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]
 // #[serde(transparent)]
 #[serde(into = "TagValueElementJsonShadow<T>", from = "TagValueElementJsonShadow<T>")]
-pub struct TagValueElement<T: ByteSerializeStack+ByteDeserializeSlice<T>+ByteSerializedLenOf+OptionTag+Clone>(
+pub struct TagValueElement<T: ByteSerializeStack + ByteDeserializeSlice<T> + ByteSerializedLenOf + OptionTag + Clone>(
     // TODO it should not be a requirement to add T bounds if byteserde is fixed to auto include own bounds during derive
     #[serde(skip)]
     #[byteserde(replace( 1 + size_of::<T>() as u8 ))]
@@ -1239,7 +1273,7 @@ pub struct TagValueElement<T: ByteSerializeStack+ByteDeserializeSlice<T>+ByteSer
     u8,
     T,
 );
-impl<T: ByteSerializeStack+ByteDeserializeSlice<T>+ByteSerializedLenOf+OptionTag+Clone> TagValueElement<T> {
+impl<T: ByteSerializeStack + ByteDeserializeSlice<T> + ByteSerializedLenOf + OptionTag + Clone> TagValueElement<T> {
     #[inline(always)]
     pub fn new(value: T) -> Self {
         TagValueElement(
@@ -1257,13 +1291,13 @@ impl<T: ByteSerializeStack+ByteDeserializeSlice<T>+ByteSerializedLenOf+OptionTag
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct TagValueElementJsonShadow<T: OptionTag>(T);
-impl<T: OptionTag+ByteSerializeStack+ByteDeserializeSlice<T>+ByteSerializedLenOf+Clone> From<TagValueElementJsonShadow<T>> for TagValueElement<T> {
+impl<T: OptionTag + ByteSerializeStack + ByteDeserializeSlice<T> + ByteSerializedLenOf + Clone> From<TagValueElementJsonShadow<T>> for TagValueElement<T> {
     #[inline(always)]
     fn from(v: TagValueElementJsonShadow<T>) -> Self {
         TagValueElement::new(v.0)
     }
 }
-impl<T: OptionTag+ByteSerializeStack+ByteDeserializeSlice<T>+ByteSerializedLenOf+Clone> From<TagValueElement<T>> for TagValueElementJsonShadow<T> {
+impl<T: OptionTag + ByteSerializeStack + ByteDeserializeSlice<T> + ByteSerializedLenOf + Clone> From<TagValueElement<T>> for TagValueElementJsonShadow<T> {
     #[inline(always)]
     fn from(v: TagValueElement<T>) -> Self {
         TagValueElementJsonShadow(v.2)

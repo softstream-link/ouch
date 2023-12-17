@@ -34,7 +34,7 @@ mod test {
     use byteserde::prelude::*;
     use links_core::unittest::setup;
     use log::info;
-    use serde_json::{to_string, from_str};
+    use serde_json::{from_str, to_string};
     use text_diff::{diff, print_diff};
 
     #[test]

@@ -23,19 +23,10 @@ fn run() -> Result<(), Box<dyn Error>> {
     let svc_jh = Builder::new()
         .name("Acceptor-Thread".to_owned())
         .spawn(move || {
-            let svc = SvcOuchSupervised::bind(
-                addr,
-                DevNullCallback::new_ref(),
-                NonZeroUsize::new(1).unwrap(),
-                Some("ouch/clt"),
-            )
-            .unwrap();
+            let svc = SvcOuch::bind(addr, NonZeroUsize::new(1).unwrap(), DevNullCallback::new_ref(), SvcOuchProtocolManual::default(), Some("ouch/clt")).unwrap();
 
             info!("svc: {}", svc);
-            let mut clt = svc
-                .accept_busywait_timeout(setup::net::default_connect_timeout())
-                .unwrap()
-                .unwrap();
+            let mut clt = svc.accept_busywait_timeout(setup::net::default_connect_timeout()).unwrap().unwrap_accepted();
             info!("clt: {}", clt);
 
             let mut order_accepted: SvcOuchMsg = OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into();
@@ -53,11 +44,12 @@ fn run() -> Result<(), Box<dyn Error>> {
         })
         .unwrap();
 
-    let mut clt = CltOuchSupervised::connect(
+    let mut clt = CltOuch::connect(
         addr,
         setup::net::default_connect_timeout(),
         setup::net::default_connect_retry_after(),
         DevNullCallback::new_ref(),
+        CltOuchProtocolManual::default(),
         Some("ouch/venue"),
     )
     .unwrap();

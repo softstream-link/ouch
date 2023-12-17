@@ -7,7 +7,7 @@ use crate::POLL_HANDLER;
 use crate::{callbacks::PythonProxyCallback, core::SendStatus};
 use log::warn;
 use ouch_connect_nonblocking::prelude::{asserted_short_name, PoolAcceptCltNonBlocking, RecvNonBlocking, SendNonBlocking, SvcOuchSendersPool};
-use ouch_connect_nonblocking::prelude::{RecvStatus as RecvStatusRs, SvcOuchSupervised as SvcOuchSupervisedRs};
+use ouch_connect_nonblocking::prelude::{RecvStatus as RecvStatusRs, SvcOuchManual as SvcOuchSupervisedRs};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::io::ErrorKind;
