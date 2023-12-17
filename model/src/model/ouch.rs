@@ -120,7 +120,7 @@ mod froms_svc_pld {
             impl From<$FROM> for SvcOuchMsg {
                 #[inline(always)]
                 fn from(payload: $FROM) -> Self {
-                    Self::udata($PAYLOAD_ENUM(payload))
+                    Self::sdata($PAYLOAD_ENUM(payload))
                 }
             }
         };
@@ -170,7 +170,6 @@ mod test {
     use log::info;
     use serde_json::to_string;
 
-    // TODO max message length needed to optimize stack serialization assume 512 bytes for now
     #[test]
     fn test_ouch_with_envelope_ser_des() {
         setup::log::configure_compact(log::LevelFilter::Info);
@@ -203,12 +202,12 @@ mod test {
             match ouch {
                 UniOuchMsg::Clt(msg_inp_inb) => {
                     let msg_out_inb = des.deserialize::<CltOuchMsg>().unwrap();
-                    info!("msg_out_inb: {:?}", msg_out_inb);
+                    info!("msg_out_inb: {}", to_string(&msg_out_inb).unwrap());
                     assert_eq!(msg_inp_inb, &msg_out_inb);
                 }
                 UniOuchMsg::Svc(msg_inp_oub) => {
                     let msg_out_oub = des.deserialize::<SvcOuchMsg>().unwrap();
-                    info!("msg_out_oub: {:?}", msg_out_oub);
+                    info!("msg_out_oub: {}", to_string(&msg_out_oub).unwrap());
                     assert_eq!(msg_inp_oub, &msg_out_oub);
                 }
             }

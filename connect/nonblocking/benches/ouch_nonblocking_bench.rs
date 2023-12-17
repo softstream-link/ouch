@@ -5,7 +5,7 @@ use links_core::unittest::setup;
 use log::info;
 use ouch_connect_nonblocking::prelude::*;
 
-fn ouch_enter_order_send(c: &mut Criterion) {
+fn soupbintcp_ouch_enter_order_send(c: &mut Criterion) {
     setup::log::configure_level(log::LevelFilter::Info);
 
     let addr = setup::net::rand_avail_addr_port();
@@ -32,7 +32,7 @@ fn ouch_enter_order_send(c: &mut Criterion) {
     info!("clt {}", clt);
 
     let mut enter_order = EnterOrder::default().into();
-    c.bench_function("ouch_enter_order_send", |b| {
+    c.bench_function("soupbintcp_ouch_enter_order_send", |b| {
         b.iter(|| {
             black_box({
                 clt.send_busywait(&mut enter_order).unwrap();
@@ -41,7 +41,7 @@ fn ouch_enter_order_send(c: &mut Criterion) {
     });
 }
 
-fn ouch_order_accepted_recv(c: &mut Criterion) {
+fn soupbintcp_ouch_order_accepted_recv(c: &mut Criterion) {
     setup::log::configure_level(log::LevelFilter::Info);
 
     let addr = setup::net::rand_avail_addr_port();
@@ -73,7 +73,7 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
     info!("clt {}", clt);
 
     let _res = clt.recv_busywait(); // establish connection
-    c.bench_function("ouch_order_accepted_recv", |b| {
+    c.bench_function("soupbintcp_ouch_order_accepted_recv", |b| {
         b.iter(|| {
             black_box({
                 let _order_accepter = clt.recv_busywait().unwrap();
@@ -82,7 +82,7 @@ fn ouch_order_accepted_recv(c: &mut Criterion) {
     });
 }
 
-fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
+fn soupbintcp_ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
     setup::log::configure_level(log::LevelFilter::Info);
 
     let addr = setup::net::rand_avail_addr_port();
@@ -111,7 +111,7 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
     info!("clt {}", clt);
     let mut enter_order: CltOuchMsg = EnterOrder::default().into();
 
-    c.bench_function("ouch_enter_order_accepted_round_trip", |b| {
+    c.bench_function("soupbintcp_ouch_enter_order_accepted_round_trip", |b| {
         b.iter(|| {
             black_box({
                 clt.send_busywait(&mut enter_order).unwrap();
@@ -122,5 +122,5 @@ fn ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
 }
 
 // criterion_group!(benches, ouch_enter_order_accepted_round_trip);
-criterion_group!(benches, ouch_enter_order_send, ouch_order_accepted_recv, ouch_enter_order_accepted_round_trip);
+criterion_group!(benches, soupbintcp_ouch_enter_order_send, soupbintcp_ouch_order_accepted_recv, soupbintcp_ouch_enter_order_accepted_round_trip);
 criterion_main!(benches);
