@@ -1,6 +1,9 @@
-use ouch_connect_core::prelude::{CltSoupBinTcp, OUCH_MAX_FRAME_SIZE};
+use ouch_connect_core::prelude::{CltSoupBinTcp, CltSoupBinTcpSender, CltSoupBinTcpSenderRef, OUCH_MAX_FRAME_SIZE};
 
 pub type CltOuch<Protocol, CallbackRecvSend> = CltSoupBinTcp<Protocol, CallbackRecvSend, OUCH_MAX_FRAME_SIZE>;
+
+pub type CltOuchSender<Protocol, CallbackSend> = CltSoupBinTcpSender<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
+pub type CltOuchSenderRef<Protocol, CallbackSend> = CltSoupBinTcpSenderRef<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
 
 #[cfg(test)]
 mod test {

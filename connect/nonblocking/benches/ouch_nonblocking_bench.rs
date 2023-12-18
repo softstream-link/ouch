@@ -32,11 +32,15 @@ fn soupbintcp_ouch_enter_order_send(c: &mut Criterion) {
     info!("clt {}", clt);
 
     let mut enter_order = EnterOrder::default().into();
+    // println!("enter_order: {:?}", enter_order.byte_len());
+
     c.bench_function("soupbintcp_ouch_enter_order_send", |b| {
         b.iter(|| {
-            black_box({
-                clt.send_busywait(&mut enter_order).unwrap();
-            })
+            {
+                black_box({
+                    clt.send_busywait(&mut enter_order).unwrap();
+                })
+            }
         })
     });
 }
@@ -121,6 +125,6 @@ fn soupbintcp_ouch_enter_order_accepted_round_trip(c: &mut Criterion) {
     });
 }
 
-// criterion_group!(benches, ouch_enter_order_accepted_round_trip);
+// criterion_group!(benches, soupbintcp_ouch_enter_order_send);
 criterion_group!(benches, soupbintcp_ouch_enter_order_send, soupbintcp_ouch_order_accepted_recv, soupbintcp_ouch_enter_order_accepted_round_trip);
 criterion_main!(benches);

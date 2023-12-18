@@ -10,9 +10,11 @@ pub type SvcOuchMessenger = SvcSoupBinTcpMessenger<CltOuchPayload, SvcOuchPayloa
 
 // Protocol
 pub type CltOuchProtocolManual = CltSoupBinTcpProtocolManual<SvcOuchPayload, CltOuchPayload>;
+pub type CltOuchProtocolIsConnected = CltSoupBinTcpProtocolIsConnected<SvcOuchPayload, CltOuchPayload>;
 pub type CltOuchProtocolAuto = CltSoupBinTcpProtocolAuto<SvcOuchPayload, CltOuchPayload>;
 
 pub type SvcOuchProtocolManual = SvcSoupBinTcpProtocolManual<CltOuchPayload, SvcOuchPayload>;
+pub type SvcOuchProtocolIsConnected = SvcSoupBinTcpProtocolIsConnected<CltOuchPayload, SvcOuchPayload>;
 pub type SvcOuchProtocolAuto = SvcSoupBinTcpProtocolAuto<CltOuchPayload, SvcOuchPayload>;
 
 // Callback

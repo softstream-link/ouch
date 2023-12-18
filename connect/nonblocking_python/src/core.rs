@@ -1,9 +1,6 @@
-use std::time::Duration;
-
-use ouch_connect_nonblocking::prelude::{asserted_short_name, ConId as ConIdRs, PoolAcceptStatus, SendStatus as SendStatusRs};
-use pyo3::exceptions::PyTypeError;
+use ouch_connect_nonblocking::prelude::{ConId as ConIdRs, SendStatus as SendStatusRs};
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use std::{fmt::Display, time::Duration};
 
 #[pyclass]
 #[derive(Debug, Clone)]
@@ -26,21 +23,14 @@ impl ConId {
         format!("{:?}", self)
     }
 }
-
-#[pyclass]
-pub enum AcceptStatus {
-    Ok,
-    WouldBlock,
-}
-impl From<PoolAcceptStatus> for AcceptStatus {
-    fn from(value: PoolAcceptStatus) -> Self {
-        match value {
-            PoolAcceptStatus::Accepted => Self::Ok,
-            PoolAcceptStatus::WouldBlock => Self::WouldBlock,
+impl Display for ConId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.con_type {
+            ConType::Initiator => write!(f, "{}@{}->{}", self.name, self.local, self.peer),
+            ConType::Acceptor => write!(f, "{}@{}<-{}", self.name, self.local, self.peer),
         }
     }
 }
-
 #[pyclass]
 pub enum SendStatus {
     Ok,
@@ -52,37 +42,6 @@ impl From<SendStatusRs> for SendStatus {
             SendStatusRs::Completed => Self::Ok,
             SendStatusRs::WouldBlock => Self::WouldBlock,
         }
-    }
-}
-
-#[pyclass]
-pub struct RecvStatus(pub Option<Py<PyDict>>);
-#[pymethods]
-impl RecvStatus {
-    pub fn __eq__(&self, other: &Self) -> bool {
-        self.0.is_some() == other.0.is_some()
-    }
-    pub fn __repr__(&self) -> String {
-        match &self.0 {
-            None => format!("{}.Busy", asserted_short_name!("RecvStatus", Self)),
-            Some(payload) => format!("{}.Ok({})", asserted_short_name!("RecvStatus", Self), payload),
-        }
-    }
-    pub fn payload(&self) -> PyResult<Py<PyDict>> {
-        match &self.0 {
-            Some(msg_dict) => Ok(msg_dict.clone()), // clone is a ref counted
-            None => Err(PyTypeError::new_err(format!("Payload only available when variant is {}.Ok", asserted_short_name!("RecvStatus", Self)))),
-        }
-    }
-    #[classattr]
-    #[allow(non_snake_case)]
-    pub fn WouldBlock() -> Self {
-        Self(None)
-    }
-    #[classattr]
-    #[allow(non_snake_case)]
-    pub fn Ok() -> Self {
-        Self(Some(Python::with_gil(|py| PyDict::new(py).into())))
     }
 }
 
@@ -119,7 +78,7 @@ impl From<ConIdRs> for ConId {
     }
 }
 
-pub fn timeout_selector(priority_1: Option<f64>, priority_2: Option<f64> ) -> Duration {
+pub fn timeout_selector(priority_1: Option<f64>, priority_2: Option<f64>) -> Duration {
     match priority_1 {
         Some(timeout) => Duration::from_secs_f64(timeout),
         None => match priority_2 {
