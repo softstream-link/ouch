@@ -4,7 +4,6 @@ use ouch_connect_nonblocking::prelude::{CltOuchProtocolManual, ConId as ConIdRs}
 use pyo3::{prelude::*, types::PyDict};
 use serde::Serialize;
 use serde_json::to_string;
-use std::sync::{Once, ONCE_INIT};
 use std::{
     fmt::{Display, Formatter},
     sync::Arc,

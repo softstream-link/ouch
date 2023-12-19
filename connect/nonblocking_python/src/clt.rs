@@ -6,9 +6,7 @@ use crate::core::{timeout_selector, ConId};
 
 use crate::dict_2_json;
 
-use ouch_connect_nonblocking::clt::{CltOuchSender, CltOuchSenderRef};
-
-use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, ConnectionId, SendNonBlocking};
+use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, SendNonBlocking};
 use ouch_connect_nonblocking::prelude::{CltOuch as CltOuchRs, SendStatus};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -32,8 +30,9 @@ impl CltManual {
         Self { sender, timeout }
     }
     fn __repr__(&self) -> String {
+        let is_connected = self.sender.is_connected();
         let con_id: ConId = self.sender.con_id().into();
-        format!("{}({})", asserted_short_name!("CltManual", Self), con_id)
+        format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), con_id, is_connected)
     }
     #[pyo3(signature = (msg, timeout = None))]
     fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<()> {
@@ -42,8 +41,13 @@ impl CltManual {
         let mut msg = serde_json::from_str(json.as_str()).unwrap();
         match self.sender.send_busywait_timeout(&mut msg, timeout)? {
             SendStatus::Completed => Ok(()),
-            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("send WouldBlock, timeout: {:?}", timeout)).into()),
+            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", timeout, json)).into()),
         }
+    }
+    #[pyo3(signature = (timeout = None))]
+    fn is_connected(&self, timeout: Option<f64>) -> bool {
+        let timeout = timeout_selector(timeout, self.timeout);
+        self.sender.is_connected_busywait_timeout(timeout)
     }
 }
 
