@@ -10,13 +10,13 @@ cargo clippy --all-features -- --deny warnings
 # Python lib
 ## setup python & maturin
 ```shell
-micromamba create --name ouch --yes maturin
+micromamba create --name ouch_connect_nonblocking_python --yes maturin
 micromamba deactivate
 ```
 
 ## build & run
 ```shell
-micromamba activate ouch ; \
+micromamba activate ouch_connect_nonblocking_python ; \
 pushd connect/nonblocking_python ; \
 maturin develop ; \
 python examples/clt2svc_connect_example.py ; \

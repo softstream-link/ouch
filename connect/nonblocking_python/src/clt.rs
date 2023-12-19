@@ -1,10 +1,10 @@
 use std::io::{Error, ErrorKind};
 use std::time::Duration;
 
-use crate::callbacks::PyProxyCallback;
-use crate::core::{timeout_selector, ConId};
+use crate::callback::PyProxyCallback;
+use crate::core::timeout_selector;
 
-use crate::dict_2_json;
+use crate::py_dict_2_json;
 
 use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, SendNonBlocking};
 use ouch_connect_nonblocking::prelude::{CltOuch as CltOuchRs, SendStatus};
@@ -20,7 +20,6 @@ pub struct CltManual {
 #[pymethods]
 impl CltManual {
     #[new]
-    #[pyo3(signature = (host, callback, timeout = None, name = asserted_short_name!("CltManual", Self)))]
     fn new(host: String, callback: PyObject, timeout: Option<f64>, name: Option<&str>) -> Self {
         let callback = PyProxyCallback::new_ref(callback);
         let connect_timeout = timeout_selector(timeout, Some(1.0));
@@ -31,20 +30,17 @@ impl CltManual {
     }
     fn __repr__(&self) -> String {
         let is_connected = self.sender.is_connected();
-        let con_id: ConId = self.sender.con_id().into();
-        format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), con_id, is_connected)
+        format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), self.sender.con_id(), is_connected)
     }
-    #[pyo3(signature = (msg, timeout = None))]
     fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<()> {
         let timeout = timeout_selector(timeout, self.timeout);
-        let json = dict_2_json(msg);
+        let json = py_dict_2_json(msg)?;
         let mut msg = serde_json::from_str(json.as_str()).unwrap();
         match self.sender.send_busywait_timeout(&mut msg, timeout)? {
             SendStatus::Completed => Ok(()),
             SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", timeout, json)).into()),
         }
     }
-    #[pyo3(signature = (timeout = None))]
     fn is_connected(&self, timeout: Option<f64>) -> bool {
         let timeout = timeout_selector(timeout, self.timeout);
         self.sender.is_connected_busywait_timeout(timeout)
@@ -79,15 +75,17 @@ impl CltAuto {
         Self { sender, timeout }
     }
     fn __repr__(&self) -> String {
-        let con_id: ConId = self.sender.con_id().into();
-        format!("{}({})", asserted_short_name!("CltManual", Self), con_id)
+        format!("{}({})", asserted_short_name!("CltManual", Self), self.sender.con_id())
     }
     #[pyo3(signature = (msg, timeout = None))]
-    fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<crate::core::SendStatus> {
-        let json = dict_2_json(msg);
+    fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<()> {
+        let json = py_dict_2_json(msg)?;
         let mut msg = serde_json::from_str(json.as_str()).unwrap();
         let timeout = timeout_selector(timeout, self.timeout);
-        Ok(self.sender.send_busywait_timeout(&mut msg, timeout)?.into())
+        match self.sender.send_busywait_timeout(&mut msg, timeout)? {
+            SendStatus::Completed => Ok(()),
+            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", timeout, json)).into()),
+        }
     }
 }
 

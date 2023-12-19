@@ -1,8 +1,8 @@
-pub mod callbacks;
+pub mod callback;
 pub mod clt;
 pub mod core;
 pub mod svc;
-use crate::core::{ConId, ConType, SendStatus};
+use crate::callback::{ConId, ConType};
 use clt::{CltAuto, CltManual};
 use lazy_static::lazy_static;
 use log::LevelFilter;
@@ -11,21 +11,11 @@ use svc::SvcManual;
 
 use pyo3::{prelude::*, types::PyDict};
 
-pub(crate) fn dict_2_json(msg: Py<PyDict>) -> String {
+pub(crate) fn py_dict_2_json(msg: Py<PyDict>) -> PyResult<String> {
     Python::with_gil(|py| {
-        let locals = Some(PyDict::new(py));
-        locals.unwrap().set_item("msg", msg).unwrap();
-        let res = py.eval("dumps(msg)", None, locals).unwrap();
-        let json = res.extract::<String>().unwrap();
-        json
-    })
-}
-pub(crate) fn json_2_dict(msg: &str) -> Py<PyDict> {
-    Python::with_gil(|py| {
-        let locals = Some(PyDict::new(py));
-        locals.unwrap().set_item("msg", msg).unwrap();
-        let res = py.eval("loads(msg)", None, locals).unwrap();
-        res.extract::<Py<PyDict>>().unwrap()
+        let json_module = PyModule::import(py, "json")?;
+        let json: String = json_module.getattr("dumps")?.call1((msg,))?.extract()?;
+        Ok(json)
     })
 }
 
@@ -47,7 +37,6 @@ fn ouch_connect_nonblocking_python(py: Python, m: &PyModule) -> PyResult<()> {
 
     m.add_class::<ConId>()?;
     m.add_class::<ConType>()?;
-    m.add_class::<SendStatus>()?;
     m.add_class::<CltAuto>()?;
     m.add_class::<CltManual>()?;
     m.add_class::<SvcManual>()?;
