@@ -8,7 +8,7 @@ use pyo3::prelude::*;
 use svc::{SvcAuto, SvcManual};
 
 #[pymodule]
-fn ouch_connect_nonblocking(_py: Python, m: &PyModule) -> PyResult<()> {
+fn ouch_bindings_py(_py: Python, m: &PyModule) -> PyResult<()> {
     // IMPORTANT - default init of py03 logger will cause background threads to block or deadlock
     // as they need to acquire the GIL to log messages, So being very conservative and only allowing
     // lib WARN and above to be logged irrespective of the log level set by the user in the python log config

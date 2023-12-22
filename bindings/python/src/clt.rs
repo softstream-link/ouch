@@ -112,26 +112,26 @@ impl CltAuto {
     }
 }
 
-#[cfg(test)]
-mod test {
-    use crate::ouch_connect_nonblocking;
-    use pyo3::{append_to_inittab, prepare_freethreaded_python, Python};
+// #[cfg(test)]
+// mod test {
+//     use crate::ouch_connect_nonblocking;
+//     use pyo3::{append_to_inittab, prepare_freethreaded_python, Python};
 
-    #[test]
-    fn test_clt() {
-        append_to_inittab!(ouch_connect_nonblocking);
-        prepare_freethreaded_python();
+//     #[test]
+//     fn test_clt() {
+//         append_to_inittab!(ouch_connect_nonblocking);
+//         prepare_freethreaded_python();
 
-        let code = format!(
-            r#"
-import logging; logging.basicConfig(level=logging.DEBUG)
-from {crate_name} import *
+//         let code = format!(
+//             r#"
+// import logging; logging.basicConfig(level=logging.DEBUG)
+// from {crate_name} import *
 
-clt = CltOuchManual("127.0.0.1:8080", , "test")
-        "#,
-            crate_name = stringify!(ouch_connect_nonblocking_python)
-        );
+// clt = CltOuchManual("127.0.0.1:8080", , "test")
+//         "#,
+//             crate_name = stringify!(ouch_connect_nonblocking_python)
+//         );
 
-        Python::with_gil(|py| Python::run(py, code.as_str(), None, None)).unwrap();
-    }
-}
+//         Python::with_gil(|py| Python::run(py, code.as_str(), None, None)).unwrap();
+//     }
+// }

@@ -1,5 +1,5 @@
 [package]
-name = "ouch_bindings_python"
+name = "ouch_bindings_py"
 version.workspace = true
 authors.workspace = true
 readme = "readme.md"
@@ -12,7 +12,7 @@ categories.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "ouch_connect_nonblocking"
+name = "ouch_bindings_py"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -22,7 +22,8 @@ pyo3 = { version = "0.20", features = [
     "abi3-py310",
 ] }
 pyo3-log = "0.9" # allows rust logging to write to python logging
-# py03 ={ workspace = true }
+
+
 ouch_connect_nonblocking = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }

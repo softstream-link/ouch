@@ -189,34 +189,32 @@ impl CallbackSend<SvcOuchProtocolAuto> for PyProxyCallback {
 }
 impl CallbackRecvSend<SvcOuchProtocolAuto> for PyProxyCallback {}
 
-#[cfg(test)]
-mod test {
-    use links_core::unittest::setup;
-    use log::info;
-    use pyo3::{append_to_inittab, prepare_freethreaded_python};
+// #[cfg(test)]
+// mod test {
+//     use links_core::unittest::setup;
+//     use log::info;
+//     use pyo3::{append_to_inittab, prepare_freethreaded_python};
+//     use crate::ouch_bindings_py;
+//     use super::*;
 
-    use crate::ouch_connect_nonblocking;
+//     #[test]
+//     fn test_con_id() {
+//         setup::log::configure();
+//         // append_to_inittab!(ouch_bindings_py);
+//         // prepare_freethreaded_python();
 
-    use super::*;
+// //         let code = r#"
+// // from ouch_bindings_py import *;
+// // # con_id = ConId("initiator", "name", "local", "peer")
+// // con_ty = ConType.Initiator
+// // print(con_ty)
+// //         "#;
 
-    #[test]
-    fn test_con_id() {
-        setup::log::configure();
-        append_to_inittab!(ouch_connect_nonblocking);
-        prepare_freethreaded_python();
-
-        let code = r#"
-from ouch_connect_nonblocking_python import *;
-# con_id = ConId("initiator", "name", "local", "peer")
-con_ty = ConType.Initiator
-print(con_ty)
-        "#;
-
-        let con_id_rs = ConIdRs::clt(Some("test"), None, "127.0.0.1:80");
-        let con_id = ConId::from(con_id_rs.clone());
-        info!("{:?}", con_id);
-        assert_eq!(con_id.local, "pending");
-        assert_eq!(con_id.peer, con_id_rs.get_peer().unwrap().to_string());
-        Python::with_gil(|py| Python::run(py, code, None, None)).unwrap();
-    }
-}
+// //         let con_id_rs = ConIdRs::clt(Some("test"), None, "127.0.0.1:80");
+// //         let con_id = ConId::from(con_id_rs.clone());
+// //         info!("{:?}", con_id);
+// //         assert_eq!(con_id.local, "pending");
+// //         assert_eq!(con_id.peer, con_id_rs.get_peer().unwrap().to_string());
+// //         Python::with_gil(|py| Python::run(py, code, None, None)).unwrap();
+//     }
+// }

@@ -1,5 +1,5 @@
 import logging
-from ouch_connect_nonblocking import (
+from ouch_bindings_py import (
     CltAuto,
     SvcAuto,
     LoggerCallback,
