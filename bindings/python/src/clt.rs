@@ -119,7 +119,7 @@ mod test {
 
     #[test]
     fn test_clt() {
-        append_to_inittab!(ouch_connect_nonblocking_python);
+        append_to_inittab!(ouch_connect_nonblocking);
         prepare_freethreaded_python();
 
         let code = format!(

@@ -195,14 +195,14 @@ mod test {
     use log::info;
     use pyo3::{append_to_inittab, prepare_freethreaded_python};
 
-    use crate::ouch_connect_nonblocking_python;
+    use crate::ouch_connect_nonblocking;
 
     use super::*;
 
     #[test]
     fn test_con_id() {
         setup::log::configure();
-        append_to_inittab!(ouch_connect_nonblocking_python);
+        append_to_inittab!(ouch_connect_nonblocking);
         prepare_freethreaded_python();
 
         let code = r#"
