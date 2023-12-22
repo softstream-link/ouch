@@ -15,6 +15,14 @@ pub enum ConType {
     Initiator,
     Acceptor,
 }
+impl Display for ConType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConType::Initiator => write!(f, "Initiator"),
+            ConType::Acceptor => write!(f, "Acceptor"),
+        }
+    }
+}
 
 #[pyclass]
 #[derive(Debug, Clone)]
@@ -29,14 +37,14 @@ pub struct ConId {
 #[pymethods]
 impl ConId {
     pub fn __repr__(&self) -> String {
-        format!("{:?}", self)
+        format!("{}", self)
     }
 }
 impl Display for ConId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.con_type {
-            ConType::Initiator => write!(f, "{}@{}->{}", self.name, self.local, self.peer),
-            ConType::Acceptor => write!(f, "{}@{}<-{}", self.name, self.local, self.peer),
+            ConType::Initiator => write!(f, "{}({}@{}->{})", self.con_type, self.name, self.local, self.peer),
+            ConType::Acceptor => write!(f, "{}({}@{}<-{})", self.con_type,self.name, self.local, self.peer),
         }
     }
 }
@@ -107,22 +115,22 @@ impl PyProxyCallback {
         // convert msg to str
         let json = to_string(msg).expect(format!("serde_json::to_string failed to convert msg: {:?}", msg).as_str());
         let con_id = ConId::from(con_id);
-        fn py_callback(obj: &PyObject, name: &str, con_id: ConId, json: String) -> PyResult<()> {
+        fn py_callback(obj: &PyObject, name: &str, con_id: &ConId, json: &String) -> PyResult<()> {
             Python::with_gil(|py| {
                 let json_module = PyModule::import(py, "json")?;
                 let dict = json_module.getattr("loads")?.call1((json,))?.extract::<Py<PyDict>>()?;
 
-                let args = (con_id, dict);
+                let args = (con_id.clone(), dict);
                 let kwargs = None;
                 obj.call_method(py, name, args, kwargs)?;
                 Ok(())
             })
         }
 
-        match py_callback(&self.0, name, con_id, json) {
+        match py_callback(&self.0, name, &con_id, &json) {
             Ok(_) => {}
             Err(err) => {
-                panic!("Failed to issue call callback. {}", err);
+                log::error!("{} failed '{}' on {} msg: {} err: {}", asserted_short_name!("PyProxyCallback", Self), name, con_id, json, err);
             }
         }
     }

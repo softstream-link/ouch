@@ -16,13 +16,13 @@ from ouch_connect_nonblocking_python.ouch_connect_nonblocking_python import (
 logging.basicConfig(
     format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s"
 )
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG)
 log = logging.getLogger(__name__)
 
 # log.info(ouch_connect_nonblocking_python.__doc__)
 
-# callback = LoggerCallback(logging.NOTSET)
-callback = LoggerCallback()
+callback = LoggerCallback(logging.NOTSET)
+
 usr = "dummy"
 pwd = "dummy"
 session = ""
@@ -68,5 +68,5 @@ clt.send({"Dbg": {"text": "Hello from Clt"}})
 svc.send({"Dbg": {"text": "Hello from Svc"}})
 # svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
-sleep(5)
+# sleep(1)
 

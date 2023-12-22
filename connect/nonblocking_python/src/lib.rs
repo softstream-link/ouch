@@ -21,9 +21,9 @@ fn ouch_connect_nonblocking_python(_py: Python, m: &PyModule) -> PyResult<()> {
     // as they need to acquire the GIL to log messages, So being very conservative and only allowing
     // lib WARN and above to be logged irrespective of the log level set by the user in the python log config
     // https://docs.rs/pyo3-log/latest/pyo3_log/ LOGGING WILL DEAD LOCK PYTHON
-    pyo3_log::init();
-    // use pyo3_log::{Caching, Logger};
-    // Logger::new(py, Caching::LoggersAndLevels)?.filter(LevelFilter::Warn).install().expect("Someone installed a logger before us :-(");
+    // pyo3_log::init();
+    use pyo3_log::{Caching, Logger};
+    Logger::new(_py, Caching::LoggersAndLevels)?.filter(log::LevelFilter::Warn).install().expect("Someone installed a logger before us :-(");
 
     m.add_class::<ConId>()?;
     m.add_class::<ConType>()?;
