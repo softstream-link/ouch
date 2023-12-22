@@ -1,9 +1,9 @@
-use ouch_connect_core::prelude::{SvcSoupBinTcp, SvcSoupBinTcpSender, CltSoupBinTcpSenderRef, OUCH_MAX_FRAME_SIZE};
+use ouch_connect_core::prelude::{SvcSoupBinTcp, SvcSoupBinTcpSender, SvcSoupBinTcpSenderRef, OUCH_MAX_FRAME_SIZE};
 
 pub type SvcOuch<Protocol, CallbackRecvSend> = SvcSoupBinTcp<Protocol, CallbackRecvSend, OUCH_MAX_FRAME_SIZE>;
 
 pub type SvcOuchSender<Protocol, CallbackSend> = SvcSoupBinTcpSender<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
-pub type SvcOuchSenderRef<Protocol, CallbackSend> = CltSoupBinTcpSenderRef<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
+pub type SvcOuchSenderRef<Protocol, CallbackSend> = SvcSoupBinTcpSenderRef<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
 
 
 #[cfg(test)]

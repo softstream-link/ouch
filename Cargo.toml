@@ -33,6 +33,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 chrono = { version = "0.4.26" }
+bytes = { version = "1.5" } # networking
 
 soupbintcp_model = { version = "4.1", path = "../soupbintcp/model" }
 

@@ -12,7 +12,7 @@ pub use event_code::EventCode;
 pub use int_mkt_sweep_eligibility::IntMktSweepEligibility;
 pub use liquidity_flag::LiquidityFlag;
 pub use match_number::MatchNumber;
-pub use order_reference_number::OrderReferenceNumber;
+pub use order_reference_number::{OrderReferenceNumber, OrderReferenceNumberGenerator};
 pub use order_reject_reason::OrderRejectReason;
 pub use order_restated_reason::RestatedReason;
 pub use order_state::OrderState;
@@ -640,6 +640,7 @@ pub mod timestamp {
         }
     }
     impl Default for Timestamp {
+        /// Returns a [Timestamp] from the current [`chrono::Local::now()`]
         #[inline(always)]
         fn default() -> Self {
             Timestamp::from(Local::now())
@@ -679,10 +680,10 @@ pub mod order_reference_number {
     u64_tuple!(OrderReferenceNumber, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, Serialize, Deserialize, PartialEq, Clone, Copy, Debug, Default)]);
 
     #[derive(Default)]
-    pub struct OrderReferenceNumberIterator {
+    pub struct OrderReferenceNumberGenerator {
         last: u64,
     }
-    impl Iterator for OrderReferenceNumberIterator {
+    impl Iterator for OrderReferenceNumberGenerator {
         type Item = OrderReferenceNumber;
         fn next(&mut self) -> Option<Self::Item> {
             if self.last == u64::MAX {
@@ -705,7 +706,7 @@ pub mod order_reference_number {
         fn test_order_ref_number_iterator() {
             setup::log::configure();
 
-            let mut iter = OrderReferenceNumberIterator::default();
+            let mut iter = OrderReferenceNumberGenerator::default();
             let next = iter.next().unwrap();
             info!("next: {:?}", next);
             assert_eq!(next, OrderReferenceNumber::new(1));

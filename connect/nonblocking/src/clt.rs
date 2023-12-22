@@ -11,7 +11,6 @@ mod test {
     use crate::prelude::*;
     use links_core::unittest::setup;
     use log::info;
-    use ouch_connect_core::core::CltOuchProtocolManual;
 
     #[test]
     fn test_clt_not_connected() {

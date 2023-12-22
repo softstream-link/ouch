@@ -1,7 +1,7 @@
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf};
 use derive_more::TryInto;
 use serde::{Deserialize, Serialize};
-use soupbintcp_model::prelude::{CltSoupBinTcpMsg, SoupBinTcpMsg, SoupBinTcpPayload, SvcSoupBinTcpMsg, SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG};
+use soupbintcp_model::prelude::{CltSoupBinTcpMsg, SoupBinTcpPayload, SvcSoupBinTcpMsg, UniSoupBinTcpMsg, SOUPBINTCP_MAX_FRAME_SIZE_EXCLUDING_PAYLOAD_DEBUG};
 
 use crate::prelude::*;
 
@@ -75,7 +75,7 @@ impl SoupBinTcpPayload<SvcOuchPayload> for SvcOuchPayload {}
 pub type CltOuchMsg = CltSoupBinTcpMsg<CltOuchPayload>;
 pub type SvcOuchMsg = SvcSoupBinTcpMsg<SvcOuchPayload>;
 
-pub type UniOuchMsg = SoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
+pub type UniOuchMsg = UniSoupBinTcpMsg<CltOuchPayload, SvcOuchPayload>;
 
 macro_rules! for_uni_ouch_msg {
     ($FROM:ty, $ENUM:path) => {

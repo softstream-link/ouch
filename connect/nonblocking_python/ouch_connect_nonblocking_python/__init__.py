@@ -1,3 +1,12 @@
+"""
+This module provides a Python interface to the `ouch_connect_nonblocking` library.
+
+Below contains a list of valid message formats that both Clt & Svc can send. Examples include a full form for each message, however many of the 
+fields are optional and can be omitted.
+
+"""
+
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -5,8 +14,6 @@ from enum import Enum, auto
 # from typing import Any
 import logging
 from .ouch_connect_nonblocking_python import *
-
-"""This module does blah blah."""
 
 
 class ConType(Enum):
@@ -22,7 +29,7 @@ class ConId(Enum):
     peer: str
 
 
-type MsgDict = dict[str, str | int | float | bool | dict | list]  # Any?
+MsgDict = dict[str, str | int | float | bool | dict | list]  # Any?
 
 
 class Callback(ABC):

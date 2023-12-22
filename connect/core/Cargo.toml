@@ -14,5 +14,6 @@ categories.workspace = true
 
 [dependencies]
 soupbintcp_connect_nonblocking = { workspace = true }
+bytes = { workspace = true }
 
 ouch_model = { workspace = true }

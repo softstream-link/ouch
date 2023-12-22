@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct SystemEvent {
     #[serde(default, skip_serializing)]
     packet_type: PacketTypeSystemEvent,
-    timestamp: Timestamp,
+    pub timestamp: Timestamp,
     event_code: EventCode,
 }
 

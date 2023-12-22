@@ -1,5 +1,8 @@
 import logging
 from time import sleep
+
+# import ouch_connect_nonblocking_python
+
 from ouch_connect_nonblocking_python import (
     CltManual,
     SvcManual,
@@ -12,21 +15,24 @@ logging.basicConfig(
 logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
-callback = LoggerCallback(logging.NOTSET)
+# log.info(ouch_connect_nonblocking_python.__doc__)
 
-svc = SvcManual("127.0.0.1:8080", callback, timeout=1.0, name="svc-ouch")
-clt = CltManual("127.0.0.1:8080", callback, timeout=1.0, name="clt-ouch")
+# callback = LoggerCallback(logging.NOTSET)
+callback = LoggerCallback()
+
+svc = SvcManual("127.0.0.1:8080", callback, io_timeout=.01, name="svc-ouch")
+clt = CltManual("127.0.0.1:8080", callback, connect_timeout=1.0, io_timeout=.01, name="clt-ouch")
 assert clt.is_connected() and svc.is_connected()
 
 log.info(f"svc: {svc}")
 log.info(f"clt: {clt}")
 
 # help("ouch_connect_nonblocking_python")
-# log.info(ouch_connect_nonblocking_python)
+
 
 clt.send(
     {
-        "Login": {
+        "LoginRequest": {
             "username": "dummy",
             "password": "dummy",
             "session_id": "session #1",
@@ -36,5 +42,9 @@ clt.send(
     }
 )
 svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
+
+clt.send({"HBeat":{}})
+svc.send({"HBeat":{}})
+
 
 sleep(0.5)

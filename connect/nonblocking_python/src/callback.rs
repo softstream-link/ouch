@@ -24,6 +24,8 @@ pub struct ConId {
     pub local: String,
     pub peer: String,
 }
+// started
+// acceptor
 #[pymethods]
 impl ConId {
     pub fn __repr__(&self) -> String {

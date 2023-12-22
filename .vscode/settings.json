@@ -41,10 +41,12 @@
         "rstd",
         "rustfmt",
         "sdata",
+        "Softstream",
         "soupbintcp",
         "startofday",
         "udata",
-        "unsequenced"
+        "unsequenced",
+        "wouldblock"
     ],
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoImportCompletions": true,

@@ -1,6 +1,3 @@
-from abc import ABC, abstractmethod
-from enum import auto, Enum
-from dataclasses import dataclass
 from ouch_connect_nonblocking_python import Callback, MsgDict
 
 class CltManual:
@@ -8,20 +5,55 @@ class CltManual:
         self,
         host: str,
         callback: Callback,
-        timeout: float | None = None,
-        name: str = "CltManual",
+        connect_timeout: float | None = None,
+        io_timeout: float | None = None,
+        name: str | None = None,
     ) -> None: ...
-    def send(self, msg: MsgDict, timeout: float | None = None): ...
-    def is_connected(self, timeout: float | None = None): ...
-    
+    def send(self, msg: dict, io_timeout: float | None = None): ...
+    def is_connected(self, io_timeout: float | None = None): ...
+
 class SvcManual:
     def __init__(
         self,
         host: str,
         callback: Callback,
-        max_connections: int = 1,
-        timeout: float | None = None,
-        name: str = "SvcManual",
+        max_connections: int | None = None,
+        io_timeout: float | None = None,
+        name: str | None = None,
     ) -> None: ...
-    def send(self, msg: MsgDict, timeout: float | None = None): ...
-    def is_connected(self, timeout: float | None = None): ...
+    def send(self, msg: dict, io_timeout: float | None = None): ...
+    def is_connected(self, io_timeout: float | None = None): ...
+
+class CltAuto:
+    def __init__(
+        self,
+        host: str,
+        callback: Callback,
+        usr: str,
+        pwd: str,
+        session: str,
+        sequence: int,
+        clt_max_hbeat_interval: float,
+        svc_max_hbeat_interval: float,
+        connect_timeout: float | None = None,
+        io_timeout: float | None = None,
+        name: str | None = None,
+    ) -> None: ...
+    def send(self, msg: dict, io_timeout: float | None = None): ...
+    def is_connected(self, io_timeout: float | None = None): ...
+
+class SvcAuto:
+    def __init__(
+        self,
+        host: str,
+        callback: Callback,
+        usr: str,
+        pwd: str,
+        session: str,
+        svc_max_hbeat_interval: float,
+        max_connections: int | None = None,
+        io_timeout: float | None = None,
+        name: str | None = None,
+    ) -> None: ...
+    def send(self, msg: dict, io_timeout: float | None = None): ...
+    def is_connected(self, io_timeout: float | None = None): ...

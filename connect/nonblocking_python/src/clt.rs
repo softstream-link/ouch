@@ -1,91 +1,123 @@
-use std::io::{Error, ErrorKind};
-use std::time::Duration;
-
 use crate::callback::PyProxyCallback;
 use crate::core::timeout_selector;
-
-use crate::py_dict_2_json;
-
-use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, SendNonBlocking};
+use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, Password, SendNonBlocking, SequenceNumber, SessionId, UserName};
 use ouch_connect_nonblocking::prelude::{CltOuch as CltOuchRs, SendStatus};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use std::io::{Error, ErrorKind};
+use std::time::Duration;
 
+
+// TODO add context manager support
 #[pyclass]
 pub struct CltManual {
     sender: CltOuchSender<CltOuchProtocolManual, PyProxyCallback>,
-    timeout: Option<f64>,
+    io_timeout: Option<f64>,
 }
-
 #[pymethods]
 impl CltManual {
     #[new]
-    fn new(host: String, callback: PyObject, timeout: Option<f64>, name: Option<&str>) -> Self {
+    fn new(py: Python<'_>, host: String, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
         let callback = PyProxyCallback::new_ref(callback);
-        let connect_timeout = timeout_selector(timeout, Some(1.0));
-        let retry_after = connect_timeout / 10;
+        let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
         let protocol = CltOuchProtocolManual::default();
-        let sender = CltOuchRs::connect(host.as_str(), connect_timeout, retry_after, callback, protocol, name).unwrap().into_sender_with_spawned_recver();
-        Self { sender, timeout }
+        let sender = py.allow_threads(move || CltOuchRs::connect(host.as_str(), connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
+        Self { sender, io_timeout }
     }
-    fn __repr__(&self) -> String {
-        let is_connected = self.sender.is_connected();
-        format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), self.sender.con_id(), is_connected)
+    fn __repr__(&self, py: Python<'_>) -> String {
+        py.allow_threads(move || {
+            let is_connected = self.sender.is_connected();
+            format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), self.sender.con_id(), is_connected)
+        })
     }
-    fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<()> {
-        let timeout = timeout_selector(timeout, self.timeout);
-        let json = py_dict_2_json(msg)?;
+    fn send(&mut self, py: Python<'_>, msg: Py<PyDict>, io_timeout: Option<f64>) -> PyResult<()> {
+        let io_timeout = timeout_selector(io_timeout, self.io_timeout);
+
+        let json_module = PyModule::import(py, "json")?;
+        let json: String = json_module.getattr("dumps")?.call1((msg,))?.extract()?;
         let mut msg = serde_json::from_str(json.as_str()).unwrap();
-        match self.sender.send_busywait_timeout(&mut msg, timeout)? {
+
+        match self.sender.send_busywait_timeout(&mut msg, io_timeout)? {
             SendStatus::Completed => Ok(()),
-            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", timeout, json)).into()),
+            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", io_timeout, json)).into()),
         }
     }
-    fn is_connected(&self, timeout: Option<f64>) -> bool {
-        let timeout = timeout_selector(timeout, self.timeout);
-        self.sender.is_connected_busywait_timeout(timeout)
+    fn is_connected(&self, py: Python<'_>, io_timeout: Option<f64>) -> bool {
+        let io_timeout = timeout_selector(io_timeout, self.io_timeout);
+        py.allow_threads(move || self.sender.is_connected_busywait_timeout(io_timeout))
     }
 }
 
 #[pyclass]
 pub struct CltAuto {
+    // jh: JoinHandle<CltOuchSenderRef<CltOuchProtocolAuto, PyProxyCallback>>,
     sender: CltOuchSenderRef<CltOuchProtocolAuto, PyProxyCallback>,
-    timeout: Option<f64>,
+    io_timeout: Option<f64>,
 }
 #[pymethods]
 impl CltAuto {
     #[new]
-    #[pyo3(signature = (host, callback, usr, pwd, session, sequence, max_hbeat_interval_send, max_hbeat_interval_recv, timeout = None, name = asserted_short_name!("CltAuto", Self)))]
-    fn new(host: String, callback: PyObject, usr: &str, pwd: &str, session: &str, sequence: &str, max_hbeat_interval_send: f64, max_hbeat_interval_recv: f64, timeout: Option<f64>, name: Option<&str>) -> Self {
+
+    fn new(
+        py: Python<'_>,
+        host: String,
+        callback: PyObject,
+        usr: &str,
+        pwd: &str,
+        session: &str,
+        sequence: usize,
+        clt_max_hbeat_interval: f64,
+        svc_max_hbeat_interval: f64,
+        connect_timeout: Option<f64>,
+        io_timeout: Option<f64>,
+        name: Option<&str>,
+    ) -> Self {
         let callback = PyProxyCallback::new_ref(callback);
-        let connect_timeout = timeout_selector(timeout, Some(1.0));
-        let retry_after = connect_timeout / 10;
+        let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
+
         let protocol = CltOuchProtocolAuto::new(
-            usr.as_bytes().into(),
-            pwd.as_bytes().into(),
-            session.as_bytes().into(),
-            sequence.as_bytes().into(),
-            connect_timeout,
-            Duration::from_secs_f64(max_hbeat_interval_send),
-            Duration::from_secs_f64(max_hbeat_interval_recv),
+            UserName::from(usr),
+            Password::from(pwd),
+            SessionId::from(session),
+            SequenceNumber::from(sequence),
+            io_timeout.map(Duration::from_secs_f64).unwrap_or(Duration::from_secs(0)),
+            Duration::from_secs_f64(clt_max_hbeat_interval),
+            Duration::from_secs_f64(svc_max_hbeat_interval),
         );
 
-        let sender = CltOuchRs::connect(host.as_str(), connect_timeout, retry_after, callback, protocol, name).unwrap().into_sender_with_spawned_recver_ref();
+        let name = match name {
+            Some(name) => name.to_owned(),
+            None => "".to_owned(),
+        };
 
-        Self { sender, timeout }
+        let sender = py.allow_threads(move || {
+            CltOuchRs::connect(host.as_str(), connect_timeout, connect_timeout / 10, callback, protocol, Some(name.as_str()))
+                .unwrap()
+                .into_sender_with_spawned_recver_ref()
+        });
+
+        Self { sender, io_timeout }
     }
-    fn __repr__(&self) -> String {
-        format!("{}({})", asserted_short_name!("CltManual", Self), self.sender.con_id())
+    fn __repr__(&self, py: Python<'_>) -> String {
+        py.allow_threads(move || {
+            let is_connected = self.sender.is_connected();
+            format!("{}({}, is_connected: {})", asserted_short_name!("CltAuto", Self), self.sender.con_id(), is_connected)
+        })
     }
-    #[pyo3(signature = (msg, timeout = None))]
-    fn send(&mut self, msg: Py<PyDict>, timeout: Option<f64>) -> PyResult<()> {
-        let json = py_dict_2_json(msg)?;
+    fn send(&mut self, py: Python<'_>, msg: Py<PyDict>, io_timeout: Option<f64>) -> PyResult<()> {
+        let io_timeout = timeout_selector(io_timeout, self.io_timeout);
+        let json_module = PyModule::import(py, "json")?;
+        let json: String = json_module.getattr("dumps")?.call1((msg,))?.extract()?;
         let mut msg = serde_json::from_str(json.as_str()).unwrap();
-        let timeout = timeout_selector(timeout, self.timeout);
-        match self.sender.send_busywait_timeout(&mut msg, timeout)? {
+
+        py.allow_threads(move || match self.sender.send_busywait_timeout(&mut msg, io_timeout)? {
             SendStatus::Completed => Ok(()),
-            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", timeout, json)).into()),
-        }
+            SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", io_timeout, json)).into()),
+        })
+    }
+    fn is_connected(&self, py: Python<'_>, io_timeout: Option<f64>) -> bool {
+        let io_timeout = timeout_selector(io_timeout, self.io_timeout);
+        py.allow_threads(move || self.sender.is_connected_busywait_timeout(io_timeout))
     }
 }
 

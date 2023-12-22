@@ -42,6 +42,8 @@ text-diff ={ workspace = true }
 links_core = { workspace = true, features = ["unittest"] }
 serde_json = { workspace = true }
 
+soupbintcp_model = { workspace = true, features = ["unittest"] } # 
+
 
 [features]
 default = []
