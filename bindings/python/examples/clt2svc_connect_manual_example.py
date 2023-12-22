@@ -1,9 +1,8 @@
 import logging
 from time import sleep
 
-# import ouch_connect_nonblocking_python
 
-from ouch_connect_nonblocking_python import (
+from ouch_connect_nonblocking import (
     CltManual,
     SvcManual,
     LoggerCallback,
@@ -19,8 +18,10 @@ log = logging.getLogger(__name__)
 
 callback = LoggerCallback(logging.NOTSET)
 # callback = LoggerCallback()
-svc = SvcManual("127.0.0.1:8080", callback, io_timeout=.01, name="svc-ouch")
-clt = CltManual("127.0.0.1:8080", callback, connect_timeout=1.0, io_timeout=.01, name="clt-ouch")
+svc = SvcManual("127.0.0.1:8080", callback, io_timeout=0.01, name="svc-ouch")
+clt = CltManual(
+    "127.0.0.1:8080", callback, connect_timeout=1.0, io_timeout=0.01, name="clt-ouch"
+)
 assert clt.is_connected() and svc.is_connected()
 
 log.info(f"svc: {svc}")
@@ -42,8 +43,7 @@ clt.send(
 )
 svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
-clt.send({"HBeat":{}})
-svc.send({"HBeat":{}})
-
+clt.send({"HBeat": {}})
+svc.send({"HBeat": {}})
 
 sleep(0.5)

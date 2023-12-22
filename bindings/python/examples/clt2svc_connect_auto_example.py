@@ -1,17 +1,10 @@
 import logging
-from time import sleep
-
-# import ouch_connect_nonblocking_python
-
-from ouch_connect_nonblocking_python import (
+from ouch_connect_nonblocking import (
     CltAuto,
     SvcAuto,
     LoggerCallback,
 )
-from ouch_connect_nonblocking_python.ouch_connect_nonblocking_python import (
-    CltAuto,
-    SvcAuto,
-)
+
 
 logging.basicConfig(
     format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s"
@@ -69,4 +62,3 @@ svc.send({"Dbg": {"text": "Hello from Svc"}})
 # svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
 # sleep(1)
-

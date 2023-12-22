@@ -114,7 +114,7 @@ impl CltAuto {
 
 #[cfg(test)]
 mod test {
-    use crate::ouch_connect_nonblocking_python;
+    use crate::ouch_connect_nonblocking;
     use pyo3::{append_to_inittab, prepare_freethreaded_python, Python};
 
     #[test]

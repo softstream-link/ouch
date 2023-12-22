@@ -13,7 +13,7 @@ from enum import Enum, auto
 
 # from typing import Any
 import logging
-from .ouch_connect_nonblocking_python import *
+from .ouch_connect_nonblocking import *
 
 
 class ConType(Enum):

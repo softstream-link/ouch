@@ -8,21 +8,21 @@ micromamba create --name ouch_test --yes python=3.10
 
 ### build & run manual
 ```shell
-micromamba run --name ouch_build --cwd ./connect/nonblocking_python maturin develop && \
-micromamba run --name ouch_build --cwd ./connect/nonblocking_python python examples/clt2svc_connect_manual_example.py
+micromamba run --name ouch_build --cwd ./bindings/python maturin develop && \
+micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc_connect_manual_example.py
 ```
 
 ### build & run auto
 ```shell
-micromamba run --name ouch_build --cwd ./connect/nonblocking_python maturin develop && \
-micromamba run --name ouch_build --cwd ./connect/nonblocking_python python examples/clt2svc_connect_auto_example.py
+micromamba run --name ouch_build --cwd ./bindings/python maturin develop && \
+micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc_connect_auto_example.py
 ```
 
 
 ## Testing the wheel on Non Latest python
 
 ```shell
-micromamba run --name ouch_build --cwd ./connect/nonblocking_python maturin build && \
-micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/ouch_connect_nonblocking_python-5.0.0-cp310-abi3-macosx_11_0_arm64.whl && \ 
-micromamba run --name ouch_test --cwd ./connect/nonblocking_python python examples/clt2svc_connect_manual_example.py
+micromamba run --name ouch_build --cwd ./bindings/python maturin build && \
+micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/ouch_connect_nonblocking-5.0.0-cp310-abi3-macosx_11_0_arm64.whl && \ 
+micromamba run --name ouch_test --cwd ./bindings/python python examples/clt2svc_connect_manual_example.py
 ```

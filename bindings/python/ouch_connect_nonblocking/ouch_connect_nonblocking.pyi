@@ -1,4 +1,4 @@
-from ouch_connect_nonblocking_python import Callback, MsgDict
+from ouch_connect_nonblocking import Callback, MsgDict
 
 class CltManual:
     def __init__(

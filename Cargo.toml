@@ -3,7 +3,7 @@ members = [
     "model",
     "connect/core",
     "connect/nonblocking",
-    "connect/nonblocking_python",
+    "bindings/python",
 ]
 
 resolver = "2"
