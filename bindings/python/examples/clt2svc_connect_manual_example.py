@@ -1,6 +1,6 @@
 import logging
 from time import sleep
-from ouch_bindings_py import (
+from ouch_connect import (
     CltManual,
     SvcManual,
     LoggerCallback,
@@ -9,7 +9,7 @@ from ouch_bindings_py import (
 logging.basicConfig(
     format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s"
 )
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 # log.info(ouch_connect_nonblocking_python.__doc__)

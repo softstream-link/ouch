@@ -39,8 +39,16 @@ class CltAuto:
         io_timeout: float | None = None,
         name: str | None = None,
     ) -> None: ...
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None: ...
     def send(self, msg: dict, io_timeout: float | None = None): ...
     def is_connected(self, io_timeout: float | None = None): ...
+
+from types import TracebackType
 
 class SvcAuto:
     def __init__(
@@ -50,13 +58,18 @@ class SvcAuto:
         usr: str,
         pwd: str,
         session: str,
+        clt_max_hbeat_interval: float,
         svc_max_hbeat_interval: float,
         max_connections: int | None = None,
         io_timeout: float | None = None,
         name: str | None = None,
     ) -> None: ...
     def __enter__(self) -> SvcAuto: ...
-    def __exit__(self, exc_type, exc_value, traceback) -> None: ...
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None: ...
     def send(self, msg: dict, io_timeout: float | None = None): ...
     def is_connected(self, io_timeout: float | None = None): ...
-

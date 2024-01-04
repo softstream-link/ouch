@@ -1,6 +1,6 @@
 import logging
 from time import sleep
-from ouch_bindings_py import (
+from ouch_connect import (
     CltAuto,
     SvcAuto,
     LoggerCallback,
@@ -10,7 +10,7 @@ from ouch_bindings_py import (
 logging.basicConfig(
     format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s"
 )
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 # log.info(ouch_connect_nonblocking_python.__doc__)
@@ -31,6 +31,7 @@ svc = SvcAuto(
     usr,
     pwd,
     session,
+    clt_max_hbeat_interval,
     svc_max_hbeat_interval,
     max_connections=1,
     io_timeout=io_timeout,
@@ -58,7 +59,5 @@ log.info(f"clt: {clt}")
 
 clt.send({"Dbg": {"text": "Hello from Clt"}})
 svc.send({"Dbg": {"text": "Hello from Svc"}})
-# svc.__exit__()
-# svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
-# sleep(1)
+sleep(.5)

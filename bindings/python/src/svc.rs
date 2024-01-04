@@ -120,3 +120,4 @@ impl SvcAuto {
         _py.allow_threads(move || self.sender.is_next_connected_busywait_timeout(io_timeout))
     }
 }
+

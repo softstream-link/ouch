@@ -3,7 +3,7 @@ requires = ["maturin>=1.3,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "ouch_bindings_py"
+name = "ouch_connect"
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Rust",
@@ -13,4 +13,4 @@ classifiers = [
 dynamic = ["version"]
 
 [tool.maturin]
-features = ["pyo3/extension-module"]
+features = ["pyo3/extension-module", "pyo3/abi3", "pyo3/abi3-py310", "pyo3/multiple-pymethods"]

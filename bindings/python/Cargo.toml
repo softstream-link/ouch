@@ -1,5 +1,5 @@
 [package]
-name = "ouch_bindings_py"
+name = "ouch_bindings_python"
 version.workspace = true
 authors.workspace = true
 readme = "readme.md"
@@ -12,20 +12,15 @@ categories.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "ouch_bindings_py"
+# this is the name of python module (i.e. import ouch_connect) remember to change it in pyproject.toml, #[pymodule]/lib.rs, and here
+name = "ouch_connect"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-pyo3-build-config = { version = "0.20" }
+pyo3-build-config = { version = "0.20" } # used in the build.rs
 
 [dependencies]
-pyo3 = { version = "0.20", features = [
-    "extension-module", # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#extension-module
-    # "auto-initialize",    # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#auto-initialize
-    "abi3",               # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#abi3
-    "multiple-pymethods", # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#multiple-pymethods
-    "abi3-py310",
-], optional = true }
+pyo3 = { version = "0.20" }
 pyo3-log = "0.9" # allows rust logging to write to python logging
 
 
@@ -38,13 +33,3 @@ lazy_static = { workspace = true }
 
 [dev-dependencies]
 links_core = { workspace = true, features = ["unittest"] }
-pyo3 = { version = "0.20", features = [
-    # "extension-module",   # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#extension-module
-    # "auto-initialize",    # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#auto-initialize
-    "abi3",               # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#abi3
-    "multiple-pymethods", # https://pyo3.rs/v0.20.0/features.html?highlight=multiple%20imp#multiple-pymethods
-    "abi3-py310",
-] }
-
-[features]
-default = ["dep:pyo3"]

@@ -2,19 +2,19 @@
 # Python lib
 ## setup python & maturin for development
 ```shell
-micromamba create --name ouch_build --yes maturin ; \
+micromamba create --name ouch_build --yes maturin ;
 micromamba create --name ouch_test --yes python=3.10
 ```
 
 ### build & run manual
 ```shell
-micromamba run --name ouch_build --cwd ./bindings/python maturin develop && \
+micromamba run --name ouch_build --cwd ./bindings/python maturin develop &&
 micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc_connect_manual_example.py
 ```
 
 ### build & run auto
 ```shell
-micromamba run --name ouch_build --cwd ./bindings/python maturin develop && \
+micromamba run --name ouch_build --cwd ./bindings/python maturin develop &&
 micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc_connect_auto_example.py
 ```
 
@@ -22,7 +22,14 @@ micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc
 ## Testing the wheel on Non Latest python
 
 ```shell
-micromamba run --name ouch_build --cwd ./bindings/python maturin build && \
-micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/ouch_bindings_py-5.0.0-cp310-abi3-macosx_11_0_arm64.whl && \ 
+(rm -f ./target/wheels/*.whl || true) &&
+micromamba run --name ouch_build --cwd ./bindings/python maturin build &&
+micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/*.whl &&
 micromamba run --name ouch_test --cwd ./bindings/python python examples/clt2svc_connect_manual_example.py
+```
+
+## Testing rust lib crate
+
+```shell
+micromamba run --name ouch_build --cwd ./bindings/python cargo test 
 ```

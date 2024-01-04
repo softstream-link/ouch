@@ -7,6 +7,10 @@ RUSTDOCFLAGS="-D warnings" cargo  doc --all-features &&
 cargo clippy --all-features -- --deny warnings
 ```
 
+# python
+```shell
+cargo test --no-default-features # not this
+```
 
 
 # Expand Model
