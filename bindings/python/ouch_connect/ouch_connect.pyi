@@ -1,4 +1,4 @@
-from ouch_bindings_py import Callback, MsgDict
+from ouch_connect import Callback, MsgDict
 
 class CltManual:
     def __init__(

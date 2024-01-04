@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 # log.info(ouch_connect_nonblocking_python.__doc__)
 
-callback = LoggerCallback(logging.NOTSET)
+callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
 # callback = LoggerCallback()
 svc = SvcManual("127.0.0.1:8080", callback, io_timeout=0.01, name="svc-ouch")
 clt = CltManual(

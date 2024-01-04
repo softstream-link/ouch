@@ -8,7 +8,3 @@ from ouch_connect import ConType
 
 con_ty = ConType.Initiator
 logging.info(con_ty)
-
-from ouch_connect import LoggerCallback
-callback = LoggerCallback()
-logging.info(callback)
