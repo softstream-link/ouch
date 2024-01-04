@@ -71,7 +71,6 @@ pub enum SvcOuchPayload {
 }
 
 impl SoupBinTcpPayload<SvcOuchPayload> for SvcOuchPayload {}
-
 pub type CltOuchMsg = CltSoupBinTcpMsg<CltOuchPayload>;
 pub type SvcOuchMsg = SvcSoupBinTcpMsg<SvcOuchPayload>;
 

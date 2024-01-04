@@ -57,3 +57,6 @@ class LoggerCallback(Callback):
         logging.getLogger(__name__).log(
             self.recv_level, f"on_recv: {con_id} {type(msg).__name__}({msg})"
         )
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}, sent_level={self.sent_level}, recv_level={self.recv_level}"

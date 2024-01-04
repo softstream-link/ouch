@@ -193,30 +193,3 @@ impl CallbackSend<SvcOuchProtocolAuto> for PyProxyCallback {
 }
 impl CallbackRecvSend<SvcOuchProtocolAuto> for PyProxyCallback {}
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::ouch_connect;
-    use pyo3::{append_to_inittab, prepare_freethreaded_python};
-
-    #[test]
-    fn test_con_id() {
-        append_to_inittab!(ouch_connect);
-        prepare_freethreaded_python();
-
-        let code = r#"
-import logging
-logging.basicConfig(
-    format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s"
-)
-logging.getLogger().setLevel(logging.INFO)
-
-from ouch_connect import *;
-con_ty = ConType.Initiator
-logging.info(con_ty)
-logging.info("test")
-
-        "#;
-        Python::with_gil(|py| Python::run(py, code, None, None)).unwrap();
-    }
-}

@@ -45,6 +45,7 @@
         "rpii",
         "rstd",
         "rustc",
+        "RUSTDOCFLAGS",
         "rustfmt",
         "sdata",
         "Softstream",
@@ -57,4 +58,5 @@
     ],
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoImportCompletions": true,
+    "python.terminal.activateEnvironment": false
 }

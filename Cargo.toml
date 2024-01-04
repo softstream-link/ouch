@@ -36,7 +36,7 @@ links_core = { version = "~0.1", path = "../links/core" }                       
 ouch_model = { version = "~5.0.0", path = "./model" }
 ouch_connect_core = { version = "~5.0.0", path = "./connect/core" }
 ouch_connect_nonblocking = { version = "~5.0.0", path = "./connect/nonblocking" }
-
+ouch_bindings_python = { version = "~5.0.0", path = "./bindings/python" }
 
 # used by nonblocking_python
 lazy_static = { version = "1.4" }

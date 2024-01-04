@@ -15,6 +15,24 @@ pub struct CltManual {
 }
 #[pymethods]
 impl CltManual {
+    fn __repr__(&self, _py: Python<'_>) -> String {
+        _py.allow_threads(move || {
+            let is_connected = self.sender.is_connected();
+            format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), self.sender.con_id(), is_connected)
+        })
+    }
+    fn __enter__(slf: Py<Self>) -> Py<Self> {
+        slf
+    }
+    fn __exit__(&mut self, _py: Python<'_>, _exc_type: Option<&PyAny>, _exc_value: Option<&PyAny>, _traceback: Option<&PyAny>) {
+        self.sender.shutdown()
+    }
+    fn __del__(&mut self) {
+        self.sender.shutdown()
+    }
+}
+#[pymethods]
+impl CltManual {
     #[new]
     fn new(_py: Python<'_>, host: String, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
         let callback = PyProxyCallback::new_ref(callback);
@@ -22,12 +40,6 @@ impl CltManual {
         let protocol = CltOuchProtocolManual::default();
         let sender = _py.allow_threads(move || CltOuchRs::connect(host.as_str(), connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
         Self { sender, io_timeout }
-    }
-    fn __repr__(&self, _py: Python<'_>) -> String {
-        _py.allow_threads(move || {
-            let is_connected = self.sender.is_connected();
-            format!("{}({}, is_connected: {})", asserted_short_name!("CltManual", Self), self.sender.con_id(), is_connected)
-        })
     }
     fn send(&mut self, _py: Python<'_>, msg: Py<PyDict>, io_timeout: Option<f64>) -> PyResult<()> {
         let io_timeout = timeout_selector(io_timeout, self.io_timeout);
@@ -55,8 +67,25 @@ pub struct CltAuto {
 }
 #[pymethods]
 impl CltAuto {
+    fn __repr__(&self, _py: Python<'_>) -> String {
+        _py.allow_threads(move || {
+            let is_connected = self.sender.is_connected();
+            format!("{}({}, is_connected: {})", asserted_short_name!("CltAuto", Self), self.sender.con_id(), is_connected)
+        })
+    }
+    fn __enter__(slf: Py<Self>) -> Py<Self> {
+        slf
+    }
+    fn __exit__(&mut self, _py: Python<'_>, _exc_type: Option<&PyAny>, _exc_value: Option<&PyAny>, _traceback: Option<&PyAny>) {
+        self.sender.shutdown()
+    }
+    fn __del__(&mut self) {
+        self.sender.shutdown()
+    }
+}
+#[pymethods]
+impl CltAuto {
     #[new]
-
     fn new(
         _py: Python<'_>,
         host: String,
@@ -88,21 +117,7 @@ impl CltAuto {
 
         Self { sender, io_timeout }
     }
-    fn __repr__(&self, _py: Python<'_>) -> String {
-        _py.allow_threads(move || {
-            let is_connected = self.sender.is_connected();
-            format!("{}({}, is_connected: {})", asserted_short_name!("CltAuto", Self), self.sender.con_id(), is_connected)
-        })
-    }
-    fn __enter__(slf: Py<Self>) -> Py<Self> {
-        slf
-    }
-    fn __exit__(&mut self, _py: Python<'_>, _exc_type: Option<&PyAny>, _exc_value: Option<&PyAny>, _traceback: Option<&PyAny>) {
-        self.sender.shutdown()
-    }
-    fn __del__(&mut self) {
-        self.sender.shutdown()
-    }
+
     fn send(&mut self, _py: Python<'_>, msg: Py<PyDict>, io_timeout: Option<f64>) -> PyResult<()> {
         let io_timeout = timeout_selector(io_timeout, self.io_timeout);
         let json_module = PyModule::import(_py, "json")?;
