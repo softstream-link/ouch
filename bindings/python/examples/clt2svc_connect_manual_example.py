@@ -1,7 +1,5 @@
 import logging
 from time import sleep
-
-
 from ouch_bindings_py import (
     CltManual,
     SvcManual,

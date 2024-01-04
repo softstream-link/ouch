@@ -23,6 +23,6 @@ micromamba run --name ouch_build --cwd ./bindings/python python examples/clt2svc
 
 ```shell
 micromamba run --name ouch_build --cwd ./bindings/python maturin build && \
-micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/ouch_connect_nonblocking-5.0.0-cp310-abi3-macosx_11_0_arm64.whl && \ 
+micromamba run --name ouch_test pip install --ignore-installed  ./target/wheels/ouch_bindings_py-5.0.0-cp310-abi3-macosx_11_0_arm64.whl && \ 
 micromamba run --name ouch_test --cwd ./bindings/python python examples/clt2svc_connect_manual_example.py
 ```

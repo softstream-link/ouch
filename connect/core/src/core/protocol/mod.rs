@@ -25,15 +25,15 @@ pub struct SvcOuchProtocolAuto {
 }
 impl SvcOuchProtocolAuto {
     #[inline(always)]
-    pub fn new(username: UserName, password: Password, session_id: SessionId, io_timeout: Duration, svc_max_hbeat_interval: Duration) -> Self {
+    pub fn new(username: UserName, password: Password, session_id: SessionId, io_timeout: Duration, clt_max_hbeat_interval: Duration, svc_max_hbeat_interval: Duration) -> Self {
         Self {
-            inner: SvcSoupBinTcpLayerProtocolAuto::new(username, password, session_id, io_timeout, svc_max_hbeat_interval),
+            inner: SvcSoupBinTcpLayerProtocolAuto::new(username, password, session_id, io_timeout, clt_max_hbeat_interval, svc_max_hbeat_interval),
         }
     }
 }
 impl Framer for SvcOuchProtocolAuto {
     #[inline(always)]
-    fn get_frame_length(bytes: &mut BytesMut) -> Option<usize> {
+    fn get_frame_length(bytes: &BytesMut) -> Option<usize> {
         SoupBinTcpFramer::get_frame_length(bytes)
     }
 }

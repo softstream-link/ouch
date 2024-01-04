@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 from ouch_bindings_py import (
     CltAuto,
     SvcAuto,
@@ -34,8 +35,7 @@ svc = SvcAuto(
     max_connections=1,
     io_timeout=io_timeout,
     name="svc-ouch",
-)
-
+) 
 clt = CltAuto(
     "127.0.0.1:8080",
     callback,
@@ -56,9 +56,9 @@ log.info(f"clt: {clt}")
 
 # help("ouch_connect_nonblocking_python")
 
-
 clt.send({"Dbg": {"text": "Hello from Clt"}})
 svc.send({"Dbg": {"text": "Hello from Svc"}})
+# svc.__exit__()
 # svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
 # sleep(1)

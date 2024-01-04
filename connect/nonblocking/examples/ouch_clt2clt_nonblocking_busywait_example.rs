@@ -1,9 +1,6 @@
 use std::{error::Error, num::NonZeroUsize, thread::Builder, time::Instant};
 
-use links_core::{
-    fmt_num,
-    unittest::setup::{self},
-};
+use links_core::unittest::setup::{self};
 use log::info;
 use ouch_connect_nonblocking::prelude::*;
 
@@ -68,11 +65,11 @@ fn run() -> Result<(), Box<dyn Error>> {
     let msg_recv_count = svc_jh.join().unwrap();
     info!(
         "msg_send_count: {}, msg_recv_count: {}, per/write {:?}, total: {:?}, round-trips/sec: ~{}",
-        fmt_num!(WRITE_N_TIMES),
-        fmt_num!(msg_recv_count),
+        WRITE_N_TIMES,
+        msg_recv_count,
         elapsed / WRITE_N_TIMES as u32,
         elapsed,
-        fmt_num!((1_f64 / (elapsed / WRITE_N_TIMES as u32).as_secs_f64()).round() as usize)
+        (1_f64 / (elapsed / WRITE_N_TIMES as u32).as_secs_f64()).round()
     );
     assert_eq!(msg_recv_count, WRITE_N_TIMES); // +1 for the first message to connect
     Ok(())

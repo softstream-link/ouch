@@ -176,10 +176,10 @@ mod test {
 
         let mut msg_inp = vec![];
         for clt in clt_msgs_default() {
-            msg_inp.push(clt.into());
+            msg_inp.push((&clt).into());
         }
         for svc in svc_msgs_default() {
-            msg_inp.push(svc.into());
+            msg_inp.push((&svc).into());
         }
         let mut ser = ByteSerializerStack::<{ 1024 * 2 }>::default();
         for msg in msg_inp.iter() {

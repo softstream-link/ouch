@@ -6,6 +6,7 @@
     "cSpell.words": [
         "asctime",
         "brkn",
+        "builtins",
         "busywait",
         "byteserde",
         "chrono",
@@ -44,6 +45,7 @@
         "Softstream",
         "soupbintcp",
         "startofday",
+        "traceback",
         "udata",
         "unsequenced",
         "wouldblock"

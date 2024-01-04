@@ -1,6 +1,6 @@
 use crate::callback::PyProxyCallback;
 use crate::core::timeout_selector;
-use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, Password, SendNonBlocking, SequenceNumber, SessionId, UserName};
+use ouch_connect_nonblocking::prelude::{asserted_short_name, CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, Password, SendNonBlocking, SequenceNumber, SessionId, Shutdown, UserName};
 use ouch_connect_nonblocking::prelude::{CltOuch as CltOuchRs, SendStatus};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -50,7 +50,6 @@ impl CltManual {
 
 #[pyclass]
 pub struct CltAuto {
-    // jh: JoinHandle<CltOuchSenderRef<CltOuchProtocolAuto, PyProxyCallback>>,
     sender: CltOuchSenderRef<CltOuchProtocolAuto, PyProxyCallback>,
     io_timeout: Option<f64>,
 }
@@ -94,6 +93,15 @@ impl CltAuto {
             let is_connected = self.sender.is_connected();
             format!("{}({}, is_connected: {})", asserted_short_name!("CltAuto", Self), self.sender.con_id(), is_connected)
         })
+    }
+    fn __enter__(slf: Py<Self>) -> Py<Self> {
+        slf
+    }
+    fn __exit__(&mut self, _py: Python<'_>, _exc_type: Option<&PyAny>, _exc_value: Option<&PyAny>, _traceback: Option<&PyAny>) {
+        self.sender.shutdown()
+    }
+    fn __del__(&mut self) {
+        self.sender.shutdown()
     }
     fn send(&mut self, _py: Python<'_>, msg: Py<PyDict>, io_timeout: Option<f64>) -> PyResult<()> {
         let io_timeout = timeout_selector(io_timeout, self.io_timeout);
