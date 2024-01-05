@@ -58,5 +58,13 @@
     ],
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoImportCompletions": true,
-    "python.terminal.activateEnvironment": false
+    "python.terminal.activateEnvironment": false,
+    "black-formatter.args": [
+        "--line-length",
+        "500"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+    }
 }

@@ -2,7 +2,7 @@ pub mod setup {
     pub mod model {
 
         use crate::prelude::*;
-
+        
         pub fn svc_msgs_default() -> Vec<SvcOuchMsg> {
             vec![
                 SystemEvent::start_of_day().into(),

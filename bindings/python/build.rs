@@ -10,8 +10,8 @@ fn get_rpath() -> String {
     match std::env::var_os("CONDA_PREFIX") {
         Some(path) => {
             println!("cargo:warning=build.rs: using CONDA_PREFIX={:?}", path);
-            let rpath = std::path::PathBuf::from(path).join("lib");
-            let rpath = rpath.canonicalize().expect(format!("Expected $CONDA_PREFIX/lib to be valid path").as_str());
+            let rpath = std::path::PathBuf::from(path.clone()).join("lib");
+            let rpath = rpath.canonicalize().unwrap_or_else(|_| panic!("Expected $CONDA_PREFIX/lib to be valid path. CONDA_PREFIX={:?}", path));
             rpath.into_os_string().into_string().unwrap()
         }
         None => panic!("build.rs: Failed. CONDA_PREFIX, it is necessary to find correct libpython3.x.[so|dylib|dll] for py03 module"),
