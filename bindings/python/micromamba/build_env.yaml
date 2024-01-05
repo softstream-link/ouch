@@ -1,0 +1,6 @@
+name: ouch_build
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - maturin
