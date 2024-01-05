@@ -16,4 +16,4 @@ jobs:
     uses: softstream-link/workflows/.github/workflows/rust-bench-matrix-toolchain-os.yml@v1
     with:
       fail-fast: false
-  
+   
