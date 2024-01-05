@@ -26,7 +26,7 @@ serde = { workspace = true }
 chrono = { workspace = true }
 
 # root data model
-soupbintcp_model = { workspace = true }
+soupbintcp_model = { workspace = true, optional = true }
 links_core = { workspace = true }
 
 [dev-dependencies]
@@ -45,9 +45,12 @@ serde_json = { workspace = true }
 
 
 [features]
-default = []
+default = ["dep:soupbintcp_model"]
 full = ["unittest"]
-unittest = []       # exists to provide a vector of all possible ouch messages
+unittest = [
+    "dep:soupbintcp_model",
+    "soupbintcp_model/unittest",
+] # exists to provide a vector of all possible ouch messages
 
 
 # BENCHMARKS
