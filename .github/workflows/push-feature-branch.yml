@@ -4,7 +4,8 @@ on:
       branches:
         - '*'
         - '!release*'
-
+      tags:
+        - '*rc'
 jobs:
   test-matrix:
     uses: softstream-link/workflows/.github/workflows/maturin-pytest-matrix-toolchain-os.yml@main
@@ -17,3 +18,7 @@ jobs:
     uses: softstream-link/workflows/.github/workflows/maturin-bench-matrix-toolchain-os.yml@main
     with:
       fail-fast: false
+  maturin-release:
+    uses: softstream-link/workflows/.github/workflows/maturin-release.yml@main
+    with:
+      working-directory: "./bindings/python"
