@@ -20,6 +20,6 @@ jobs:
   maturin-release:
     permissions:
       id-token: write
-    uses: softstream-link/workflows/.github/workflows/maturin-release.yml@main
+    uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@main
     with:
       working-directory: "./bindings/python"
