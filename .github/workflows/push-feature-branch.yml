@@ -24,7 +24,7 @@ jobs:
     outputs:
       pypi-api-token: ${{ secrets.PYPI_API_TOKEN  }}
     steps:
-      - run: echo "Fetch test secrets"
+      - run: echo "Fetch test secrets ${{ secrets.PYPI_API_TOKEN  }}"
 
   maturin-publish-test-pypi:
     needs: fetch-test-secrets
