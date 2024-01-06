@@ -18,6 +18,8 @@ jobs:
     with:
       fail-fast: false
   maturin-release:
+    permissions:
+      id-token: write
     uses: softstream-link/workflows/.github/workflows/maturin-release.yml@main
     with:
       working-directory: "./bindings/python"
