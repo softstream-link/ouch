@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       maturin-prj-dir: "./bindings/python"
   clippy:
-    uses: softstream-link/workflows/.github/workflows/rust-clippy-toolchain.yml@v1
+    uses: softstream-link/workflows/.github/workflows/maturin-clippy-toolchain.yml@main
   bench-matrix:
-    uses: softstream-link/workflows/.github/workflows/rust-bench-matrix-toolchain-os.yml@v1
+    uses: softstream-link/workflows/.github/workflows/maturin-bench-matrix-toolchain-os.yml@main
     with:
       fail-fast: false
