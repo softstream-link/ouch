@@ -33,9 +33,14 @@ jobs:
         with:
           target: ${{ matrix.target }}
           working-directory: "./bindings/python"
-          args: --release --out dist --find-interpreter
+          args: --release --find-interpreter
           sccache: 'true'
           manylinux: auto
+      - run: |
+          pwd
+          ls -la 
+          ls -la ./target/
+          ls -la ./bindings/python/
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
