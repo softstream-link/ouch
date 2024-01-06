@@ -32,6 +32,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
+          working-directory: "./bindings/python"
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
