@@ -1,9 +1,8 @@
-name: Feature Branch Build
+name: Branch `feature*` or Tag `*rc`
 on:
   push:
       branches:
-        - '*'
-        - '!release*'
+        - 'feature*'
       tags:
         - '*rc'
 jobs:
