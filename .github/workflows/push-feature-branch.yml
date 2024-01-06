@@ -18,7 +18,7 @@ jobs:
     with:
       fail-fast: false
   
-  test-secrets:
+  fetch-test-secrets:
     runs-on: ubuntu-latest
     environment: test
     outputs:
@@ -26,11 +26,12 @@ jobs:
     steps:
       - run: echo "Fetch test secrets"
 
-  maturin-test-pypi-publish:
-    needs: test-secrets
+  maturin-publish-test-pypi:
+    needs: fetch-test-secrets
     permissions:
       id-token: write
     uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@main
     with:
       working-directory: "./bindings/python"
-      pypi-api-token: ${{ needs.test-secrets.outputs.pypi-api-token }}
+    secrets:
+      pypi-api-token: ${{ needs.fetch-test-secrets.outputs.pypi-api-token }}
