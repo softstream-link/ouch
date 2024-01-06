@@ -17,9 +17,20 @@ jobs:
     uses: softstream-link/workflows/.github/workflows/maturin-bench-matrix-toolchain-os.yml@main
     with:
       fail-fast: false
-  maturin-release:
+  
+  test-secrets:
+    runs-on: ubuntu-latest
+    environment: test
+    outputs:
+      pypi-api-token: ${{ secrets.PYPI_API_TOKEN  }}
+    steps:
+      - run: echo "Fetch secrets"
+
+  maturin-test-pypi-publish:
+    needs: test-secrets
     permissions:
       id-token: write
     uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@main
     with:
       working-directory: "./bindings/python"
+      pypi-api-token: ${{ needs.test-secrets.outputs.pypi-api-token }}

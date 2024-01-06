@@ -36,6 +36,7 @@
         "pyfunction",
         "pymethods",
         "pymodule",
+        "pypi",
         "pytest",
         "qbbo",
         "recver",

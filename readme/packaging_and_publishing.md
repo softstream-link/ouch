@@ -32,8 +32,14 @@ micromamba run --name ouch_test_env  python ./bindings/python/tests/02_clt2svc_c
 for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done
 ```
 
+# Test pypi wheel
+```shell
+micromamba create --name ouch_pypi_env --yes python=3.10
+micromamba run --name ouch_pypi_env pip install -i https://test.pypi.org/simple/ ouch-connect
+```
 
 # Expand Model
 ```shell
 cargo expand --package ouch_model
 ```
+
