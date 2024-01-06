@@ -14,3 +14,7 @@ dynamic = ["version"]
 
 [tool.maturin]
 features = ["pyo3/extension-module", "pyo3/abi3", "pyo3/abi3-py310", "pyo3/multiple-pymethods"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+cache_dir = "./../../target/.pytest_cache"

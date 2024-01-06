@@ -13,9 +13,9 @@ micromamba create --name ouch_build_env --yes maturin pytest &&
 micromamba run --name ouch_build_env cargo nextest run --all-features &&
 micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
 micromamba run --name ouch_build_env cargo test --doc --all-features &&
-micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop
-micromamba run --name ouch_build_env --cwd ./bindings/python pytest ./tests
+micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
+micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
 # Testing the wheel on Non Latest python
 ## create ouch_build_env
@@ -26,7 +26,7 @@ micromamba create --name ouch_build_env --yes maturin pytest
 ```shell
 micromamba create --name ouch_test_env --yes python=3.10 &&
 (rm -f ./target/wheels/*.whl || true) &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin build --out ./../../target/wheels &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin build &&
 micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
 micromamba run --name ouch_test_env  python ./bindings/python/tests/02_clt2svc_connect_manual_test.py
 for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done
