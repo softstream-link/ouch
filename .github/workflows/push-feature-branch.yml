@@ -7,10 +7,10 @@ on:
 
 jobs:
   test-matrix:
-    uses: softstream-link/workflows/.github/workflows/rust-test-matrix-toolchain-os.yml@main
+    uses: softstream-link/workflows/.github/workflows/maturin-pytest-matrix-toolchain-os.yml@main
     with:
       fail-fast: false
-      micromamba-env-file: ./bindings/python/micromamba/ouch_build_env.yml
+      maturin-pkg-dir: "./bindings/python"
   clippy:
     uses: softstream-link/workflows/.github/workflows/rust-clippy-toolchain.yml@v1
   bench-matrix:
