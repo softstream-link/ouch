@@ -83,9 +83,11 @@ impl CltAuto {
         self.sender.shutdown()
     }
 }
+
 #[pymethods]
 impl CltAuto {
     #[new]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         _py: Python<'_>,
         host: String,

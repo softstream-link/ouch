@@ -36,6 +36,7 @@
         "pyfunction",
         "pymethods",
         "pymodule",
+        "pytest",
         "qbbo",
         "recver",
         "Recvers",
@@ -61,10 +62,16 @@
     "python.terminal.activateEnvironment": false,
     "black-formatter.args": [
         "--line-length",
-        "500"
+        "150"
     ],
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,
-    }
+    },
+    "python.testing.pytestArgs": [
+        "bindings/python/tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+
 }

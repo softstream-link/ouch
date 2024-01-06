@@ -3,6 +3,7 @@ on:
   push:
      branches:
       - 'release*'
+  pull_request:
 jobs:
   test-matrix:
     uses: softstream-link/workflows/.github/workflows/rust-test-matrix-toolchain-os.yml@v1

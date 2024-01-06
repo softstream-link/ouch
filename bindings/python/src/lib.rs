@@ -4,7 +4,6 @@ pub mod core;
 pub mod svc;
 use crate::callback::{ConId, ConType};
 use clt::{CltAuto, CltManual};
-use log::info;
 use pyo3::prelude::*;
 use svc::{SvcAuto, SvcManual};
 
@@ -19,7 +18,7 @@ fn ouch_connect(_py: Python, m: &PyModule) -> PyResult<()> {
         // pyo3_log::init();
         let log = pyo3_log::try_init();
         if log.is_err() {
-            info!("Looks like someone initialized logging prior to pyo3_log::try_init() -> {}", log.unwrap_err());
+            log::info!("Looks like someone initialized logging prior to pyo3_log::try_init() -> {}", log.unwrap_err());
         }
     }
     #[cfg(not(debug_assertions))]

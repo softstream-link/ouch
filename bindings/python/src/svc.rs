@@ -21,7 +21,7 @@ impl SvcManual {
         _py.allow_threads(move || {
             let is_connected = self.sender.is_next_connected();
             if !is_connected {
-                return format!("{}({}, is_connected: {})", asserted_short_name!("SvcManual", Self), self.sender.con_id(), is_connected);
+                format!("{}({}, is_connected: {})", asserted_short_name!("SvcManual", Self), self.sender.con_id(), is_connected)
             } else {
                 let num = self.sender.len();
                 let max = self.sender.max_connections();
@@ -80,7 +80,7 @@ impl SvcAuto {
         _py.allow_threads(move || {
             let is_connected = self.sender.is_next_connected();
             if !is_connected {
-                return format!("{}({}, is_connected: {})", asserted_short_name!("SvcAuto", Self), self.sender.con_id(), is_connected);
+                format!("{}({}, is_connected: {})", asserted_short_name!("SvcAuto", Self), self.sender.con_id(), is_connected)
             } else {
                 let num = self.sender.len();
                 let max = self.sender.max_connections();
@@ -104,6 +104,7 @@ impl SvcAuto {
 #[pymethods]
 impl SvcAuto {
     #[new]
+    #[allow(clippy::too_many_arguments)]
     fn new(_py: Python<'_>, host: String, callback: PyObject, usr: &str, pwd: &str, session: &str, clt_max_hbeat_interval: f64, svc_max_hbeat_interval: f64, max_connections: Option<NonZeroUsize>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
         let max_connections = max_connections.unwrap_or(NonZeroUsize::new(1).unwrap());
         let callback = PyProxyCallback::new_ref(callback);

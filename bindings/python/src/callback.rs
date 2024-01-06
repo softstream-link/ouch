@@ -103,8 +103,8 @@ pub struct PyProxyCallback(PyObject);
 impl PyProxyCallback {
     pub fn new_ref(callback: PyObject) -> Arc<Self> {
         Python::with_gil(|py| {
-            callback.getattr(py, ON_RECV).expect(format!("callback must have {} method", ON_RECV).as_str());
-            callback.getattr(py, ON_SENT).expect(format!("callback must have {} method", ON_SENT).as_str());
+            callback.getattr(py, ON_RECV).unwrap_or_else(|_| panic!("callback must have {} method", ON_RECV));
+            callback.getattr(py, ON_SENT).unwrap_or_else(|_| panic!("callback must have {} method", ON_SENT));
         });
 
         Arc::new(Self(callback))
@@ -113,7 +113,7 @@ impl PyProxyCallback {
     fn issue_callback<O: Serialize + Debug>(&self, method: Method, con_id: &ConIdRs, msg: &O) {
         let name = method.as_str();
         // convert msg to str
-        let json = to_string(msg).expect(format!("serde_json::to_string failed to convert msg: {:?}", msg).as_str());
+        let json = to_string(msg).unwrap_or_else(|_| panic!("serde_json::to_string failed to convert msg: {:?}", msg));
         let con_id = ConId::from(con_id);
         fn py_callback(obj: &PyObject, name: &str, con_id: &ConId, json: &String) -> PyResult<()> {
             Python::with_gil(|py| {
@@ -192,4 +192,3 @@ impl CallbackSend<SvcOuchProtocolAuto> for PyProxyCallback {
     }
 }
 impl CallbackRecvSend<SvcOuchProtocolAuto> for PyProxyCallback {}
-

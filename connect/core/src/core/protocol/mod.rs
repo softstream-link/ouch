@@ -75,27 +75,26 @@ impl ProtocolCore for SvcOuchProtocolAuto {
     #[inline(always)]
     fn on_send<I: ConnectionId>(&self, who: &I, msg: &mut <Self as Messenger>::SendT) {
         // update timestamps, right before sending
-        match msg {
-            SvcSoupBinTcpMsg::SPayload(SPayload { payload, .. }) => match payload {
-                SvcOuchPayload::SystemEvent(SystemEvent { timestamp, .. })                      // _00
-                | SvcOuchPayload::OrderAccepted(OrderAccepted { timestamp, .. })                // _01
-                | SvcOuchPayload::OrderReplaced(OrderReplaced { timestamp, .. })                // _02
-                | SvcOuchPayload::OrderCanceled(OrderCanceled { timestamp, .. })                // _03
-                | SvcOuchPayload::OrderAiqCanceled(OrderAiqCanceled { timestamp, .. })          // _04
-                | SvcOuchPayload::OrderExecuted(OrderExecuted { timestamp, .. })                // _05          
-                | SvcOuchPayload::BrokenTrade(BrokenTrade { timestamp, .. })                    // _06
-                | SvcOuchPayload::OrderRejected(OrderRejected { timestamp, .. })                // _07
-                | SvcOuchPayload::CancelPending(CancelPending { timestamp, .. })                // _08
-                | SvcOuchPayload::CancelReject(CancelReject { timestamp, .. })                  // _09
-                | SvcOuchPayload::PriorityUpdate(PriorityUpdate { timestamp, .. })              // _10
-                | SvcOuchPayload::OrderModified(OrderModified { timestamp, .. })                // _11
-                | SvcOuchPayload::OrderRestated(OrderRestated { timestamp, .. })                // _12
-                | SvcOuchPayload::AccountQueryResponse(AccountQueryResponse { timestamp, .. })  // _13
-                => {
-                    *timestamp = Default::default();
-                }
-            },
-            _ => {}
+        if let SvcSoupBinTcpMsg::SPayload(SPayload { payload, .. }) = msg {
+            match payload {
+                   SvcOuchPayload::SystemEvent(SystemEvent { timestamp, .. })                      // _00
+                   | SvcOuchPayload::OrderAccepted(OrderAccepted { timestamp, .. })                // _01
+                   | SvcOuchPayload::OrderReplaced(OrderReplaced { timestamp, .. })                // _02
+                   | SvcOuchPayload::OrderCanceled(OrderCanceled { timestamp, .. })                // _03
+                   | SvcOuchPayload::OrderAiqCanceled(OrderAiqCanceled { timestamp, .. })          // _04
+                   | SvcOuchPayload::OrderExecuted(OrderExecuted { timestamp, .. })                // _05          
+                   | SvcOuchPayload::BrokenTrade(BrokenTrade { timestamp, .. })                    // _06
+                   | SvcOuchPayload::OrderRejected(OrderRejected { timestamp, .. })                // _07
+                   | SvcOuchPayload::CancelPending(CancelPending { timestamp, .. })                // _08
+                   | SvcOuchPayload::CancelReject(CancelReject { timestamp, .. })                  // _09
+                   | SvcOuchPayload::PriorityUpdate(PriorityUpdate { timestamp, .. })              // _10
+                   | SvcOuchPayload::OrderModified(OrderModified { timestamp, .. })                // _11
+                   | SvcOuchPayload::OrderRestated(OrderRestated { timestamp, .. })                // _12
+                   | SvcOuchPayload::AccountQueryResponse(AccountQueryResponse { timestamp, .. })  // _13
+                   => {
+                       *timestamp = Default::default();
+                   }
+               }
         }
         self.inner.on_send(who, msg)
     }

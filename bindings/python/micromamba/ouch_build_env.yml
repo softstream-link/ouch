@@ -1,6 +1,7 @@
-name: ouch_build
+name: ouch_build_env
 channels:
   - conda-forge
   - defaults
 dependencies:
   - maturin
+  - pytest
