@@ -39,13 +39,12 @@ jobs:
       - run: |
           pwd
           ls -la 
-          ls -la ./target/
-          ls -la ./bindings/python/
+          ls -la ./target/wheels
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
           name: wheels
-          path: dist
+          path: ./target/wheels/
 
   windows:
     runs-on: windows-latest
