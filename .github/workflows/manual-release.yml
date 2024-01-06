@@ -6,10 +6,9 @@
 name: Release wheels
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  #     - master
+  push:
+    branches:
+      - '*'
   #   tags:
   #     - '*'
   # pull_request:
