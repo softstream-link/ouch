@@ -22,16 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     outputs:
-      pypi-api-token: ${{ secrets.PYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
     steps:
-      - run: echo "Fetch test secrets"
+      - run: echo "environment=test, PYPI_API_TOKEN='${{ secrets.PYPI_API_TOKEN }}'"
 
   maturin-publish-test-pypi:
     needs: fetch-test-secrets
-    permissions:
-      id-token: write
     uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@main
     with:
+      os: '["ubuntu-latest"]'
       working-directory: "./bindings/python"
     secrets:
-      pypi-api-token: ${{ needs.fetch-test-secrets.outputs.pypi-api-token }}
+      PYPI_API_TOKEN: ${{ needs.fetch-test-secrets.outputs.PYPI_API_TOKEN }}
