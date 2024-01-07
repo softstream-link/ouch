@@ -18,20 +18,10 @@ jobs:
     with:
       fail-fast: false
   
-  # fetch-test-secrets:
-  #   runs-on: ubuntu-latest
-  #   environment: test
-  #   outputs:
-  #     PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-  #   steps:
-  #     - run: echo "environment=test, PYPI_API_TOKEN='${{ secrets.PYPI_API_TOKEN }}'"
-
   maturin-publish-test-pypi:
-    # needs: fetch-test-secrets
     uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@main
     with:
-      os: '["ubuntu-latest"]'
       working-directory: "./bindings/python"
-      environment: 'test'
+      environment: 'test' # needs both environment and secrets to work https://github.com/actions/runner/issues/1490
     secrets:
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }} # needs both environment and secrets to work https://github.com/actions/runner/issues/1490
