@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     outputs:
-      pypi-api-token: "pypi-AgENdGVzdC5weXBpLm9yZwIkNTcwMTZlMmUtNGFmZC00YjkyLThkMDMtNWU0Yzc0MGRmNDlmAAIqWzMsImM0YzkxN2I0LTBlZDMtNDEwYS04YzNkLTA0ZTgxYjAyMDFjOCJdAAAGIMqEGNCjl98YiXHvLSuFo3wemXm4RM4_erv6RxZm27H8"
+      pypi-api-token: ${{ secrets.PYPI_API_TOKEN }}
     steps:
       - run: echo "Fetch test secrets"
 
@@ -34,5 +34,4 @@ jobs:
     with:
       working-directory: "./bindings/python"
     secrets:
-      # pypi-api-token: "pypi-AgENdGVzdC5weXBpLm9yZwIkNTcwMTZlMmUtNGFmZC00YjkyLThkMDMtNWU0Yzc0MGRmNDlmAAIqWzMsImM0YzkxN2I0LTBlZDMtNDEwYS04YzNkLTA0ZTgxYjAyMDFjOCJdAAAGIMqEGNCjl98YiXHvLSuFo3wemXm4RM4_erv6RxZm27H8"
       pypi-api-token: ${{ needs.fetch-test-secrets.outputs.pypi-api-token }}
