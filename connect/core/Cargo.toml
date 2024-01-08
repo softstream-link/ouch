@@ -1,0 +1,30 @@
+[package]
+name = "ouch_connect_core"
+version.workspace = true
+authors.workspace = true
+readme.workspace = true
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+soupbintcp_connect_nonblocking = { workspace = true, optional = true }
+ouch_model = { workspace = true, optional = true }
+
+bytes = { workspace = true }
+
+
+[features]
+default = ["dep:soupbintcp_connect_nonblocking", "dep:ouch_model"]
+full = ["unittest"]
+unittest = [
+    "dep:soupbintcp_connect_nonblocking",
+    "soupbintcp_connect_nonblocking/unittest",
+    "dep:ouch_model",
+    "ouch_model/unittest",
+] # exists to provide a vector of all possible ouch messages

@@ -1,0 +1,59 @@
+[package]
+name = "ouch_model"
+version.workspace = true
+authors.workspace = true
+readme.workspace = true
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+description = "Data model bindings for ouch exchange protocol"
+
+[dependencies]
+# derives
+byteserde = { workspace = true }
+byteserde_derive = { workspace = true }
+byteserde_types = { workspace = true }
+derive_more = { workspace = true }
+serde = { workspace = true }
+
+# time for data model
+chrono = { workspace = true }
+
+# root data model
+soupbintcp_model = { workspace = true, optional = true }
+links_core = { workspace = true }
+
+[dev-dependencies]
+# benchmarking
+criterion = { workspace = true }
+
+# logging
+log = { workspace = true }
+env_logger = { workspace = true }
+colored = { workspace = true }
+text-diff = { workspace = true }
+# testing
+links_core = { workspace = true, features = ["unittest"] }
+soupbintcp_model = { workspace = true, features = ["unittest"] }
+serde_json = { workspace = true }
+
+
+[features]
+default = ["dep:soupbintcp_model"]
+full = ["unittest"]
+unittest = [
+    "dep:soupbintcp_model",
+    "soupbintcp_model/unittest",
+] # exists to provide a vector of all possible ouch messages
+
+
+# BENCHMARKS
+[[bench]]
+name = "ouch_model_bench"
+harness = false

@@ -1,0 +1,17 @@
+name: Branch `feature*`
+on:
+  push:
+      branches:
+        - 'feature*'
+jobs:
+  test-matrix:
+    uses: softstream-link/workflows/.github/workflows/maturin-pytest-matrix-toolchain-os.yml@v1
+    with:
+      fail-fast: false
+      working-directory: "./bindings/python"
+  clippy:
+    uses: softstream-link/workflows/.github/workflows/maturin-clippy-toolchain.yml@v1
+  bench-matrix:
+    uses: softstream-link/workflows/.github/workflows/maturin-bench-matrix-toolchain-os.yml@v1
+    with:
+      fail-fast: false

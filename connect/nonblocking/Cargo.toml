@@ -1,0 +1,44 @@
+[package]
+name = "ouch_connect_nonblocking"
+version.workspace = true
+authors.workspace = true
+readme.workspace = true
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ouch_connect_core = { workspace = true , optional = true}
+
+
+[dev-dependencies]
+# includes network related methods for setting up unit tests
+links_core = { workspace = true, features = ["unittest"] }
+
+# benchmarking
+criterion = { workspace = true }
+
+# logging
+log = { workspace = true }
+env_logger = { workspace = true }
+colored = { workspace = true }
+
+
+[features]
+default = ["dep:ouch_connect_core"]
+full = ["unittest"]
+unittest = [
+    "dep:ouch_connect_core",
+    "ouch_connect_core/unittest",
+] # exists to provide a vector of all possible ouch messages
+
+
+# BENCHMARKS
+[[bench]]
+name = "ouch_nonblocking_bench"
+harness = false

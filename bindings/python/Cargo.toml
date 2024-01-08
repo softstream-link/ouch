@@ -1,0 +1,43 @@
+[package]
+name = "ouch_bindings_python"
+version.workspace = true
+authors.workspace = true
+readme = "readme.md"
+license-file.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+# this is the name of python module (i.e. import ouch_connect) remember to change it in pyproject.toml, #[pymodule]/lib.rs, and here
+name = "ouch_connect"
+crate-type = [
+    "cdylib",
+    "rlib",   # rlib is necessary for tests to work, this includes both tests in docs & ./tests folder
+]
+
+[build-dependencies]
+pyo3-build-config = { version = "0.20" } # used in the build.rs
+
+[dependencies]
+# py03 feature needed for 'cargo build' to work otherwise 'maturin develop' is configured via pyproject.toml
+# *********  specifically - https://pyo3.rs/v0.20.2/building_and_distribution#macos
+# *********     "multiple-pymethods" is needed for #[pymethods] to work because the lib uses several blocks to impl the class
+# *********     "extension-module" Finally, don't forget that on MacOS the extension-module feature will cause cargo test to fail without adding libpython.3.x.dylib to rpath which is done via build.rs or homebrew python install
+pyo3 = { version = "0.20", features = [
+    "multiple-pymethods",
+    "abi3",
+    "abi3-py310",
+] }
+pyo3-log = "0.9" # allows rust logging to write to python logging
+
+
+ouch_connect_nonblocking = { workspace = true, features = ["unittest"] }
+serde_json = { workspace = true }
+serde = { workspace = true }
+
+log = { workspace = true }
+lazy_static = { workspace = true }
