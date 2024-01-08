@@ -13,7 +13,7 @@ categories.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ouch_connect_core = { workspace = true }
+ouch_connect_core = { workspace = true , optional = true}
 
 
 [dev-dependencies]
@@ -27,6 +27,15 @@ criterion = { workspace = true }
 log = { workspace = true }
 env_logger = { workspace = true }
 colored = { workspace = true }
+
+
+[features]
+default = ["dep:ouch_connect_core"]
+full = ["unittest"]
+unittest = [
+    "dep:ouch_connect_core",
+    "ouch_connect_core/unittest",
+] # exists to provide a vector of all possible ouch messages
 
 
 # BENCHMARKS

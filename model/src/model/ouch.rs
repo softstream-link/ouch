@@ -162,7 +162,7 @@ mod test {
     use crate::{
         model::ouch::{CLT_OUCH_MAX_PLD_SIZE, SVC_OUCH_MAX_PLD_SIZE},
         prelude::*,
-        unittest::setup::model::{clt_msgs_default, svc_msgs_default},
+        unittest::setup::model::{clt_ouch_default_msgs, svc_ouch_default_msgs},
     };
     use byteserde::prelude::*;
     use links_core::unittest::setup;
@@ -174,10 +174,10 @@ mod test {
         setup::log::configure_compact(log::LevelFilter::Info);
 
         let mut msg_inp = vec![];
-        for clt in clt_msgs_default() {
+        for clt in clt_ouch_default_msgs() {
             msg_inp.push((&clt).into());
         }
-        for svc in svc_msgs_default() {
+        for svc in svc_ouch_default_msgs() {
             msg_inp.push((&svc).into());
         }
         let mut ser = ByteSerializerStack::<{ 1024 * 2 }>::default();
@@ -218,7 +218,7 @@ mod test {
     fn test_ouch5_max_size() {
         setup::log::configure_compact(log::LevelFilter::Info);
 
-        let inb = clt_msgs_default().into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
+        let inb = clt_ouch_default_msgs().into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
         for (byte_len, clt_msg) in inb.iter() {
             info!("byte_len: {:>3}, clt_msg: {}", byte_len, to_string(clt_msg).unwrap());
         }
@@ -226,7 +226,7 @@ mod test {
         info!("max_frame_size_clt: {}", max_frame_size_clt);
         assert_eq!(max_frame_size_clt, CLT_OUCH_MAX_PLD_SIZE);
 
-        let oub = svc_msgs_default().into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
+        let oub = svc_ouch_default_msgs().into_iter().map(|msg| (msg.byte_len(), msg)).collect::<Vec<_>>();
         for (byte_len, svc_msg) in oub.iter() {
             info!("byte_len: {:>3}, svc_msg: {}", byte_len, to_string(svc_msg).unwrap());
         }

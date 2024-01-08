@@ -40,6 +40,14 @@ impl SvcManual {
     fn __del__(&mut self) {
         self.sender.shutdown()
     }
+    #[classattr]
+    fn __doc__() -> String {
+        let msgs = ouch_connect_nonblocking::prelude::svc_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n\n");
+        format!(
+            "Valid Json Messages:\n\n{}",
+            msgs
+        )
+    }
 }
 #[pymethods]
 impl SvcManual {
@@ -99,6 +107,14 @@ impl SvcAuto {
     }
     fn __del__(&mut self) {
         self.sender.shutdown()
+    }
+    #[classattr]
+    fn __doc__() -> String {
+        let msgs = ouch_connect_nonblocking::prelude::svc_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n\n");
+        format!(
+            "Valid Json Messages:\n\n{}",
+            msgs
+        )
     }
 }
 #[pymethods]

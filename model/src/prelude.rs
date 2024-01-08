@@ -48,3 +48,6 @@ pub use crate::model::ouch::SVC_OUCH_MAX_PLD_SIZE;
 
 // soup bin
 pub use soupbintcp_model::prelude::*;
+
+#[cfg(feature = "unittest")]
+pub use crate::unittest::setup::model::{clt_ouch_default_msgs, svc_ouch_default_msgs};

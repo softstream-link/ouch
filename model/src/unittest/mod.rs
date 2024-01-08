@@ -3,7 +3,7 @@ pub mod setup {
 
         use crate::prelude::*;
         
-        pub fn svc_msgs_default() -> Vec<SvcOuchMsg> {
+        pub fn svc_ouch_default_msgs() -> Vec<SvcOuchMsg> {
             vec![
                 SystemEvent::start_of_day().into(),
                 OrderAccepted::from((&EnterOrder::default(), OrderReferenceNumber::new(1), OrderState::live())).into(),
@@ -27,7 +27,7 @@ pub mod setup {
             ]
         }
 
-        pub fn clt_msgs_default() -> Vec<CltOuchMsg> {
+        pub fn clt_ouch_default_msgs() -> Vec<CltOuchMsg> {
             vec![
                 EnterOrder::default().into(),
                 ReplaceOrder::from(&EnterOrder::default()).into(),
