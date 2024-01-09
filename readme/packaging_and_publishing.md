@@ -35,7 +35,12 @@ for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py *******
 # Test pypi wheel
 ```shell
 micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install -i https://test.pypi.org/simple/ ouch-connect
+micromamba run --name ouch_pypi_env pip install --index-url https://test.pypi.org/simple/ ouch-connect==5.0.1rc1
+```
+
+```shell
+# micromamba run --name ouch_pypi_env pip search --index https://test.pypi.org/simple/ ouch-connect==5.0.1rc1
+for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_pypi_env  python $py ; done
 ```
 
 # Expand Model
