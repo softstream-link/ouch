@@ -7,6 +7,8 @@ use clt::{CltAuto, CltManual};
 use pyo3::prelude::*;
 use svc::{SvcAuto, SvcManual};
 
+/// This is a Python extension-module over the `ouch_connect_nonblocking` library.
+/// Please refer to readme for more information.
 #[pymodule]
 fn ouch_connect(_py: Python, m: &PyModule) -> PyResult<()> {
     // IMPORTANT - py03 logger can cause background threads to block or deadlock as they need to acquire the GIL to log messages in python.

@@ -7,7 +7,6 @@ use pyo3::types::PyDict;
 use std::io::{Error, ErrorKind};
 use std::time::Duration;
 
-// TODO add context manager support
 #[pyclass]
 pub struct CltManual {
     sender: CltOuchSender<CltOuchProtocolManual, PyProxyCallback>,
@@ -33,14 +32,12 @@ impl CltManual {
     #[classattr]
     fn __doc__() -> String {
         let msgs = ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n\n");
-        format!(
-            "Valid Json Messages:\n\n{}",
-            msgs
-        )
+        format!("Valid Json Messages:\n\n{}", msgs)
     }
 }
 #[pymethods]
 impl CltManual {
+    /// 
     #[new]
     fn new(_py: Python<'_>, host: String, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
         let callback = PyProxyCallback::new_ref(callback);
@@ -61,7 +58,7 @@ impl CltManual {
             SendStatus::WouldBlock => Err(Error::new(ErrorKind::WouldBlock, format!("Message not delivered due timeout: {:?}, msg: {}", io_timeout, json)).into()),
         })
     }
-
+    /// Always returns true as soon as the connection is established
     fn is_connected(&self, _py: Python<'_>, io_timeout: Option<f64>) -> bool {
         let io_timeout = timeout_selector(io_timeout, self.io_timeout);
         _py.allow_threads(move || self.sender.is_connected_busywait_timeout(io_timeout))
@@ -93,10 +90,7 @@ impl CltAuto {
     #[classattr]
     fn __doc__() -> String {
         let msgs = ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n\n");
-        format!(
-            "Valid Json Messages:\n\n{}",
-            msgs
-        )
+        format!("Valid Json Messages:\n\n{}", msgs)
     }
 }
 

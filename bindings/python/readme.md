@@ -4,7 +4,7 @@ This package is python extension module for rust crate [ouch_connect_nonblocking
 
 ```shell
 micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install --index-url https://test.pypi.org/simple/ ouch-connect==5.0.1rc1
+micromamba run --name ouch_pypi_env pip install ouch-connect
 micromamba run --name ouch_pypi_env pip install markdown-code-runner
 micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readme.md
 ```
