@@ -1,14 +1,11 @@
-pub mod callback;
 pub mod clt;
-pub mod core;
 pub mod svc;
-use crate::callback::{ConId, ConType};
 use clt::{CltAuto, CltManual};
+use links_bindings_python::prelude::{ConId, ConType};
 use pyo3::prelude::*;
 use svc::{SvcAuto, SvcManual};
 
-/// This is a Python extension-module over the `ouch_connect_nonblocking` library.
-/// Please refer to readme for more information.
+/// This is a Python extension-module over the `ouch_connect_nonblocking` library. Please refer to readme for more information.
 #[pymodule]
 fn ouch_connect(_py: Python, m: &PyModule) -> PyResult<()> {
     // IMPORTANT - py03 logger can cause background threads to block or deadlock as they need to acquire the GIL to log messages in python.

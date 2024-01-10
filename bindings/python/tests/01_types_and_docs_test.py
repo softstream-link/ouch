@@ -18,11 +18,20 @@ def test_doc():
     # logging.info(SvcManual.__doc__)
     # assert SvcManual.__doc__ is not None
 
-    # logging.info(CltManual.__doc__)
-    # assert CltManual.__doc__ is not None
+    # logging.info(SvcManual.is_connected.__doc__)
+    # assert SvcManual.is_connected.__doc__ is not None
 
-    # logging.info(CltManual.is_connected.__doc__)
-    # assert CltManual.is_connected.__doc__ is not None
+    logging.info(CltManual.__doc__)
+    assert CltManual.__doc__ is not None
+
+    logging.info(CltManual.is_connected.__doc__)
+    assert CltManual.is_connected.__doc__ is not None
+
+    logging.info(CltManual.send.__doc__)
+    assert CltManual.send.__doc__ is not None
+
+    logging.info(CltManual.msg_samples)
+    assert CltManual.msg_samples is not None
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@
         "chrono",
         "classattr",
         "clippy",
+        "dunder",
         "dylib",
         "endofday",
         "freethreaded",
