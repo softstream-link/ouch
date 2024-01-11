@@ -1,11 +1,7 @@
 use links_bindings_python::prelude::*;
-use ouch_connect_nonblocking::prelude::CltOuch as CltOuchRs;
-use ouch_connect_nonblocking::prelude::{CltOuchProtocolAuto, CltOuchProtocolManual, CltOuchSender, CltOuchSenderRef, ConnectionId, ConnectionStatus, Password, SendNonBlocking, SendStatus, SequenceNumber, SessionId, Shutdown, UserName};
+use ouch_connect_nonblocking::prelude::*;
 use pyo3::prelude::*;
-use std::{
-    io::{Error, ErrorKind},
-    time::Duration,
-};
+use std::time::Duration;
 
 create_callback_for_messenger!(CltOuchProtocolManualCallback, CltOuchProtocolManual);
 create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProtocolManualCallback);
@@ -13,17 +9,16 @@ create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProto
 #[pymethods]
 impl CltManual {
     #[new]
-    fn new(_py: Python<'_>, host: String, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
+    fn new(_py: Python<'_>, host: &str, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
         let callback = CltOuchProtocolManualCallback::new_ref(callback);
         let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
         let protocol = CltOuchProtocolManual::default();
-        let sender = _py.allow_threads(move || CltOuchRs::connect(host.as_str(), connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
+        let sender = _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
         Self { sender, io_timeout }
     }
     #[classattr]
-    fn msg_samples() -> String {
-        let msgs = ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n");
-        format!("Valid Json Messages:\n{}", msgs)
+    fn msg_samples() -> Vec<String> {
+        ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>()
     }
 }
 
@@ -36,7 +31,7 @@ impl CltAuto {
     #[allow(clippy::too_many_arguments)]
     fn new(
         _py: Python<'_>,
-        host: String,
+        host: &str,
         callback: PyObject,
         usr: &str,
         pwd: &str,
@@ -61,13 +56,12 @@ impl CltAuto {
             Duration::from_secs_f64(svc_max_hbeat_interval),
         );
 
-        let sender = _py.allow_threads(move || CltOuchRs::connect(host.as_str(), connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver_ref());
+        let sender = _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver_ref());
 
         Self { sender, io_timeout }
     }
     #[classattr]
-    fn msg_samples() -> String {
-        let msgs = ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n");
-        format!("Valid Json Messages:\n{}", msgs)
+    fn msg_samples() -> Vec<String> {
+        ouch_connect_nonblocking::prelude::clt_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>()
     }
 }

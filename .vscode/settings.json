@@ -13,6 +13,7 @@
         "chrono",
         "classattr",
         "clippy",
+        "cogapp",
         "dunder",
         "dylib",
         "endofday",
