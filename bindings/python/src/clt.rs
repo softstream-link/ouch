@@ -10,12 +10,6 @@ use std::{
 create_callback_for_messenger!(CltOuchProtocolManualCallback, CltOuchProtocolManual);
 create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProtocolManualCallback);
 
-// TODO where does this go?
-// #[classattr]
-// fn __doc__() -> String {
-//     let msgs = ouch_connect_nonblocking::prelude::svc_ouch_default_msgs().iter().map(|m| serde_json::to_string(m).unwrap()).collect::<Vec<_>>().join("\t\n");
-//     format!("Valid Json Messages:\n{}", msgs)
-// }
 #[pymethods]
 impl CltManual {
     #[new]
