@@ -1,9 +1,10 @@
 use links_bindings_python::prelude::*;
+use links_nonblocking::prelude::*;
 use ouch_connect_nonblocking::prelude::*;
 use pyo3::prelude::*;
 use std::time::Duration;
 
-create_callback_for_messenger!(CltOuchProtocolManualCallback, CltOuchProtocolManual);
+create_callback_for_messenger!(CltOuchProtocolManual, CltOuchProtocolManualCallback);
 create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProtocolManualCallback);
 
 #[pymethods]
@@ -22,7 +23,7 @@ impl CltManual {
     }
 }
 
-create_callback_for_messenger!(CltOuchProtocolAutoCallback, CltOuchProtocolAuto);
+create_callback_for_messenger!(CltOuchProtocolAuto, CltOuchProtocolAutoCallback);
 create_clt_sender!(CltAuto, CltOuchSenderRef, CltOuchProtocolAuto, CltOuchProtocolAutoCallback);
 
 #[pymethods]

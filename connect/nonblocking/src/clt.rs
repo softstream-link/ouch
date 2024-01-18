@@ -9,7 +9,7 @@ pub type CltOuchSenderRef<Protocol, CallbackSend> = CltSoupBinTcpSenderRef<Proto
 mod test {
 
     use crate::prelude::*;
-    use links_core::unittest::setup;
+    use links_nonblocking::prelude::{unittest::setup, *};
     use log::info;
 
     #[test]

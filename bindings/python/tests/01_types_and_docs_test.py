@@ -31,7 +31,7 @@ def test_doc():
     assert CltManual.send.__doc__ is not None
 
     # logging.info(type(CltManual.msg_samples))
-    logging.info("Valid Clt Dict Format\n" + "\n".join(CltManual.msg_samples))
+    # logging.info("Valid Clt Dict Format\n" + "\n".join(CltManual.msg_samples))
     assert CltManual.msg_samples is not None
 
 

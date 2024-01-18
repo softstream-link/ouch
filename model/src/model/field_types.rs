@@ -27,8 +27,12 @@ pub use user_ref::*;
 
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf, ByteSerializedSizeOf};
 use byteserde_types::{char_ascii, const_char_ascii, string_ascii_fixed, u16_tuple, u32_tuple, u64_tuple};
-use links_core::core::macros::short_type_name;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+pub(crate) fn short_type_name<T: ?Sized>() -> &'static str {
+    use std::any::type_name;
+    type_name::<T>().split('<').next().unwrap().split("::").last().unwrap_or("Unknown")
+}
 
 // const char ascii
 pub mod ouch_packet_types {
@@ -548,7 +552,6 @@ pub mod user_ref {
 
 pub mod price {
     use super::*;
-    use links_core::core::macros::short_type_name;
     use std::fmt::Debug;
 
     u64_tuple!(Price, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy, Default)]);

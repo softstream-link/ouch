@@ -1,6 +1,7 @@
 use bytes::BytesMut;
 use ouch_model::prelude::*;
 use soupbintcp_connect_nonblocking::prelude::*;
+use links_nonblocking::prelude::*;
 use std::{io::Error, time::Duration};
 
 // Protocol

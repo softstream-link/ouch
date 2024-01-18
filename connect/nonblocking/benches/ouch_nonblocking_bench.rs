@@ -1,7 +1,7 @@
 use std::{num::NonZeroUsize, thread::Builder};
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use links_core::unittest::setup;
+use links_nonblocking::prelude::{unittest::setup, *};
 use log::info;
 use ouch_connect_nonblocking::prelude::*;
 

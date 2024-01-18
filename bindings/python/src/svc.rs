@@ -1,9 +1,10 @@
 use links_bindings_python::prelude::*;
+use links_nonblocking::prelude::*;
 use ouch_connect_nonblocking::prelude::*;
 use pyo3::prelude::*;
 use std::{num::NonZeroUsize, time::Duration};
 
-create_callback_for_messenger!(SvcOuchProtocolManualCallback, SvcOuchProtocolManual);
+create_callback_for_messenger!(SvcOuchProtocolManual, SvcOuchProtocolManualCallback);
 create_svc_sender!(SvcManual, SvcOuchSender, SvcOuchProtocolManual, SvcOuchProtocolManualCallback);
 
 #[pymethods]
@@ -22,7 +23,7 @@ impl SvcManual {
     }
 }
 
-create_callback_for_messenger!(SvcOuchProtocolAutoCallback, SvcOuchProtocolAuto);
+create_callback_for_messenger!(SvcOuchProtocolAuto, SvcOuchProtocolAutoCallback);
 create_svc_sender!(SvcAuto, SvcOuchSenderRef, SvcOuchProtocolAuto, SvcOuchProtocolAutoCallback);
 
 #[pymethods]
