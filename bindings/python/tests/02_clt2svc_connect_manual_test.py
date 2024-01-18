@@ -8,7 +8,7 @@ from ouch_connect import (
 )
 
 logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
@@ -38,18 +38,5 @@ def test_ouch_manual_connect():
         log.info("********** awaiting receipt of HBeat messages **********")
 
 
-def test_svc_restart():
-    svc = SvcManual(addr, callback, max_connections, io_timeout, name="svc1-ouch")
-    log.info(f"svc: {svc}")
-    svc.__exit__(None, None, None)
-    sleep(0.5)
-
-    svc = SvcManual(addr, callback, max_connections, io_timeout, name="svc2-ouch")
-    log.info(f"svc: {svc}")
-    svc.__exit__(None, None, None)
-    sleep(0.5)
-
-
 if __name__ == "__main__":
-    test_svc_restart()
-    # test_ouch_manual_connect()
+    test_ouch_manual_connect()
