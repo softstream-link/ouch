@@ -1,10 +1,7 @@
 import logging
 from time import sleep
-from ouch_connect import (
-    CltAuto,
-    SvcAuto,
-    LoggerCallback,
-)
+
+from ouch_connect import CltAuto, SvcAuto, LoggerCallback
 
 
 logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
@@ -22,7 +19,8 @@ clt_max_hbeat_interval = 2.5
 svc_max_hbeat_interval = 2.5
 max_connections = 1
 connect_timeout = 1.0
-io_timeout = 0.1
+io_timeout = 0.2
+
 
 def test_ouch_auto_connect():
     with (
@@ -62,6 +60,7 @@ def test_ouch_auto_connect():
 
         sleep(0.5)
         log.info("********** awaiting receipt of Dbg messages **********")
+
 
 if __name__ == "__main__":
     test_ouch_auto_connect()

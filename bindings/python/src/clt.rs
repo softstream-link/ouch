@@ -10,12 +10,17 @@ create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProto
 #[pymethods]
 impl CltManual {
     #[new]
-    fn new(_py: Python<'_>, host: &str, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
+    fn new(_py: Python<'_>, host: &str, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> PyResult<Self> {
         let callback = CltOuchProtocolManualCallback::new_ref(callback);
         let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
         let protocol = CltOuchProtocolManual::default();
-        let sender = _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
-        Self { sender, io_timeout }
+        match _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name)) {
+            Err(e) => Err(e.into()),
+            Ok(sender) => Ok(Self {
+                sender: _py.allow_threads(move || sender.into_sender_with_spawned_recver()),
+                io_timeout,
+            }),
+        }
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {
@@ -43,7 +48,7 @@ impl CltAuto {
         connect_timeout: Option<f64>,
         io_timeout: Option<f64>,
         name: Option<&str>,
-    ) -> Self {
+    ) -> PyResult<Self> {
         let callback = CltOuchProtocolAutoCallback::new_ref(callback);
         let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
 
@@ -57,9 +62,13 @@ impl CltAuto {
             Duration::from_secs_f64(svc_max_hbeat_interval),
         );
 
-        let sender = _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name).unwrap().into_sender_with_spawned_recver_ref());
-
-        Self { sender, io_timeout }
+        match _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name)) {
+            Err(e) => Err(e.into()),
+            Ok(sender) => Ok(Self {
+                sender: _py.allow_threads(move || sender.into_sender_with_spawned_recver_ref()),
+                io_timeout,
+            }),
+        }
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {

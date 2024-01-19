@@ -50,3 +50,34 @@ for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py *******
 cargo expand --package ouch_model
 ```
 
+# Ubuntu Pod 
+## Build image
+* goto `links` project and run a section `docker build ...` from `<links>/readme/dev-how-to/ubuntu-pod/readme.md`
+
+## To run
+```shell
+# the cap-add are required for tshark to see eth0 and other network interfaces
+docker run \
+    --rm --interactive --tty \
+    --user "$(id -u)":"$(id -g)" \
+    --volume "$(pwd)/..":/home/$(whoami)/dev \
+    --workdir /home/$(whoami)/dev \
+    --name links_on_ubuntu_pod \
+    --cap-add=NET_RAW --cap-add=NET_ADMIN -it \
+    links_on_ubuntu_image
+```
+
+## To run tests
+```shell
+docker exec \
+    --interactive --tty \
+    links_on_ubuntu_pod \
+    bash -c " \
+    rustup default stable ; \
+    pushd ouch ; \
+    cargo nextest run --all-features ; \
+    cargo nextest run --examples --all-features ; \
+    cargo test --doc --all-features; \
+    cargo doc --all-features; \
+    "
+```
