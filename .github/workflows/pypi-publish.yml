@@ -6,9 +6,6 @@ on:
         description: 'Environment to run tests against'
         type: environment
         required: true
-  # push:
-  #     tags:
-  #       - '*rc'
 jobs:  
   maturin-publish-test-pypi:
     uses: softstream-link/workflows/.github/workflows/maturin-pypi-publish.yml@v1

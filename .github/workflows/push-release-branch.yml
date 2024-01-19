@@ -1,4 +1,4 @@
-name: Branch `release*`
+name: Pull/Release Control Build
 on:
   push:
      branches:

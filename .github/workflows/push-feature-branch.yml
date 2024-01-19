@@ -1,4 +1,4 @@
-name: Branch `feature*`
+name: Push Test Build
 on:
   push:
       branches:
