@@ -15,11 +15,11 @@ def test_con_type():
 def test_doc():
     logging.info(ouch_connect.__doc__)
 
-    # logging.info(SvcManual.__doc__)
-    # assert SvcManual.__doc__ is not None
+    logging.info(SvcManual.__doc__)
+    assert SvcManual.__doc__ is not None
 
-    # logging.info(SvcManual.is_connected.__doc__)
-    # assert SvcManual.is_connected.__doc__ is not None
+    logging.info(SvcManual.is_connected.__doc__)
+    assert SvcManual.is_connected.__doc__ is not None
 
     logging.info(CltManual.__doc__)
     assert CltManual.__doc__ is not None

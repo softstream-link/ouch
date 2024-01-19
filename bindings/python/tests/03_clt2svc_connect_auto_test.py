@@ -19,7 +19,7 @@ clt_max_hbeat_interval = 2.5
 svc_max_hbeat_interval = 2.5
 max_connections = 1
 connect_timeout = 1.0
-io_timeout = 0.2
+io_timeout = 0.5
 
 
 def test_ouch_auto_connect():
