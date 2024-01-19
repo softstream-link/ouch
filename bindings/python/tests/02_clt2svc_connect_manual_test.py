@@ -1,5 +1,6 @@
 import logging
 from time import sleep
+from random import randint
 from ouch_connect import (
     CltManual,
     SvcManual,
@@ -11,32 +12,23 @@ logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
-addr = "127.0.0.1:8080"
+addr = f"127.0.0.1:{randint(1_000, 65_000)}"
 max_connections = 1
-io_timeout = 0.01
+io_timeout = 0.5
 connect_timeout = 1.0
+
 
 def test_ouch_manual_connect():
     with (
         SvcManual(addr, callback, max_connections, io_timeout, name="svc-ouch") as svc,
-        CltManual("127.0.0.1:8080", callback, connect_timeout, io_timeout, name="clt-ouch") as clt,
+        CltManual(addr, callback, connect_timeout, io_timeout, name="clt-ouch") as clt,
     ):
         assert clt.is_connected() and svc.is_connected()
 
         log.info(f"svc: {svc}")
         log.info(f"clt: {clt}")
 
-        clt.send(
-            {
-                "LoginRequest": {
-                    "username": "dummy",
-                    "password": "dummy",
-                    "session_id": "session #1",
-                    "sequence_number": "1",
-                    "hbeat_timeout_ms": "1000",
-                }
-            }
-        )
+        clt.send({"LoginRequest": {"username": "dummy", "password": "dummy", "session_id": "session #1", "sequence_number": "1"}})
         svc.send({"LoginAccepted": {"session_id": "session #1", "sequence_number": "1"}})
 
         clt.send({"HBeat": {}})
@@ -44,6 +36,7 @@ def test_ouch_manual_connect():
 
         sleep(0.5)
         log.info("********** awaiting receipt of HBeat messages **********")
+
 
 if __name__ == "__main__":
     test_ouch_manual_connect()

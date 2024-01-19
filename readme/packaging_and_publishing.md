@@ -1,4 +1,5 @@
-# local build Rust only, does need system python in order to compile ouch_bindings_python 
+# Local build & test rust only
+* `ouch_bindings_python` **REQUIRES** system python in order to compile  
 ```shell
 cargo nextest run --all-features &&
 cargo nextest run --examples --all-features &&
@@ -7,35 +8,41 @@ cargo doc --all-features --no-deps &&
 cargo clippy --all-features -- --deny warnings
 ```
 
-# local build on micromamba python with python tests
+# Local build & test rust & python extension
+* `ouch_bindings_python` will use `micromamba` env which has `python, maturin, pytest`
 ```shell
-micromamba create --name ouch_build_env --yes maturin pytest &&
+micromamba create --name ouch_build_env --yes python maturin pytest &&
 micromamba run --name ouch_build_env cargo nextest run --all-features &&
 micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
 micromamba run --name ouch_build_env cargo test --doc --all-features &&
 micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
+micromamba run --name ouch_build_env cargo doc --all-features &&
 micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
 micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
-# Testing the wheel on Non Latest python
-## create ouch_build_env
-```shell
-micromamba create --name ouch_build_env --yes maturin pytest
+
+# Regenerate `ouch_connect.pyi` file
+```shell    
+micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect pip install cogapp
+micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect cog -r ouch_connect.pyi
 ```
-## create ouch_test_env & run example
+
+# Testing python extension
+* test with minimum python version `3.10`
+* NOTE: must have `ouch_build_env` already created from prior step
 ```shell
 micromamba create --name ouch_test_env --yes python=3.10 &&
 (rm -f ./target/wheels/*.whl || true) &&
 micromamba run --name ouch_build_env --cwd ./bindings/python maturin build &&
 micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
-micromamba run --name ouch_test_env  python ./bindings/python/tests/02_clt2svc_connect_manual_test.py
 for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done
 ```
 
-# Test pypi wheel
+# Testing pypi wheel
 ```shell
 micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install -i https://test.pypi.org/simple/ ouch-connect
+micromamba run --name ouch_pypi_env pip install ouch-connect
+for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_pypi_env  python $py ; done
 ```
 
 # Expand Model
@@ -43,3 +50,34 @@ micromamba run --name ouch_pypi_env pip install -i https://test.pypi.org/simple/
 cargo expand --package ouch_model
 ```
 
+# Ubuntu Pod 
+## Build image
+* goto `links` project and run a section `docker build ...` from `<links>/readme/dev-how-to/ubuntu-pod/readme.md`
+
+## To run
+```shell
+# the cap-add are required for tshark to see eth0 and other network interfaces
+docker run \
+    --rm --interactive --tty \
+    --user "$(id -u)":"$(id -g)" \
+    --volume "$(pwd)/..":/home/$(whoami)/dev \
+    --workdir /home/$(whoami)/dev \
+    --name links_on_ubuntu_pod \
+    --cap-add=NET_RAW --cap-add=NET_ADMIN -it \
+    links_on_ubuntu_image
+```
+
+## To run tests
+```shell
+docker exec \
+    --interactive --tty \
+    links_on_ubuntu_pod \
+    bash -c " \
+    rustup default stable ; \
+    pushd ouch ; \
+    cargo nextest run --all-features ; \
+    cargo nextest run --examples --all-features ; \
+    cargo test --doc --all-features; \
+    cargo doc --all-features; \
+    "
+```

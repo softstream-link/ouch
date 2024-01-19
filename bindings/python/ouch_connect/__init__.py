@@ -1,19 +1,16 @@
-"""
-This module provides a Python interface to the `ouch_connect_nonblocking` library.
-
-Below contains a list of valid message formats that both Clt & Svc can send. Examples include a full form for each message, however many of the 
-fields are optional and can be omitted.
-
-"""
-
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
 
 # from typing import Any
 import logging
+
 from .ouch_connect import *
+
+# https://www.maturin.rs/project_layout#pure-rust-project
+__doc__ = ouch_connect.__doc__
+if hasattr(ouch_connect, "__all__"):
+    __all__ = ouch_connect.__all__  # type: ignore
 
 
 class ConType(Enum):
@@ -49,14 +46,10 @@ class LoggerCallback(Callback):
         self.recv_level = recv_level
 
     def on_sent(self, con_id: ConId, msg: MsgDict):
-        logging.getLogger(__name__).log(
-            self.sent_level, f"on_sent: {con_id} {type(msg).__name__}({msg})"
-        )
+        logging.getLogger(__name__).log(self.sent_level, f"on_sent: {con_id} {type(msg).__name__}({msg})")
 
     def on_recv(self, con_id: ConId, msg: MsgDict):
-        logging.getLogger(__name__).log(
-            self.recv_level, f"on_recv: {con_id} {type(msg).__name__}({msg})"
-        )
+        logging.getLogger(__name__).log(self.recv_level, f"on_recv: {con_id} {type(msg).__name__}({msg})")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}, sent_level={self.sent_level}, recv_level={self.recv_level}"

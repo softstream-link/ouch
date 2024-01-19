@@ -5,14 +5,13 @@ pub type SvcOuch<Protocol, CallbackRecvSend> = SvcSoupBinTcp<Protocol, CallbackR
 pub type SvcOuchSender<Protocol, CallbackSend> = SvcSoupBinTcpSender<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
 pub type SvcOuchSenderRef<Protocol, CallbackSend> = SvcSoupBinTcpSenderRef<Protocol, CallbackSend, OUCH_MAX_FRAME_SIZE>;
 
-
 #[cfg(test)]
 mod test {
 
     use std::num::NonZeroUsize;
 
     use crate::prelude::*;
-    use links_core::unittest::setup;
+    use links_nonblocking::prelude::{unittest::setup, *};
     use log::info;
 
     #[test]

@@ -1,14 +1,14 @@
 use byteserde::prelude::*;
 use byteserde_derive::{ByteDeserializeSlice, ByteSerializeStack, ByteSerializedLenOf, ByteSerializedSizeOf};
 use byteserde_types::{char_ascii, f32_tuple, string_ascii_fixed, u16_tuple, u32_tuple, u64_tuple};
-use links_core::core::macros::short_type_name;
+use super::field_types::short_type_name;
 use serde::{Deserialize, Serialize};
 use serde::{Deserializer, Serializer};
 use std::mem::size_of;
 
 pub use optional_values::{
-    bbo_weight_indicator::*, customer_type::*, discretion_peg_offset::*, discretion_price::*, discretion_price_type::*, display_price::*, display_qty::*, expire_time::*, firm::*, group_id::*, handle_inst::*, max_floor::*, min_qty::*, peg_offset::*, post_only::*, price_type::*, random_reserves::*,
-    route::*, secondary_ord_ref_num::*, shares_located::*, trade_now::*,
+    bbo_weight_indicator::*, customer_type::*, discretion_peg_offset::*, discretion_price::*, discretion_price_type::*, display_price::*, display_qty::*, expire_time::*, firm::*, group_id::*, handle_inst::*, max_floor::*, min_qty::*, peg_offset::*,
+    post_only::*, price_type::*, random_reserves::*, route::*, secondary_ord_ref_num::*, shares_located::*, trade_now::*,
 };
 
 pub trait OptionTag {
@@ -481,7 +481,6 @@ mod optional_values {
     // THIS IS A UN-SIGNED PRICE
     pub mod discretion_price {
         use super::*;
-        use links_core::core::macros::short_type_name;
 
         u64_tuple!(DiscretionPrice, "be", #[derive(ByteSerializeStack, ByteDeserializeSlice, ByteSerializedSizeOf, ByteSerializedLenOf, PartialEq, Clone, Copy)]);
         option_tag!(DiscretionPrice, 9);

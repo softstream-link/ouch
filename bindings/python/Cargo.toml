@@ -22,6 +22,7 @@ crate-type = [
 [build-dependencies]
 pyo3-build-config = { version = "0.20" } # used in the build.rs
 
+
 [dependencies]
 # py03 feature needed for 'cargo build' to work otherwise 'maturin develop' is configured via pyproject.toml
 # *********  specifically - https://pyo3.rs/v0.20.2/building_and_distribution#macos
@@ -34,6 +35,8 @@ pyo3 = { version = "0.20", features = [
 ] }
 pyo3-log = "0.9" # allows rust logging to write to python logging
 
+links_nonblocking = { workspace = true }
+links_bindings_python = { workspace = true }
 
 ouch_connect_nonblocking = { workspace = true, features = ["unittest"] }
 serde_json = { workspace = true }

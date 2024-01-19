@@ -27,19 +27,20 @@ chrono = { workspace = true }
 
 # root data model
 soupbintcp_model = { workspace = true, optional = true }
-links_core = { workspace = true }
+links_nonblocking = { workspace = true }
+
 
 [dev-dependencies]
 # benchmarking
 criterion = { workspace = true }
-
+links_core = { workspace = true }
 # logging
 log = { workspace = true }
 env_logger = { workspace = true }
 colored = { workspace = true }
 text-diff = { workspace = true }
 # testing
-links_core = { workspace = true, features = ["unittest"] }
+links_nonblocking = { workspace = true, features = ["unittest"] }
 soupbintcp_model = { workspace = true, features = ["unittest"] }
 serde_json = { workspace = true }
 

@@ -1,6 +1,6 @@
 use std::{error::Error, num::NonZeroUsize, thread::Builder, time::Instant};
 
-use links_core::unittest::setup::{self};
+use links_nonblocking::prelude::{unittest::setup, *};
 use log::info;
 use ouch_connect_nonblocking::prelude::*;
 
