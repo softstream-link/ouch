@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 use std::time::Duration;
 
 create_callback_for_messenger!(CltOuchProtocolManual, CltOuchProtocolManualCallback);
-create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProtocolManualCallback);
+create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProtocolManualCallback, "ouch_connect");
 
 #[pymethods]
 impl CltManual {
@@ -29,7 +29,7 @@ impl CltManual {
 }
 
 create_callback_for_messenger!(CltOuchProtocolAuto, CltOuchProtocolAutoCallback);
-create_clt_sender!(CltAuto, CltOuchSenderRef, CltOuchProtocolAuto, CltOuchProtocolAutoCallback);
+create_clt_sender!(CltAuto, CltOuchSenderRef, CltOuchProtocolAuto, CltOuchProtocolAutoCallback, "ouch_connect");
 
 #[pymethods]
 impl CltAuto {
@@ -48,28 +48,29 @@ impl CltAuto {
         connect_timeout: Option<f64>,
         io_timeout: Option<f64>,
         name: Option<&str>,
-    ) -> PyResult<Self> {
-        let callback = CltOuchProtocolAutoCallback::new_ref(callback);
-        let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
+    ) -> PyResult<Py<Self>> {
+        let sender = {
+            let callback = CltOuchProtocolAutoCallback::new_ref(callback.clone());
+            let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
 
-        let protocol = CltOuchProtocolAuto::new(
-            UserName::from(usr),
-            Password::from(pwd),
-            SessionId::from(session),
-            SequenceNumber::from(sequence),
-            io_timeout.map(Duration::from_secs_f64).unwrap_or(Duration::from_secs(0)),
-            Duration::from_secs_f64(clt_max_hbeat_interval),
-            Duration::from_secs_f64(svc_max_hbeat_interval),
-        );
+            let protocol = CltOuchProtocolAuto::new(
+                UserName::from(usr),
+                Password::from(pwd),
+                SessionId::from(session),
+                SequenceNumber::from(sequence),
+                io_timeout.map(Duration::from_secs_f64).unwrap_or(Duration::from_secs(0)),
+                Duration::from_secs_f64(clt_max_hbeat_interval),
+                Duration::from_secs_f64(svc_max_hbeat_interval),
+            );
 
-        match _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name)) {
-            Err(e) => Err(e.into()),
-            Ok(sender) => Ok(Self {
-                sender: _py.allow_threads(move || sender.into_sender_with_spawned_recver_ref()),
-                io_timeout,
-            }),
-        }
-        patch callback for both clt and svc
+            let sender = _py
+                .allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name))?
+                .into_sender_with_spawned_recver_ref();
+            Py::new(_py, Self { sender, io_timeout })?
+        };
+
+        patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("CltAuto", Self));
+        Ok(sender)
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {

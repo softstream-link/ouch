@@ -8,8 +8,7 @@ log = logging.getLogger(__name__)
 
 
 callback = LoggerCallback(logging.INFO, logging.DEBUG)
-# addr = "127.0.0.1:8081"
-addr = f"127.0.0.1:{randint(1_000, 65_000)}"
+addr = f"127.0.0.1:{randint(2_000, 65_000)}"
 usr = "dummy"
 pwd = "dummy"
 session = ""

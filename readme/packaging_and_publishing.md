@@ -13,13 +13,13 @@ cargo clippy --all-features -- --deny warnings
 ```shell
 if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
 micromamba create --name ouch_build_env --yes python maturin pytest &&
-micromamba run --name ouch_build_env cargo nextest run --all-features &&
-micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
-micromamba run --name ouch_build_env cargo test --doc --all-features &&
-micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
-micromamba run --name ouch_build_env cargo doc --all-features &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
-micromamba run --name ouch_build_env --cwd ./bindings/python pytest
+micromamba run --name ouch_build_env --cwd ${PREFIX} cargo nextest run --all-features &&
+micromamba run --name ouch_build_env --cwd ${PREFIX} cargo nextest run --examples --all-features && 
+micromamba run --name ouch_build_env --cwd ${PREFIX} cargo test --doc --all-features &&
+micromamba run --name ouch_build_env --cwd ${PREFIX} cargo clippy --all-features -- --deny warnings &&
+micromamba run --name ouch_build_env --cwd ${PREFIX} cargo doc --all-features &&
+micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python maturin develop &&
+micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python pytest
 ```
 
 # Regenerate `ouch_connect.pyi` file
@@ -36,9 +36,9 @@ micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python/ouch_connec
 if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
 micromamba create --name ouch_test_env --yes python=3.11 pytest &&
 (rm -f ./target/wheels/*.whl || true) &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin build &&
-micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
-micromamba run --name ouch_test_env  --cwd ./bindings/python pytest
+micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python maturin build &&
+micromamba run --name ouch_test_env  --cwd ${PREFIX} pip install --ignore-installed ./target/wheels/*.whl &&
+micromamba run --name ouch_test_env  --cwd ${PREFIX}/bindings/python pytest
 ```
 <!-- for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done -->
 
@@ -46,8 +46,8 @@ micromamba run --name ouch_test_env  --cwd ./bindings/python pytest
 ```shell
 if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
 micromamba create --name ouch_pypi_env --yes python=3.11
-micromamba run --name ouch_pypi_env     pip install ouch-connect
-micromamba run --name ouch_pypi_env     pytest
+micromamba run --name ouch_pypi_env  --cwd ${PREFIX}/bindings/python pip install ouch-connect
+micromamba run --name ouch_pypi_env  --cwd ${PREFIX}/bindings/python pytest
 
 ```
 

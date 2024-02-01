@@ -53,6 +53,7 @@
         "nextest",
         "NNBO",
         "nonblocking",
+        "NOTSET",
         "popd",
         "pushd",
         "pyclass",

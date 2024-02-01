@@ -3,10 +3,11 @@ This package is python extension module for rust crate [ouch_connect_nonblocking
 ## Installation
 
 ```shell
-micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install ouch-connect
-micromamba run --name ouch_pypi_env pip install markdown-code-runner
-micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readme.md
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+micromamba create --name ouch_pypi_env --yes python=3.11
+micromamba run --name ouch_pypi_env --cwd ${PREFIX} pip install ouch-connect links-connect
+micromamba run --name ouch_pypi_env --cwd ${PREFIX} pip install markdown-code-runner
+micromamba run --name ouch_pypi_env --cwd ${PREFIX} markdown-code-runner ./bindings/python/readme.md
 ```
 
 ## Usage
@@ -16,15 +17,15 @@ from time import sleep
 from ouch_connect import (
     CltAuto,
     SvcAuto,
-    LoggerCallback,
 )
+from links_connect.callbacks import LoggerCallback
 
 
-logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
+logging.basicConfig(format="%(asctime)-15s [%(threadName)10s %(levelname)8s] %(message)s \t%(filename)s:%(lineno)d")
 logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
-callback = LoggerCallback(logging.NOTSET)
+callback = LoggerCallback(sent_level=logging.NOTSET)
 addr = "127.0.0.1:8081"
 usr = "dummy"
 pwd = "dummy"
