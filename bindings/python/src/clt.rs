@@ -10,17 +10,17 @@ create_clt_sender!(CltManual, CltOuchSender, CltOuchProtocolManual, CltOuchProto
 #[pymethods]
 impl CltManual {
     #[new]
-    fn new(_py: Python<'_>, host: &str, callback: PyObject, connect_timeout: Option<f64>, io_timeout: Option<f64>, name: Option<&str>) -> PyResult<Self> {
-        let callback = CltOuchProtocolManualCallback::new_ref(callback);
-        let connect_timeout = timeout_selector(connect_timeout, Some(1.0));
-        let protocol = CltOuchProtocolManual::default();
-        match _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name)) {
-            Err(e) => Err(e.into()),
-            Ok(sender) => Ok(Self {
-                sender: _py.allow_threads(move || sender.into_sender_with_spawned_recver()),
-                io_timeout,
-            }),
-        }
+    #[pyo3(signature = (host, callback, connect_timeout = 1.0, io_timeout = 0.5, name = None))]
+    fn new(_py: Python<'_>, host: &str, callback: PyObject, connect_timeout: f64, io_timeout: f64, name: Option<&str>) -> PyResult<Py<Self>> {
+        let sender = {
+            let callback = CltOuchProtocolManualCallback::new_ref(callback.clone());
+            let connect_timeout = Duration::from_secs_f64(connect_timeout);
+            let protocol = CltOuchProtocolManual::default();
+            let sender = _py.allow_threads(move || CltOuch::connect(host, connect_timeout, connect_timeout / 10, callback, protocol, name))?.into_sender_with_spawned_recver();
+            Py::new(_py, Self { sender, io_timeout: Some(io_timeout) })?
+        };
+        patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("CltManual", Self));
+        Ok(sender)
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {
@@ -69,6 +69,7 @@ impl CltAuto {
                 io_timeout,
             }),
         }
+        patch callback for both clt and svc
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {

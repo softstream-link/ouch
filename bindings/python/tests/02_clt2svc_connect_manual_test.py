@@ -1,14 +1,9 @@
 import logging
 from time import sleep
 from random import randint
-from ouch_connect import (
-    CltManual,
-    SvcManual,
-    LoggerCallback,
-)
+from ouch_connect import CltManual, SvcManual
+from links_connect.callbacks import LoggerCallback
 
-logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
-logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
@@ -39,4 +34,6 @@ def test_ouch_manual_connect():
 
 
 if __name__ == "__main__":
-    test_ouch_manual_connect()
+    import pytest
+
+    pytest.main([__file__])

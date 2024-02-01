@@ -1,33 +1,26 @@
 import logging
-from math import log
-
-logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
-logging.getLogger().setLevel(logging.INFO)
 import ouch_connect
-from ouch_connect import ConType, CltManual, SvcManual
+from ouch_connect import CltManual, SvcManual
 
-
-def test_con_type():
-    con_ty = ConType.Initiator
-    logging.info(con_ty)
+log = logging.getLogger(__name__)
 
 
 def test_doc():
-    logging.info(ouch_connect.__doc__)
+    log.info(ouch_connect.__doc__)
 
-    logging.info(SvcManual.__doc__)
+    log.info(SvcManual.__doc__)
     assert SvcManual.__doc__ is not None
 
-    logging.info(SvcManual.is_connected.__doc__)
+    log.info(SvcManual.is_connected.__doc__)
     assert SvcManual.is_connected.__doc__ is not None
 
-    logging.info(CltManual.__doc__)
+    log.info(CltManual.__doc__)
     assert CltManual.__doc__ is not None
 
-    logging.info(CltManual.is_connected.__doc__)
+    log.info(CltManual.is_connected.__doc__)
     assert CltManual.is_connected.__doc__ is not None
 
-    logging.info(CltManual.send.__doc__)
+    log.info(CltManual.send.__doc__)
     assert CltManual.send.__doc__ is not None
 
     # logging.info(type(CltManual.msg_samples))
@@ -36,5 +29,6 @@ def test_doc():
 
 
 if __name__ == "__main__":
-    test_con_type()
-    test_doc()
+    import pytest
+
+    pytest.main([__file__])

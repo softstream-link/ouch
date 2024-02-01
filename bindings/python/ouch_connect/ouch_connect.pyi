@@ -6,7 +6,7 @@
 # cog.out(
 # f"""
 # from types import TracebackType
-# from ouch_connect import Callback, MsgDict
+# from links_connect.callbacks import Callback
 # """
 # )
 # for name in names:
@@ -24,13 +24,13 @@
 #   if name == "CltManual":
 #    cog.out(
 # f"""
-#     def __init__(self, host: str, callback: Callback, connect_timeout: float | None = None, io_timeout: float | None = None, name: str | None = None) -> None: ...
+#     def __init__(self, host: str, callback: Callback, connect_timeout: float = 1., io_timeout: float = .5, name: str | None = None) -> None: ...
 # """)
 #
 #   if name == "SvcManual":
 #    cog.out(
 # f"""
-#     def __init__(self, host: str, callback: Callback, max_connections: int | None = None, io_timeout: float | None = None, name: str | None = None) -> None: ...
+#     def __init__(self, host: str, callback: Callback, max_connections: int = 1, io_timeout: float = .5, name: str | None = None) -> None: ...
 # """)
 #
 #   if name == "CltAuto":
@@ -47,7 +47,7 @@
 # ]]]
 
 from types import TracebackType
-from ouch_connect import Callback, MsgDict
+from links_connect.callbacks import Callback
 
 class CltManual:
     def __enter__(self) -> CltManual: ...
@@ -58,7 +58,7 @@ class CltManual:
     def msg_samples(self) -> list[str]: ...
 
 
-    def __init__(self, host: str, callback: Callback, connect_timeout: float | None = None, io_timeout: float | None = None, name: str | None = None) -> None: ...
+    def __init__(self, host: str, callback: Callback, connect_timeout: float = 1., io_timeout: float = .5, name: str | None = None) -> None: ...
 
 class SvcManual:
     def __enter__(self) -> SvcManual: ...
@@ -69,7 +69,7 @@ class SvcManual:
     def msg_samples(self) -> list[str]: ...
 
 
-    def __init__(self, host: str, callback: Callback, max_connections: int | None = None, io_timeout: float | None = None, name: str | None = None) -> None: ...
+    def __init__(self, host: str, callback: Callback, max_connections: int = 1, io_timeout: float = .5, name: str | None = None) -> None: ...
 
 class CltAuto:
     def __enter__(self) -> CltAuto: ...

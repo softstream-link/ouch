@@ -10,12 +10,19 @@ create_svc_sender!(SvcManual, SvcOuchSender, SvcOuchProtocolManual, SvcOuchProto
 #[pymethods]
 impl SvcManual {
     #[new]
-    fn new(_py: Python<'_>, host: &str, callback: PyObject, max_connections: Option<NonZeroUsize>, io_timeout: Option<f64>, name: Option<&str>) -> Self {
-        let max_connections = max_connections.unwrap_or(NonZeroUsize::new(1).unwrap());
-        let callback = SvcOuchProtocolManualCallback::new_ref(callback);
-        let protocol = SvcOuchProtocolManual::default();
-        let sender = _py.allow_threads(move || SvcOuch::bind(host, max_connections, callback, protocol, name).unwrap().into_sender_with_spawned_recver());
-        Self { sender, io_timeout }
+    #[pyo3(signature = (host, callback, max_connections = 1, io_timeout = 0.5, name = None))]
+    fn new(_py: Python<'_>, host: &str, callback: PyObject, max_connections: usize, io_timeout: f64, name: Option<&str>) -> PyResult<Py<Self>> {
+        let sender = {
+            let max_connections = NonZeroUsize::new(max_connections).unwrap();
+
+            let svc_callback = SvcOuchProtocolManualCallback::new_ref(callback.clone());
+            let protocol = SvcOuchProtocolManual::default();
+            let sender = _py.allow_threads(move || SvcOuch::bind(host, max_connections, svc_callback, protocol, name).unwrap().into_sender_with_spawned_recver());
+            Py::new(_py, Self { sender, io_timeout: Some(io_timeout) })?
+        };
+        patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("SvcManual", Self));
+
+        Ok(sender)
     }
     #[classattr]
     fn msg_samples() -> Vec<String> {

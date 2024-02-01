@@ -11,6 +11,7 @@ cargo clippy --all-features -- --deny warnings
 # Local build & test rust & python extension
 * `ouch_bindings_python` will use `micromamba` env which has `python, maturin, pytest`
 ```shell
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
 micromamba create --name ouch_build_env --yes python maturin pytest &&
 micromamba run --name ouch_build_env cargo nextest run --all-features &&
 micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
@@ -22,27 +23,32 @@ micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
 
 # Regenerate `ouch_connect.pyi` file
-```shell    
-micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect pip install cogapp
-micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect cog -r ouch_connect.pyi
+```shell
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python/ouch_connect pip install cogapp
+micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python/ouch_connect cog -r ouch_connect.pyi
 ```
 
 # Testing python extension
-* test with minimum python version `3.10`
+* test with minimum python version `3.11`
 * NOTE: must have `ouch_build_env` already created from prior step
 ```shell
-micromamba create --name ouch_test_env --yes python=3.10 &&
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+micromamba create --name ouch_test_env --yes python=3.11 pytest &&
 (rm -f ./target/wheels/*.whl || true) &&
 micromamba run --name ouch_build_env --cwd ./bindings/python maturin build &&
 micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
-for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done
+micromamba run --name ouch_test_env  --cwd ./bindings/python pytest
 ```
+<!-- for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done -->
 
 # Testing pypi wheel
 ```shell
-micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install ouch-connect
-for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_pypi_env  python $py ; done
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+micromamba create --name ouch_pypi_env --yes python=3.11
+micromamba run --name ouch_pypi_env     pip install ouch-connect
+micromamba run --name ouch_pypi_env     pytest
+
 ```
 
 # Expand Model
