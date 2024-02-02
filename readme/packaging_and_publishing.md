@@ -1,6 +1,8 @@
 # Local build & test rust only
 * `ouch_bindings_python` **REQUIRES** system python in order to compile  
 ```shell
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+pushd ${PREFIX}
 cargo nextest run --all-features &&
 cargo nextest run --examples --all-features &&
 cargo test --doc --all-features &&
@@ -11,22 +13,24 @@ cargo clippy --all-features -- --deny warnings
 # Local build & test rust & python extension
 * `ouch_bindings_python` will use `micromamba` env which has `python, maturin, pytest`
 ```shell
-if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi
+cd ${CWD}
 micromamba create --name ouch_build_env --yes python maturin pytest &&
-micromamba run --name ouch_build_env --cwd ${PREFIX} cargo nextest run --all-features &&
-micromamba run --name ouch_build_env --cwd ${PREFIX} cargo nextest run --examples --all-features && 
-micromamba run --name ouch_build_env --cwd ${PREFIX} cargo test --doc --all-features &&
-micromamba run --name ouch_build_env --cwd ${PREFIX} cargo clippy --all-features -- --deny warnings &&
-micromamba run --name ouch_build_env --cwd ${PREFIX} cargo doc --all-features &&
-micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python maturin develop &&
-micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python pytest
+micromamba run --name ouch_build_env cargo nextest run --all-features &&
+micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
+micromamba run --name ouch_build_env cargo test --doc --all-features &&
+micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
+micromamba run --name ouch_build_env cargo doc --all-features &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
+micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
 
 # Regenerate `ouch_connect.pyi` file
 ```shell
-if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
-micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python/ouch_connect pip install cogapp
-micromamba run --name ouch_build_env --cwd ${PREFIX}/bindings/python/ouch_connect cog -r ouch_connect.pyi
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi
+cd ${CWD}
+micromamba run --name ouch_build_env pip install cogapp
+micromamba run --name ouch_build_env cog -r ./bindings/python/ouch_connect/ouch_connect.pyi
 ```
 
 # Testing python extension

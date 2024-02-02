@@ -8,15 +8,12 @@ log = logging.getLogger(__name__)
 
 callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
 addr = f"127.0.0.1:{randint(1_000, 65_000)}"
-max_connections = 1
-io_timeout = 0.5
-connect_timeout = 1.0
 
 
 def test_ouch_manual_connect():
     with (
-        SvcManual(addr, callback, max_connections, io_timeout, name="svc-ouch") as svc,
-        CltManual(addr, callback, connect_timeout, io_timeout, name="clt-ouch") as clt,
+        SvcManual(addr, callback, **dict(name="svc-ouch")) as svc,
+        CltManual(addr, callback, **dict(name="clt-ouch")) as clt,
     ):
         assert clt.is_connected() and svc.is_connected()
 

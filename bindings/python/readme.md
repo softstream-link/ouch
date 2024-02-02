@@ -3,66 +3,46 @@ This package is python extension module for rust crate [ouch_connect_nonblocking
 ## Installation
 
 ```shell
-if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
-micromamba create --name ouch_pypi_env --yes python=3.11
-micromamba run --name ouch_pypi_env --cwd ${PREFIX} pip install ouch-connect links-connect
-micromamba run --name ouch_pypi_env --cwd ${PREFIX} pip install markdown-code-runner
-micromamba run --name ouch_pypi_env --cwd ${PREFIX} markdown-code-runner ./bindings/python/readme.md
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD="." ; fi
+cd ${CWD}
+micromamba create --name ouch_pypi_env --yes python
+micromamba run --name ouch_pypi_env pip install ouch-connect links-connect
+micromamba run --name ouch_pypi_env pip install markdown-code-runner
+micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readme.md
 ```
 
 ## Usage
 ```python markdown-code-runner
 import logging
 from time import sleep
-from ouch_connect import (
-    CltAuto,
-    SvcAuto,
-)
-from links_connect.callbacks import LoggerCallback
+from ouch_connect import CltAuto, SvcAuto
+from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent
 
 
-logging.basicConfig(format="%(asctime)-15s [%(threadName)10s %(levelname)8s] %(message)s \t%(filename)s:%(lineno)d")
+
+logging.basicConfig(format="%(asctime)-15s [%(threadName)10s|%(levelname)8s] %(message)s \t%(filename)s:%(lineno)d")
 logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
+addr = "127.0.0.1:8080"
 
-callback = LoggerCallback(sent_level=logging.NOTSET)
-addr = "127.0.0.1:8081"
-usr = "dummy"
-pwd = "dummy"
-session = ""
-sequence = 0
-clt_max_hbeat_interval = 2.5
-svc_max_hbeat_interval = 2.5
-max_connections = 1
-connect_timeout = 1.0
-io_timeout = 0.1
+class SimulatorExample(DecoratorDriver):
+    @on_recv({"Dbg": {}})
+    def on_dbg(self, con_id, msg):
+        self.sender.send({"Dbg": {"text": "Hello from Simulator"}})
 
+    @on_recv({})
+    def on_all_recv(self, con_id, msg):
+        pass
+
+    @on_sent({})
+    def on_all_sent(self, con_id, msg):
+        pass
+
+log_clbk = LoggerCallback(sent_level=logging.NOTSET)
+sim_clbk = SimulatorExample()
 with (
-    SvcAuto(
-        addr,
-        callback,
-        usr,
-        pwd,
-        session,
-        clt_max_hbeat_interval,
-        svc_max_hbeat_interval,
-        max_connections,
-        io_timeout,
-        name="svc-ouch",
-    ) as svc,
-    CltAuto(
-        addr,
-        callback,
-        usr,
-        pwd,
-        session,
-        sequence,
-        clt_max_hbeat_interval,
-        svc_max_hbeat_interval,
-        connect_timeout,
-        io_timeout,
-        name="clt-ouch",
-    ) as clt,
+    SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
+    CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
 ):
     assert clt.is_connected() and svc.is_connected()
 
@@ -70,7 +50,6 @@ with (
     log.info(f"clt: {clt}")
 
     clt.send({"Dbg": {"text": "Hello from Clt"}})
-    svc.send({"Dbg": {"text": "Hello from Svc"}})
 
     sleep(0.5)
     log.info("********** awaiting receipt of Dbg messages **********")
