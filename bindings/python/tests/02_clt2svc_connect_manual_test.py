@@ -2,11 +2,12 @@ import logging
 from time import sleep
 from random import randint
 from ouch_connect import CltManual, SvcManual
-from links_connect.callbacks import LoggerCallback
+from links_connect.callbacks import LoggerCallback, MemoryStoreCallback
 
 log = logging.getLogger(__name__)
 
-callback = LoggerCallback(sent_level=logging.NOTSET, recv_level=logging.INFO)
+store = MemoryStoreCallback()
+callback = LoggerCallback(sent_level=logging.NOTSET) + store
 addr = f"127.0.0.1:{randint(1_000, 65_000)}"
 
 
@@ -26,8 +27,11 @@ def test_ouch_manual_connect():
         clt.send({"HBeat": {}})
         svc.send({"HBeat": {}})
 
-        sleep(0.5)
-        log.info("********** awaiting receipt of HBeat messages **********")
+        found = store.find_recv("svc-ouch", {"LoginRequest": {}})
+        assert found is not None and found.msg["LoginRequest"]["username"] == "dummy"
+
+        found = store.find_recv("clt-ouch", {"LoginAccepted": {}})
+        assert found is not None and found.msg["LoginAccepted"]["sequence_number"] == "1"
 
 
 if __name__ == "__main__":

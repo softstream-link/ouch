@@ -2,7 +2,7 @@ import logging
 from time import sleep
 from random import randint
 from ouch_connect import CltAuto, SvcAuto
-from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent
+from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent, MemoryStoreCallback
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +24,9 @@ def test_ouch_auto_connect():
         def on_all_sent(self, con_id, msg):
             pass
 
-    sim_clbk = SimulatorExample()
-    log_clbk = LoggerCallback(logging.INFO, logging.DEBUG)
+    store = MemoryStoreCallback()
+    sim_clbk = SimulatorExample() + store
+    log_clbk = LoggerCallback(logging.INFO, logging.DEBUG) + store
     with (
         SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
         CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
@@ -36,10 +37,14 @@ def test_ouch_auto_connect():
         log.info(f"clt: {clt}")
 
         clt.send({"Dbg": {"text": "Hello from Clt"}})
-        # svc.send({"Dbg": {"text": "Hello from Svc"}})
 
-        sleep(0.5)
-        log.info("********** awaiting receipt of Dbg messages **********")
+        found = store.find_recv(name="svc-ouch", filter={"Dbg": {}})
+        log.info(f"found: {found}")
+        assert found is not None and found.msg["Dbg"]["text"] == "Hello from Clt"
+
+        found = store.find_recv(name="clt-ouch", filter={"Dbg": {}})
+        log.info(f"found: {found}")
+        assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
 
 
 if __name__ == "__main__":

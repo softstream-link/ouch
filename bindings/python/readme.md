@@ -16,7 +16,7 @@ micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readm
 import logging
 from time import sleep
 from ouch_connect import CltAuto, SvcAuto
-from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent
+from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent, MemoryStoreCallback
 
 
 
@@ -37,12 +37,12 @@ class SimulatorExample(DecoratorDriver):
     @on_sent({})
     def on_all_sent(self, con_id, msg):
         pass
-
-log_clbk = LoggerCallback(sent_level=logging.NOTSET)
-sim_clbk = SimulatorExample()
+store = MemoryStoreCallback()
+clt_clbk = LoggerCallback(sent_level=logging.NOTSET) + store
+svc_clbk = SimulatorExample() + store
 with (
-    SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
-    CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
+    SvcAuto(addr, svc_clbk, **dict(name="svc-ouch")) as svc,
+    CltAuto(addr, clt_clbk, **dict(name="clt-ouch")) as clt,
 ):
     assert clt.is_connected() and svc.is_connected()
 
@@ -51,7 +51,15 @@ with (
 
     clt.send({"Dbg": {"text": "Hello from Clt"}})
 
-    sleep(0.5)
-    log.info("********** awaiting receipt of Dbg messages **********")
+    found = store.find_recv(name="svc-ouch", filter={"Dbg":{}})
+    assert found is not None and found.msg["Dbg"]["text"] == "Hello from Clt"
+    log.info(f"found: {found}")
+
+    found = store.find_recv(name="clt-ouch", filter={"Dbg":{}})
+    assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
+    log.info(f"found: {found}")
+
+    # sleep(0.5)
+    # log.info("********** awaiting receipt of Dbg messages **********")
 
 ```
