@@ -59,7 +59,5 @@ with (
     assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
     log.info(f"found: {found}")
 
-    # sleep(0.5)
-    # log.info("********** awaiting receipt of Dbg messages **********")
 
 ```
