@@ -52,7 +52,7 @@ text-diff = "0.4"
 # benches
 criterion = { version = "0.5" }
 
-[patch.crates-io]
-links_core = { path = "../links/core" }
-links_nonblocking = { path = "../links/nonblocking" }
-links_bindings_python = { path = "../links/bindings/python" }
+# [patch.crates-io]
+# links_core = { path = "../links/core" }
+# links_nonblocking = { path = "../links/nonblocking" }
+# links_bindings_python = { path = "../links/bindings/python" }
