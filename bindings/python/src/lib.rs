@@ -22,7 +22,7 @@ fn ouch_connect(_py: Python, m: &PyModule) -> PyResult<()> {
     register_atexit()?;
     // IMPORTANT - py03 logger can cause background threads to block or deadlock as they need to acquire the GIL to log messages in python.
     // IMPORTANT - py03_log::init() will enable all logging including debug to be passed to python, even if PYTHON only logs INFO.
-    // hence being conservative and only allowing WARN & above to be logged in release mode
+    // hence being conservative and only allowing INFO & above to be logged in release mode
     // https://docs.rs/pyo3-log/latest/pyo3_log/ LOGGING WILL DEAD LOCK PYTHON
     #[cfg(debug_assertions)]
     {
@@ -35,7 +35,7 @@ fn ouch_connect(_py: Python, m: &PyModule) -> PyResult<()> {
     #[cfg(not(debug_assertions))]
     {
         use pyo3_log::{Caching, Logger};
-        Logger::new(_py, Caching::LoggersAndLevels)?.filter(log::LevelFilter::Warn).install().expect("Someone installed a logger before us :-(");
+        Logger::new(_py, Caching::LoggersAndLevels)?.filter(log::LevelFilter::Info).install().expect("Someone installed a logger before us :-(");
     }
 
     m.add_class::<ConId>()?;
