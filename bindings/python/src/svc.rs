@@ -47,7 +47,15 @@ impl SvcManual {
             let svc_callback = SvcOuchProtocolManualCallback::new_ref(callback.clone());
             let protocol = SvcOuchProtocolManual::default();
             let sender = _py.allow_threads(move || SvcOuch::bind(host, config.max_connections, svc_callback, protocol, Some(&config.name)))?.into_sender_with_spawned_recver();
-            Py::new(_py, Self { sender, io_timeout: Some(config.io_timeout) })?
+            let con_id = sender.con_id().clone();
+            Py::new(
+                _py,
+                Self {
+                    sender: Some(sender),
+                    con_id,
+                    io_timeout: Some(config.io_timeout),
+                },
+            )?
         };
         patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("SvcManual", Self));
 
@@ -134,7 +142,15 @@ impl SvcAuto {
                 Duration::from_secs_f64(config.svc_max_hbeat_interval),
             );
             let sender = _py.allow_threads(move || SvcOuch::bind(host, config.max_connections, callback, protocol, Some(&config.name)))?.into_sender_with_spawned_recver_ref();
-            Py::new(_py, Self { sender, io_timeout: Some(config.io_timeout) })?
+            let con_id = sender.con_id().clone();
+            Py::new(
+                _py,
+                Self {
+                    sender: Some(sender),
+                    con_id,
+                    io_timeout: Some(config.io_timeout),
+                },
+            )?
         };
         patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("SvcAuto", Self));
         Ok(sender)

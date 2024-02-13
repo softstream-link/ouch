@@ -27,24 +27,29 @@ def test_ouch_auto_connect():
     store = MemoryStoreCallback()
     sim_clbk = SimulatorExample() + store
     log_clbk = LoggerCallback(logging.INFO, logging.DEBUG) + store
-    with (
-        SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
-        CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
-    ):
-        assert clt.is_connected() and svc.is_connected()
+    for i in range(1, 6):
+        log.info(f"{'*'*60} Start {i} {'*'*60}")
+        with (
+            SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
+            CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
+        ):
+            assert clt.is_connected() and svc.is_connected()
 
-        log.info(f"svc: {svc}")
-        log.info(f"clt: {clt}")
+            log.info(f"svc: {svc}")
+            log.info(f"clt: {clt}")
 
-        clt.send({"Dbg": {"text": "Hello from Clt"}})
+            clt.send({"Dbg": {"text": "Hello from Clt"}})
 
-        found = store.find_recv(name="svc-ouch", filter={"Dbg": {}})
-        log.info(f"found: {found}")
-        assert found is not None and found.msg["Dbg"]["text"] == "Hello from Clt"
+            found = store.find_recv(name="svc-ouch", filter={"Dbg": {}})
+            log.info(f"found: {found}")
+            assert found is not None and found.msg["Dbg"]["text"] == "Hello from Clt"
 
-        found = store.find_recv(name="clt-ouch", filter={"Dbg": {}})
-        log.info(f"found: {found}")
-        assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
+            found = store.find_recv(name="clt-ouch", filter={"Dbg": {}})
+            log.info(f"found: {found}")
+            assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
+
+            # svc.__exit__(None, None, None)
+        sleep(0.1)
 
 
 if __name__ == "__main__":

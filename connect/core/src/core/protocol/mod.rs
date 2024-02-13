@@ -61,8 +61,8 @@ impl ProtocolCore for SvcOuchProtocolAuto {
         self.inner.on_connect(con)
     }
     #[inline(always)]
-    fn on_disconnect(&self) -> Option<(std::time::Duration, <Self as Messenger>::SendT)> {
-        self.inner.on_disconnect()
+    fn on_disconnect<C: SendNonBlocking<<Self as Messenger>::SendT> + ReSendNonBlocking<<Self as Messenger>::SendT> + ConnectionId>(&self, con: &mut C) -> Result<(), Error> {
+        self.inner.on_disconnect(con)
     }
     #[inline(always)]
     fn on_error<I: ConnectionId>(&self, who: &I, msg: &<Self as Messenger>::SendT, e: &std::io::Error) {

@@ -67,7 +67,15 @@ impl CltManual {
                     )
                 })?
                 .into_sender_with_spawned_recver();
-            Py::new(_py, Self { sender, io_timeout: Some(config.io_timeout) })?
+            let con_id = sender.con_id().clone();
+            Py::new(
+                _py,
+                Self {
+                    sender: Some(sender),
+                    con_id,
+                    io_timeout: Some(config.io_timeout),
+                },
+            )?
         };
         patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("CltManual", Self));
         Ok(sender)
@@ -171,7 +179,15 @@ impl CltAuto {
                     )
                 })?
                 .into_sender_with_spawned_recver_ref();
-            Py::new(_py, Self { sender, io_timeout: Some(config.io_timeout) })?
+            let con_id = sender.con_id().clone();
+            Py::new(
+                _py,
+                Self {
+                    sender: Some(sender),
+                    con_id,
+                    io_timeout: Some(config.io_timeout),
+                },
+            )?
         };
 
         patch_callback_if_settable_sender!(_py, sender, callback, asserted_short_name!("CltAuto", Self));
