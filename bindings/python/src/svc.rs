@@ -51,7 +51,7 @@ impl SvcManual {
             Py::new(
                 _py,
                 Self {
-                    sender: Some(sender),
+                    sender: Some(sender).into(),
                     con_id,
                     io_timeout: Some(config.io_timeout),
                 },
@@ -146,7 +146,7 @@ impl SvcAuto {
             Py::new(
                 _py,
                 Self {
-                    sender: Some(sender),
+                    sender: Some(sender).into(),
                     con_id,
                     io_timeout: Some(config.io_timeout),
                 },

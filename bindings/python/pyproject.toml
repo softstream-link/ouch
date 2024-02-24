@@ -11,10 +11,17 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
-dependencies = ["links_connect>=1.1"]
+
+[project.optional-dependencies]
+test = ["links_connect", "pytest"]
 
 [tool.maturin]
-features = ["pyo3/extension-module", "pyo3/abi3", "pyo3/abi3-py310", "pyo3/multiple-pymethods"]
+features = [
+    "pyo3/extension-module",
+    "pyo3/abi3",
+    "pyo3/abi3-py310",
+    "pyo3/multiple-pymethods",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

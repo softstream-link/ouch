@@ -13,13 +13,13 @@ cargo clippy --all-features -- --deny warnings
 * `ouch_bindings_python` will use `micromamba` env which has `python, maturin, pytest`
 ```shell
 if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
-micromamba create --name ouch_build_env --yes python maturin pytest &&
+micromamba create --name ouch_build_env --yes maturin &&
 micromamba run --name ouch_build_env cargo nextest run --all-features &&
 micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
 micromamba run --name ouch_build_env cargo test --doc --all-features &&
 micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
 micromamba run --name ouch_build_env cargo doc --all-features &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop --extras test &&
 micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
 

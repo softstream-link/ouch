@@ -71,7 +71,7 @@ impl CltManual {
             Py::new(
                 _py,
                 Self {
-                    sender: Some(sender),
+                    sender: Some(sender).into(),
                     con_id,
                     io_timeout: Some(config.io_timeout),
                 },
@@ -183,7 +183,7 @@ impl CltAuto {
             Py::new(
                 _py,
                 Self {
-                    sender: Some(sender),
+                    sender: Some(sender).into(),
                     con_id,
                     io_timeout: Some(config.io_timeout),
                 },
