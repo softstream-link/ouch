@@ -13,7 +13,7 @@ classifiers = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = ["links_connect", "pytest"]
+test = ["links_connect", "pytest", "markdown-code-runner"]
 
 [tool.maturin]
 features = [

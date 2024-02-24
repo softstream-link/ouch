@@ -3,11 +3,9 @@ This package is python extension module for rust crate [ouch_connect_nonblocking
 ## Installation
 
 ```shell
-if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD="." ; fi
-cd ${CWD}
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD="." ; fi ; cd ${CWD}
 micromamba create --name ouch_pypi_env --yes python
-micromamba run --name ouch_pypi_env pip install ouch-connect links-connect
-micromamba run --name ouch_pypi_env pip install markdown-code-runner
+micromamba run --name ouch_pypi_env pip install "ouch-connect[test]"
 micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readme.md
 ```
 
@@ -37,6 +35,7 @@ class SimulatorExample(DecoratorDriver):
     @on_sent({})
     def on_all_sent(self, con_id, msg):
         pass
+
 store = MemoryStoreCallback()
 clt_clbk = LoggerCallback(sent_level=logging.NOTSET) + store
 svc_clbk = SimulatorExample() + store
@@ -58,6 +57,4 @@ with (
     found = store.find_recv(name="clt-ouch", filter={"Dbg":{}})
     assert found is not None and found.msg["Dbg"]["text"] == "Hello from Simulator"
     log.info(f"found: {found}")
-
-
 ```
