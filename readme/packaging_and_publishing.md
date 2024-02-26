@@ -1,6 +1,7 @@
 # Local build & test rust only
 * `ouch_bindings_python` **REQUIRES** system python in order to compile  
 ```shell
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
 cargo nextest run --all-features &&
 cargo nextest run --examples --all-features &&
 cargo test --doc --all-features &&
@@ -11,38 +12,43 @@ cargo clippy --all-features -- --deny warnings
 # Local build & test rust & python extension
 * `ouch_bindings_python` will use `micromamba` env which has `python, maturin, pytest`
 ```shell
-micromamba create --name ouch_build_env --yes python maturin pytest &&
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
+micromamba create --name ouch_build_env --yes maturin &&
 micromamba run --name ouch_build_env cargo nextest run --all-features &&
 micromamba run --name ouch_build_env cargo nextest run --examples --all-features && 
 micromamba run --name ouch_build_env cargo test --doc --all-features &&
 micromamba run --name ouch_build_env cargo clippy --all-features -- --deny warnings &&
 micromamba run --name ouch_build_env cargo doc --all-features &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin develop --extras test &&
 micromamba run --name ouch_build_env --cwd ./bindings/python pytest
 ```
 
 # Regenerate `ouch_connect.pyi` file
-```shell    
-micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect pip install cogapp
-micromamba run --name ouch_build_env --cwd ./bindings/python/ouch_connect cog -r ouch_connect.pyi
+```shell
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
+micromamba run --name ouch_build_env pip install cogapp
+micromamba run --name ouch_build_env cog -r ./bindings/python/ouch_connect/ouch_connect.pyi
 ```
 
-# Testing python extension
-* test with minimum python version `3.10`
+# Testing release python extension
+* test with minimum python version `3.11`
 * NOTE: must have `ouch_build_env` already created from prior step
 ```shell
-micromamba create --name ouch_test_env --yes python=3.10 &&
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
+micromamba create --name ouch_test_env --yes python=3.11 pytest &&
 (rm -f ./target/wheels/*.whl || true) &&
-micromamba run --name ouch_build_env --cwd ./bindings/python maturin build &&
+micromamba run --name ouch_build_env --cwd ./bindings/python maturin build --release &&
 micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
-for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_test_env  python $py ; done
+micromamba run --name ouch_test_env  --cwd ./bindings/python pytest
 ```
+
 
 # Testing pypi wheel
 ```shell
-micromamba create --name ouch_pypi_env --yes python=3.10
-micromamba run --name ouch_pypi_env pip install ouch-connect
-for py in `ls ./bindings/python/tests/*.py` ; do echo "************* $py **************"; micromamba run --name ouch_pypi_env  python $py ; done
+if [ -d ./ouch_connect ] ; then PREFIX="./../.." ; else PREFIX="." fi
+micromamba create --name ouch_pypi_env --yes python=3.11
+micromamba run --name ouch_pypi_env  --cwd ${PREFIX}/bindings/python pip install ouch-connect
+micromamba run --name ouch_pypi_env  --cwd ${PREFIX}/bindings/python pytest
 ```
 
 # Expand Model

@@ -1,66 +1,63 @@
 import logging
 from time import sleep
+from random import randint
+from ouch_connect import CltAuto, SvcAuto
+from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent, MemoryStoreCallback
 
-from ouch_connect import CltAuto, SvcAuto, LoggerCallback
-
-
-logging.basicConfig(format="%(levelname)s  %(asctime)-15s %(threadName)s %(name)s %(filename)s:%(lineno)d %(message)s")
-logging.getLogger().setLevel(logging.INFO)
 log = logging.getLogger(__name__)
 
 
-callback = LoggerCallback(logging.NOTSET)
-addr = "127.0.0.1:8081"
-usr = "dummy"
-pwd = "dummy"
-session = ""
-sequence = 0
-clt_max_hbeat_interval = 2.5
-svc_max_hbeat_interval = 2.5
-max_connections = 1
-connect_timeout = 1.0
-io_timeout = 0.5
+addr = f"127.0.0.1:{randint(2_000, 65_000)}"
 
 
 def test_ouch_auto_connect():
-    with (
-        SvcAuto(
-            addr,
-            callback,
-            usr,
-            pwd,
-            session,
-            clt_max_hbeat_interval,
-            svc_max_hbeat_interval,
-            max_connections,
-            io_timeout,
-            name="svc-ouch",
-        ) as svc,
-        CltAuto(
-            addr,
-            callback,
-            usr,
-            pwd,
-            session,
-            sequence,
-            clt_max_hbeat_interval,
-            svc_max_hbeat_interval,
-            connect_timeout,
-            io_timeout,
-            name="clt-ouch",
-        ) as clt,
-    ):
-        assert clt.is_connected() and svc.is_connected()
+    class SimulatorExample(DecoratorDriver):
+        @on_recv({"Dbg": {}})
+        def on_dbg(self, con_id, msg):
+            i = msg["Dbg"]["text"].split("#")[1]
+            self.sender.send({"Dbg": {"text": f"Hello from Simulator #{i}"}})
 
-        log.info(f"svc: {svc}")
-        log.info(f"clt: {clt}")
+        @on_recv({})
+        def on_all_recv(self, con_id, msg):
+            pass
 
-        clt.send({"Dbg": {"text": "Hello from Clt"}})
-        svc.send({"Dbg": {"text": "Hello from Svc"}})
+        @on_sent({})
+        def on_all_sent(self, con_id, msg):
+            pass
 
-        sleep(0.5)
-        log.info("********** awaiting receipt of Dbg messages **********")
+    store = MemoryStoreCallback(default_find_timeout=0.2)
+    sim_clbk = SimulatorExample() + store
+    log_clbk = LoggerCallback(logging.INFO, logging.DEBUG) + store
+    for i in range(1, 6):
+        log.info(f"{'*'*60} Start {i} {'*'*60}")
+        store.clear()
+        assert len(store) == 0
+
+        with (
+            SvcAuto(addr, sim_clbk, **dict(name="svc-ouch")) as svc,
+            CltAuto(addr, log_clbk, **dict(name="clt-ouch")) as clt,
+        ):
+            assert clt.is_connected() and svc.is_connected()
+
+            log.info(f"svc: {svc}")
+            log.info(f"clt: {clt}")
+
+            clt.send({"Dbg": {"text": f"Hello from Clt #{i}"}})
+
+            found = store.find_recv(name="svc-ouch", filter={"Dbg": {}})
+            log.info(f"found: {found}")
+            assert found is not None and "Hello from Clt" in found.msg["Dbg"]["text"]
+
+            found = store.find_recv(name="clt-ouch", filter={"Dbg": {}})
+            log.info(f"found: {found}")
+            assert found is not None and "Hello from Simulator" in found.msg["Dbg"]["text"]
+
+            log.info(f"{store}")
+
+        sleep(0.1)  # OSError: Address already in use (os error 48)
 
 
 if __name__ == "__main__":
-    test_ouch_auto_connect()
+    import pytest
+
+    pytest.main([__file__])
