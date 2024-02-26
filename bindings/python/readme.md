@@ -4,8 +4,8 @@ This package is python extension module for rust crate [ouch_connect_nonblocking
 * `pytest` expects `ouch_connect` source to be checked out from github. Test files are located in `./bindings/python/tests` directory.
 
 ```shell
-micromamba create --name ouch_pypi_env --yes python
-micromamba run --name ouch_pypi_env pip install "ouch-connect[test]>=5.0.0,<5.1.0"
+micromamba create --name ouch_pypi_env --yes python &&
+micromamba run --name ouch_pypi_env pip install "ouch-connect[test]>=5.0,<5.1" &&
 micromamba run --name ouch_pypi_env pytest
 ```
 
