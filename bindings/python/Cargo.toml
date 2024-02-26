@@ -10,6 +10,8 @@ repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+description = "Python bindings for the OUCH protocol"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 # this is the name of python module (i.e. import ouch_connect) remember to change it in pyproject.toml, #[pymodule]/lib.rs, and here
