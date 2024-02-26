@@ -35,10 +35,10 @@ micromamba run --name ouch_build_env cog -r ./bindings/python/ouch_connect/ouch_
 * NOTE: must have `ouch_build_env` already created from prior step
 ```shell
 if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
-micromamba create --name ouch_test_env --yes python=3.11 pytest &&
+micromamba create --name ouch_test_env --yes python=3.11 &&
 (rm -f ./target/wheels/*.whl || true) &&
 micromamba run --name ouch_build_env --cwd ./bindings/python maturin build --release &&
-micromamba run --name ouch_test_env  pip install --ignore-installed ./target/wheels/*.whl &&
+micromamba run --name ouch_test_env  pip install --ignore-installed "$(ls ./target/wheels/*.whl)[test]" &&
 micromamba run --name ouch_test_env  --cwd ./bindings/python pytest
 ```
 
