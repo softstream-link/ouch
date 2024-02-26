@@ -4,7 +4,7 @@ members = ["model", "connect/core", "connect/nonblocking", "bindings/python"]
 resolver = "2"
 
 [workspace.package]
-version = "5.0.1-rc.7"
+version = "5.0.1"
 authors = ["Softstream <softstream.link@gmail.com>"]
 readme = "readme.md"
 license-file = "LICENSE"
@@ -37,10 +37,10 @@ soupbintcp_model = { version = "~4.0" }               # used only by ouch_model 
 soupbintcp_connect_nonblocking = { version = "~4.0" } # used only by ouch_connect_core ~ required to avoid updating to 4.1 which is not compatible
 
 # used only by ouch_connect_nonblocking
-ouch_model = { version = "~5.0.1-rc.7", path = "./model" }
-ouch_connect_core = { version = "~5.0.1-rc.7", path = "./connect/core" }
-ouch_connect_nonblocking = { version = "~5.0.1-rc.7", path = "./connect/nonblocking" }
-ouch_bindings_python = { version = "~5.0.1-rc.7", path = "./bindings/python" }
+ouch_model = { version = "~5.0.1", path = "./model" }
+ouch_connect_core = { version = "~5.0.1", path = "./connect/core" }
+ouch_connect_nonblocking = { version = "~5.0.1", path = "./connect/nonblocking" }
+ouch_bindings_python = { version = "~5.0.1", path = "./bindings/python" }
 
 # used by nonblocking_python
 lazy_static = { version = "1.4" }
