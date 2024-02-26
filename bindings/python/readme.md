@@ -1,21 +1,22 @@
 This package is python extension module for rust crate [ouch_connect_nonblocking](./../../connect/nonblocking/readme.md)
 
-## Installation
+## Installation & Test
 
 ```shell
-if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD="." ; fi ; cd ${CWD}
+export INDEX_URL="https://pypi.org/simple" # or "https://test.pypi.org/simple/"
 micromamba create --name ouch_pypi_env --yes python
-micromamba run --name ouch_pypi_env pip install "ouch-connect[test]"
-micromamba run --name ouch_pypi_env markdown-code-runner ./bindings/python/readme.md
+micromamba run --name ouch_pypi_env pip install --index-url ${INDEX_URL} "ouch-connect[test]==5.0"
+if [ -d ./ouch_connect ] ; then CWD="./../.." ; else CWD=".";  fi echo ${CWD}; cd ${CWD}
+micromamba run --name ouch_pypi_env pytest"
 ```
 
-## Usage
-```python markdown-code-runner
+
+## Basic Usage Example
+```python
 import logging
 from time import sleep
 from ouch_connect import CltAuto, SvcAuto
 from links_connect.callbacks import LoggerCallback, DecoratorDriver, on_recv, on_sent, MemoryStoreCallback
-
 
 
 logging.basicConfig(format="%(asctime)-15s [%(threadName)10s|%(levelname)8s] %(message)s \t%(filename)s:%(lineno)d")

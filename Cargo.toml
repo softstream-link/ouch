@@ -4,13 +4,13 @@ members = ["model", "connect/core", "connect/nonblocking", "bindings/python"]
 resolver = "2"
 
 [workspace.package]
-version = "5.0.1-rc.5"
+version = "5.0.1-rc.6"
 authors = ["Softstream <softstream.link@gmail.com>"]
 readme = "readme.md"
 license-file = "LICENSE"
 edition = "2021"
 rust-version = "1.69"
-repository = "https://github.com/softstream-link/soupbintcp"
+repository = "https://github.com/softstream-link/ouch"
 keywords = ["exchange", "protocol"]
 categories = ["API bindings"]
 
@@ -37,10 +37,10 @@ soupbintcp_model = { version = "~4.0" }               # used only by ouch_model 
 soupbintcp_connect_nonblocking = { version = "~4.0" } # used only by ouch_connect_core ~ required to avoid updating to 4.1 which is not compatible
 
 # used only by ouch_connect_nonblocking
-ouch_model = { version = "~5.0.1-rc.5", path = "./model" }
-ouch_connect_core = { version = "~5.0.1-rc.5", path = "./connect/core" }
-ouch_connect_nonblocking = { version = "~5.0.1-rc.5", path = "./connect/nonblocking" }
-ouch_bindings_python = { version = "~5.0.1-rc.5", path = "./bindings/python" }
+ouch_model = { version = "~5.0.1-rc.6", path = "./model" }
+ouch_connect_core = { version = "~5.0.1-rc.6", path = "./connect/core" }
+ouch_connect_nonblocking = { version = "~5.0.1-rc.6", path = "./connect/nonblocking" }
+ouch_bindings_python = { version = "~5.0.1-rc.6", path = "./bindings/python" }
 
 # used by nonblocking_python
 lazy_static = { version = "1.4" }
